@@ -6,6 +6,7 @@ import { Appointment, AppointmentStatus } from '../../core/models/appointment.mo
 import { AppointmentsApi } from '../../core/services/appointments-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 import { StateCard } from '../../shared/components/state-card/state-card';
+import { ConfirmDialog } from '../../shared/services/confirm-dialog';
 
 @Component({
   selector: 'app-appointments',
@@ -15,6 +16,7 @@ import { StateCard } from '../../shared/components/state-card/state-card';
 })
 export class Appointments implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApi);
+  private readonly confirmDialog = inject(ConfirmDialog);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly appointments = signal<Appointment[]>([]);
@@ -88,6 +90,13 @@ export class Appointments implements OnInit {
     }
 
     const nextStatus = appointment.status === 'confirmed' ? 'completed' : 'confirmed';
+    const confirmed = this.confirmDialog.confirm(
+      `Confirmer le changement de statut du rendez-vous "${appointment.title}" ?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
 
     this.pendingAppointmentId.set(appointment.id);
     this.appointmentsApi.updateStatus(appointment.id, nextStatus).subscribe({
@@ -108,6 +117,14 @@ export class Appointments implements OnInit {
 
   protected deleteAppointment(appointment: Appointment): void {
     if (this.pendingAppointmentId()) {
+      return;
+    }
+
+    const confirmed = this.confirmDialog.confirm(
+      `Supprimer définitivement le rendez-vous "${appointment.title}" ?`,
+    );
+
+    if (!confirmed) {
       return;
     }
 

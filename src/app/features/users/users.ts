@@ -6,6 +6,7 @@ import { Auth } from '../../core/services/auth';
 import { UsersApi } from '../../core/services/users-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 import { StateCard } from '../../shared/components/state-card/state-card';
+import { ConfirmDialog } from '../../shared/services/confirm-dialog';
 
 @Component({
   selector: 'app-users',
@@ -15,6 +16,7 @@ import { StateCard } from '../../shared/components/state-card/state-card';
 })
 export class Users implements OnInit {
   private readonly auth = inject(Auth);
+  private readonly confirmDialog = inject(ConfirmDialog);
   private readonly usersApi = inject(UsersApi);
 
   protected readonly users = signal<AppUser[]>([]);
@@ -52,6 +54,13 @@ export class Users implements OnInit {
 
   protected toggleUserStatus(user: AppUser): void {
     if (!this.canManageUsers() || this.isCurrentUser(user)) {
+      return;
+    }
+
+    const actionLabel = user.isActive ? 'désactiver' : 'activer';
+    const confirmed = this.confirmDialog.confirm(`Veux-tu vraiment ${actionLabel} le compte ${user.email} ?`);
+
+    if (!confirmed) {
       return;
     }
 
