@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://ton-backend-render.example.com/api',
+  apiUrl: 'https://appointment-backend-vab1.onrender.com/api',
 };
