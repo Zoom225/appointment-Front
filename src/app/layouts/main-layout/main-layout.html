@@ -12,7 +12,13 @@
 
   <main class="content">
     <header class="topbar">
-      <span>Frontend Rendez-vous</span>
+      <div>
+        <span>Frontend Rendez-vous</span>
+        @if (auth.user(); as currentUser) {
+          <p>{{ currentUser.firstName || currentUser.email }} · {{ currentUser.roles.join(', ') }}</p>
+        }
+      </div>
+
       <button type="button" (click)="auth.logout()">Déconnexion</button>
     </header>
 

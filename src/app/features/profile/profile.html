@@ -21,8 +21,8 @@
       <dd>{{ currentUser.lastName || 'Non renseigné' }}</dd>
     </div>
     <div>
-      <dt>Rôle</dt>
-      <dd>{{ currentUser.role || 'Non renseigné' }}</dd>
+      <dt>Rôles</dt>
+      <dd>{{ currentUser.roles.length ? currentUser.roles.join(', ') : 'Non renseigné' }}</dd>
     </div>
   </dl>
 }

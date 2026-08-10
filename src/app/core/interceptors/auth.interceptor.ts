@@ -6,6 +6,7 @@ import { Auth } from '../services/auth';
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(Auth);
   const token = auth.getAccessToken();
+  const isLoginRequest = request.url.endsWith('/auth/login');
 
   if (!token) {
     return next(request);
@@ -19,7 +20,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     }),
   ).pipe(
     catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && error.status === 401) {
+      if (error instanceof HttpErrorResponse && [401, 403].includes(error.status) && !isLoginRequest) {
         auth.logout();
       }
 
