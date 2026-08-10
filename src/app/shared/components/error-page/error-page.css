@@ -1,4 +1,4 @@
-.forbidden-card {
+.error-card {
   background: #fff;
   border: 1px solid #e4e7ec;
   border-radius: 18px;
@@ -6,12 +6,12 @@
   padding: 24px;
 }
 
-.forbidden-card p {
+.error-card p {
   color: #475467;
   margin: 0 0 20px;
 }
 
-.forbidden-card a {
+.error-card a {
   background: #155eef;
   border-radius: 10px;
   color: #fff;

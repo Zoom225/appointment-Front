@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { PageHeader } from '../../shared/components/page-header/page-header';
+import { ErrorPage } from '../../shared/components/error-page/error-page';
 
 @Component({
   selector: 'app-not-found',
-  imports: [PageHeader, RouterLink],
+  imports: [ErrorPage],
   templateUrl: './not-found.html',
-  styleUrl: './not-found.css',
 })
 export class NotFound {}
