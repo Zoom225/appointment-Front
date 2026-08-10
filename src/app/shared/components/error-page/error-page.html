@@ -1,0 +1,7 @@
+<app-page-header [eyebrow]="eyebrow()" [title]="title()" />
+
+<section class="error-card">
+  <p>{{ description() }}</p>
+
+  <a [routerLink]="linkTo()">{{ linkLabel() }}</a>
+</section>

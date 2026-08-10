@@ -1,59 +1,86 @@
-# FrontendRendezVous
+# Frontend Rendez-vous
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Frontend Angular pour l’application de gestion de rendez-vous.
 
-## Development server
+## Stack
 
-To start a local development server, run:
+- Angular 22
+- Standalone Components
+- Signals
+- Guards
+- HTTP Interceptors
+- Reactive Forms
+- Backend Render : `https://appointment-backend-vab1.onrender.com/api`
 
-```bash
-ng serve
-```
+## Prérequis
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Angular CLI 22 exige une version Node compatible :
 
 ```bash
-ng generate --help
+node >=24.15.0 <25
+npm >=11 <12
 ```
 
-## Building
+La version locale `v24.13.0` ne suffit pas pour lancer `ng build`.
 
-To build the project run:
+## Installation
 
 ```bash
-ng build
+npm ci
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Développement local
 
 ```bash
-ng test
+npm start
 ```
 
-## Running end-to-end tests
+Application locale :
 
-For end-to-end (e2e) testing, run:
+```text
+http://localhost:4200
+```
+
+## Vérifications
 
 ```bash
-ng e2e
+npm run typecheck
+npm run typecheck:spec
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Build production
 
-## Additional Resources
+```bash
+npm run build:production
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Sortie attendue pour Vercel :
+
+```text
+dist/frontend-rendez-vous/browser
+```
+
+## Déploiement Vercel
+
+Configuration présente dans `vercel.json` :
+
+- installation : `npm ci`
+- build : `npm run build:production`
+- output : `dist/frontend-rendez-vous/browser`
+- rewrite SPA vers `index.html`
+
+## Configuration API
+
+Les URLs API sont centralisées dans :
+
+```text
+src/environments/environment.ts
+src/environments/environment.prod.ts
+src/app/core/api/api-endpoints.ts
+```
+
+URL production actuelle :
+
+```text
+https://appointment-backend-vab1.onrender.com/api
+```

@@ -8,6 +8,23 @@
 } @else if (users().length === 0) {
   <app-state-card title="Aucun utilisateur" description="Les utilisateurs apparaîtront ici." />
 } @else {
+  <div class="toolbar">
+    <label>
+      Rechercher
+      <input
+        type="search"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+        placeholder="Email, nom ou rôle"
+      />
+    </label>
+
+    <span>{{ filteredUsers().length }} utilisateur(s)</span>
+  </div>
+
+  @if (filteredUsers().length === 0) {
+    <app-state-card title="Aucun résultat" description="Aucun utilisateur ne correspond à cette recherche." />
+  } @else {
   <div class="table-wrapper">
     <table>
       <thead>
@@ -20,7 +37,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of users(); track user.id) {
+        @for (user of filteredUsers(); track user.id) {
           <tr>
             <td>{{ user.email }}</td>
             <td>{{ user.firstName || '—' }} {{ user.lastName || '' }}</td>
@@ -33,8 +50,9 @@
             <td>
               <button
                 type="button"
-                [disabled]="pendingUserId() === user.id"
+                [disabled]="pendingUserId() === user.id || isCurrentUser(user) || !canManageUsers()"
                 (click)="toggleUserStatus(user)"
+                [title]="isCurrentUser(user) ? 'Tu ne peux pas désactiver ton propre compte.' : ''"
               >
                 {{ user.isActive ? 'Désactiver' : 'Activer' }}
               </button>
@@ -44,5 +62,6 @@
       </tbody>
     </table>
   </div>
+  }
 }
 </section>

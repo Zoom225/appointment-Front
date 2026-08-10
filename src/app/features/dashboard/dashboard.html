@@ -1,9 +1,5 @@
 <app-page-header eyebrow="Vue globale" title="Tableau de bord" />
 
-@if (forbiddenMessage()) {
-  <p class="notice">{{ forbiddenMessage() }}</p>
-}
-
 @if (isLoading()) {
   <app-state-card title="Chargement" description="Synchronisation avec le backend Render..." />
 } @else if (errorMessage()) {

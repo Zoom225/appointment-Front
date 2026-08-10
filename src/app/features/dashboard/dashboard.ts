@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { getApiErrorMessage } from '../../core/errors/api-error';
 import { Appointment } from '../../core/models/appointment.models';
@@ -19,14 +18,12 @@ import { StateCard } from '../../shared/components/state-card/state-card';
 export class Dashboard implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApi);
   private readonly auth = inject(Auth);
-  private readonly route = inject(ActivatedRoute);
   private readonly usersApi = inject(UsersApi);
 
   protected readonly appointments = signal<Appointment[]>([]);
   protected readonly users = signal<AppUser[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly forbiddenMessage = signal<string | null>(null);
 
   protected readonly canViewUsers = computed(() => this.auth.hasAnyRole(['ADMIN']));
   protected readonly activeUsersCount = computed(() => this.users().filter((user) => user.isActive).length);
@@ -35,12 +32,6 @@ export class Dashboard implements OnInit {
   );
 
   ngOnInit(): void {
-    this.forbiddenMessage.set(
-      this.route.snapshot.queryParamMap.get('forbidden')
-        ? "Tu n'as pas les droits nécessaires pour accéder à cette page."
-        : null,
-    );
-
     forkJoin({
       appointments: this.appointmentsApi.findAll(),
       users: this.canViewUsers() ? this.usersApi.findAll() : of([]),

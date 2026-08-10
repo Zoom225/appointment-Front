@@ -20,3 +20,8 @@ export interface AuthResponse {
   roles: string[];
   token: string;
 }
+
+export interface UpdateProfilePayload {
+  firstName: string;
+  lastName: string;
+}

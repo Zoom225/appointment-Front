@@ -43,6 +43,35 @@
 } @else if (appointments().length === 0) {
       <app-state-card title="Aucun rendez-vous" description="Les rendez-vous créés apparaîtront ici." />
 } @else {
+      <div class="toolbar">
+        <label>
+          Rechercher
+          <input
+            type="search"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Titre, patient ou statut"
+          />
+        </label>
+
+        <label>
+          Statut
+          <select
+            [ngModel]="statusFilter()"
+            (ngModelChange)="statusFilter.set($event)"
+          >
+            @for (statusOption of statusOptions; track statusOption.value) {
+              <option [ngValue]="statusOption.value">{{ statusOption.label }}</option>
+            }
+          </select>
+        </label>
+
+        <span>{{ filteredAppointments().length }} rendez-vous</span>
+      </div>
+
+      @if (filteredAppointments().length === 0) {
+        <app-state-card title="Aucun résultat" description="Aucun rendez-vous ne correspond aux filtres." />
+      } @else {
       <div class="table-wrapper">
         <table>
           <thead>
@@ -56,7 +85,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (appointment of appointments(); track appointment.id) {
+            @for (appointment of filteredAppointments(); track appointment.id) {
               <tr>
                 <td>{{ appointment.title }}</td>
                 <td>{{ appointment.patientName || '—' }}</td>
@@ -69,7 +98,7 @@
                   <button
                     type="button"
                     class="secondary"
-                    [disabled]="pendingAppointmentId() === appointment.id"
+                    [disabled]="pendingAppointmentId() === appointment.id || appointment.status === 'cancelled' || appointment.status === 'completed'"
                     (click)="updateStatus(appointment)"
                   >
                     {{ appointment.status === 'confirmed' ? 'Terminer' : 'Confirmer' }}
@@ -88,6 +117,7 @@
           </tbody>
         </table>
       </div>
+      }
 }
   </section>
 </section>

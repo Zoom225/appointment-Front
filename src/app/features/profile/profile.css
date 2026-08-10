@@ -28,3 +28,58 @@ dd {
   color: #101828;
   margin: 0;
 }
+
+.profile-form {
+  border-top: 1px solid #eaecf0;
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 24px;
+}
+
+.profile-form h2 {
+  color: #101828;
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+label {
+  color: #344054;
+  display: grid;
+  font-weight: 600;
+  gap: 8px;
+}
+
+input {
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font: inherit;
+  max-width: 420px;
+  padding: 11px 13px;
+}
+
+button {
+  background: #155eef;
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  justify-self: start;
+  padding: 12px 14px;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.success {
+  color: #027a48;
+  margin: 0;
+}
+
+.error {
+  color: #b42318;
+  margin: 0;
+}

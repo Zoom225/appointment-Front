@@ -1,4 +1,7 @@
 {
+  "buildCommand": "npm run build:production",
+  "installCommand": "npm ci",
+  "outputDirectory": "dist/frontend-rendez-vous/browser",
   "rewrites": [
     {
       "source": "/(.*)",
