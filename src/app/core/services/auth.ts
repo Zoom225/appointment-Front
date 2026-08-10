@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { API_ENDPOINTS } from '../api/api-endpoints';
+import { AppRole, hasAnyRole } from '../auth/roles';
 import { AuthResponse, LoginCredentials, User } from '../models/auth.models';
 import { TokenStorage } from './token-storage';
 
@@ -16,6 +17,15 @@ export class Auth {
 
   readonly user = this.userSignal.asReadonly();
   readonly isAuthenticated = computed(() => Boolean(this.tokenSignal()));
+  readonly displayName = computed(() => {
+    const user = this.userSignal();
+
+    if (!user) {
+      return '';
+    }
+
+    return [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+  });
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(API_ENDPOINTS.auth.login, credentials).pipe(
@@ -39,15 +49,23 @@ export class Auth {
     );
   }
 
-  logout(): void {
+  logout(options?: { sessionExpired?: boolean }): void {
     this.tokenStorage.clear();
     this.tokenSignal.set(null);
     this.userSignal.set(null);
-    void this.router.navigateByUrl('/login');
+    void this.router.navigate(['/login'], {
+      queryParams: options?.sessionExpired ? { sessionExpired: 'true' } : undefined,
+    });
   }
 
   getAccessToken(): string | null {
     return this.tokenSignal();
+  }
+
+  hasAnyRole(allowedRoles: AppRole[]): boolean {
+    const user = this.userSignal();
+
+    return user ? hasAnyRole(user.roles, allowedRoles) : false;
   }
 
   private mapAuthResponseToUser(response: AuthResponse): User {

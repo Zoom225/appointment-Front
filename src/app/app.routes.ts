@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { MainLayout } from './layouts/main-layout/main-layout';
 
 export const routes: Routes = [
@@ -30,6 +31,8 @@ export const routes: Routes = [
       },
       {
         path: 'users',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
         loadComponent: () => import('./features/users/users').then((m) => m.Users),
       },
       {

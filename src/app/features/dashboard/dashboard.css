@@ -5,6 +5,15 @@
   margin-bottom: 24px;
 }
 
+.notice {
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: 12px;
+  color: #93370d;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+}
+
 .stat-card,
 .dashboard-panel {
   background: #fff;

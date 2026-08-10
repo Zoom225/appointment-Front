@@ -1,9 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
 import { getApiErrorMessage } from '../../core/errors/api-error';
 import { Appointment } from '../../core/models/appointment.models';
 import { AppUser } from '../../core/models/user.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
+import { Auth } from '../../core/services/auth';
 import { UsersApi } from '../../core/services/users-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 import { StateCard } from '../../shared/components/state-card/state-card';
@@ -16,22 +18,32 @@ import { StateCard } from '../../shared/components/state-card/state-card';
 })
 export class Dashboard implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApi);
+  private readonly auth = inject(Auth);
+  private readonly route = inject(ActivatedRoute);
   private readonly usersApi = inject(UsersApi);
 
   protected readonly appointments = signal<Appointment[]>([]);
   protected readonly users = signal<AppUser[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly forbiddenMessage = signal<string | null>(null);
 
+  protected readonly canViewUsers = computed(() => this.auth.hasAnyRole(['ADMIN']));
   protected readonly activeUsersCount = computed(() => this.users().filter((user) => user.isActive).length);
   protected readonly upcomingAppointmentsCount = computed(
     () => this.appointments().filter((appointment) => appointment.status !== 'cancelled').length,
   );
 
   ngOnInit(): void {
+    this.forbiddenMessage.set(
+      this.route.snapshot.queryParamMap.get('forbidden')
+        ? "Tu n'as pas les droits nécessaires pour accéder à cette page."
+        : null,
+    );
+
     forkJoin({
       appointments: this.appointmentsApi.findAll(),
-      users: this.usersApi.findAll(),
+      users: this.canViewUsers() ? this.usersApi.findAll() : of([]),
     }).subscribe({
       next: ({ appointments, users }) => {
         this.appointments.set(appointments);

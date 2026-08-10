@@ -21,7 +21,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   ).pipe(
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && [401, 403].includes(error.status) && !isLoginRequest) {
-        auth.logout();
+        auth.logout({ sessionExpired: true });
       }
 
       return throwError(() => error);
