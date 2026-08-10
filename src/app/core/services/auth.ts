@@ -62,6 +62,11 @@ export class Auth {
     return this.tokenSignal();
   }
 
+  updateCurrentUser(user: User): void {
+    this.tokenStorage.setUser(user);
+    this.userSignal.set(user);
+  }
+
   hasAnyRole(allowedRoles: AppRole[]): boolean {
     const user = this.userSignal();
 

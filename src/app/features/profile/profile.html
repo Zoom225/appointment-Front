@@ -13,17 +13,39 @@
 
   <dl>
     <div>
-      <dt>Prénom</dt>
-      <dd>{{ currentUser.firstName || 'Non renseigné' }}</dd>
-    </div>
-    <div>
-      <dt>Nom</dt>
-      <dd>{{ currentUser.lastName || 'Non renseigné' }}</dd>
+      <dt>Email</dt>
+      <dd>{{ currentUser.email }}</dd>
     </div>
     <div>
       <dt>Rôles</dt>
       <dd>{{ currentUser.roles.length ? currentUser.roles.join(', ') : 'Non renseigné' }}</dd>
     </div>
   </dl>
+
+  <form class="profile-form" [formGroup]="form" (ngSubmit)="saveProfile()">
+    <h2>Modifier mes informations</h2>
+
+    <label>
+      Prénom
+      <input type="text" formControlName="firstName" autocomplete="given-name" />
+    </label>
+
+    <label>
+      Nom
+      <input type="text" formControlName="lastName" autocomplete="family-name" />
+    </label>
+
+    @if (successMessage()) {
+      <p class="success">{{ successMessage() }}</p>
+    }
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit" [disabled]="isSaving()">
+      {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
+    </button>
+  </form>
 }
 </section>
