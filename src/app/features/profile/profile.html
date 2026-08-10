@@ -1,5 +1,6 @@
 <app-page-header eyebrow="Compte" title="Profil" />
 
+<section class="profile-panel">
 @if (isLoading()) {
   <app-state-card title="Chargement" description="Récupération du profil..." />
 } @else if (errorMessage()) {
@@ -9,4 +10,20 @@
     title="Informations du compte"
     [description]="currentUser.email"
   />
+
+  <dl>
+    <div>
+      <dt>Prénom</dt>
+      <dd>{{ currentUser.firstName || 'Non renseigné' }}</dd>
+    </div>
+    <div>
+      <dt>Nom</dt>
+      <dd>{{ currentUser.lastName || 'Non renseigné' }}</dd>
+    </div>
+    <div>
+      <dt>Rôle</dt>
+      <dd>{{ currentUser.role || 'Non renseigné' }}</dd>
+    </div>
+  </dl>
 }
+</section>

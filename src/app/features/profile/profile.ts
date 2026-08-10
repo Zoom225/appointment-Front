@@ -8,6 +8,7 @@ import { StateCard } from '../../shared/components/state-card/state-card';
   selector: 'app-profile',
   imports: [PageHeader, StateCard],
   templateUrl: './profile.html',
+  styleUrl: './profile.css',
 })
 export class Profile implements OnInit {
   private readonly profileApi = inject(ProfileApi);

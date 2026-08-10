@@ -1,0 +1,30 @@
+.profile-panel {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  padding: 22px;
+}
+
+dl {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0 0;
+}
+
+dl div {
+  border-top: 1px solid #eaecf0;
+  display: grid;
+  gap: 4px;
+  padding-top: 14px;
+}
+
+dt {
+  color: #667085;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+dd {
+  color: #101828;
+  margin: 0;
+}

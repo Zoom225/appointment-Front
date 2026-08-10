@@ -1,5 +1,6 @@
 <app-page-header eyebrow="Administration" title="Gestion des utilisateurs" />
 
+<section class="panel">
 @if (isLoading()) {
   <app-state-card title="Chargement" description="Récupération des utilisateurs..." />
 } @else if (errorMessage()) {
@@ -7,9 +8,31 @@
 } @else if (users().length === 0) {
   <app-state-card title="Aucun utilisateur" description="Les utilisateurs apparaîtront ici." />
 } @else {
-  <ul>
-    @for (user of users(); track user.id) {
-      <li>{{ user.email }} — {{ user.role }}</li>
-    }
-  </ul>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Nom</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of users(); track user.id) {
+          <tr>
+            <td>{{ user.email }}</td>
+            <td>{{ user.firstName || '—' }} {{ user.lastName || '' }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <span class="status" [class.inactive]="!user.isActive">
+                {{ user.isActive ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 }
+</section>

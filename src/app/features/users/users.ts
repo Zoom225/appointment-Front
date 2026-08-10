@@ -8,6 +8,7 @@ import { StateCard } from '../../shared/components/state-card/state-card';
   selector: 'app-users',
   imports: [PageHeader, StateCard],
   templateUrl: './users.html',
+  styleUrl: './users.css',
 })
 export class Users implements OnInit {
   private readonly usersApi = inject(UsersApi);
