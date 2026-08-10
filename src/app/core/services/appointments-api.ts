@@ -6,9 +6,9 @@ import { API_ENDPOINTS } from '../api/api-endpoints';
 import { unwrapCollection } from '../api/api-response';
 import {
   Appointment,
+  AppointmentCreateRequest,
   AppointmentStatus,
   BackendAppointment,
-  CreateAppointmentPayload,
   UpdateAppointmentPayload,
 } from '../models/appointment.models';
 
@@ -24,7 +24,7 @@ export class AppointmentsApi {
       .pipe(map((response) => unwrapCollection(response).map((appointment) => this.mapAppointment(appointment))));
   }
 
-  create(payload: CreateAppointmentPayload): Observable<Appointment> {
+  create(payload: AppointmentCreateRequest): Observable<Appointment> {
     return this.http
       .post<BackendAppointment>(API_ENDPOINTS.appointments, payload)
       .pipe(map((appointment) => this.mapAppointment(appointment)));
@@ -45,13 +45,19 @@ export class AppointmentsApi {
   }
 
   private mapAppointment(appointment: BackendAppointment): Appointment {
-    const startsAt = appointment.startsAt ?? appointment.starts_at ?? appointment.startDate ?? appointment.date ?? '';
+    const startsAt =
+      appointment.startsAt ??
+      appointment.starts_at ??
+      appointment.startDateTime ??
+      appointment.startDate ??
+      appointment.date ??
+      '';
 
     return {
       id: String(appointment.id ?? appointment._id ?? ''),
       title: appointment.title ?? appointment.reason ?? 'Rendez-vous',
       startsAt,
-      endsAt: appointment.endsAt ?? appointment.ends_at ?? appointment.endDate ?? startsAt,
+      endsAt: appointment.endsAt ?? appointment.ends_at ?? appointment.endDateTime ?? appointment.endDate ?? startsAt,
       status: this.mapStatus(appointment.status),
       patientName: appointment.patientName ?? appointment.patient_name,
       userId:

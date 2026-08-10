@@ -7,10 +7,12 @@ export interface BackendAppointment {
   reason?: string;
   startsAt?: string;
   starts_at?: string;
+  startDateTime?: string;
   startDate?: string;
   date?: string;
   endsAt?: string;
   ends_at?: string;
+  endDateTime?: string;
   endDate?: string;
   status?: string;
   patientName?: string;
@@ -34,7 +36,13 @@ export interface CreateAppointmentPayload {
   startsAt: string;
   endsAt: string;
   patientName?: string;
-  userId?: string;
+}
+
+export interface AppointmentCreateRequest {
+  reason: string;
+  startDateTime: string;
+  endDateTime: string;
+  userId: number;
 }
 
 export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload> & {

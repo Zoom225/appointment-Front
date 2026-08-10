@@ -4,6 +4,7 @@ import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angu
 import { getApiErrorMessage } from '../../core/errors/api-error';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
+import { Auth } from '../../core/services/auth';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 import { StateCard } from '../../shared/components/state-card/state-card';
 import { ConfirmDialog } from '../../shared/services/confirm-dialog';
@@ -16,6 +17,7 @@ import { ConfirmDialog } from '../../shared/services/confirm-dialog';
 })
 export class Appointments implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApi);
+  private readonly auth = inject(Auth);
   private readonly confirmDialog = inject(ConfirmDialog);
   private readonly formBuilder = inject(FormBuilder);
 
@@ -71,7 +73,22 @@ export class Appointments implements OnInit {
     this.isCreating.set(true);
     this.createErrorMessage.set(null);
 
-    this.appointmentsApi.create(this.form.getRawValue()).subscribe({
+    const currentUserId = this.getCurrentUserId();
+
+    if (currentUserId === null) {
+      this.createErrorMessage.set('Impossible de créer le rendez-vous : utilisateur connecté introuvable.');
+      this.isCreating.set(false);
+      return;
+    }
+
+    const formValue = this.form.getRawValue();
+
+    this.appointmentsApi.create({
+      reason: formValue.title,
+      startDateTime: formValue.startsAt,
+      endDateTime: formValue.endsAt,
+      userId: currentUserId,
+    }).subscribe({
       next: (appointment) => {
         this.appointments.update((appointments) => [appointment, ...appointments]);
         this.form.reset();
@@ -154,5 +171,11 @@ export class Appointments implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  private getCurrentUserId(): number | null {
+    const userId = Number(this.auth.user()?.id);
+
+    return Number.isInteger(userId) && userId > 0 ? userId : null;
   }
 }
