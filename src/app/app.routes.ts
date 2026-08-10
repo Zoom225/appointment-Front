@@ -39,6 +39,10 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
       },
+      {
+        path: 'forbidden',
+        loadComponent: () => import('./features/forbidden/forbidden').then((m) => m.Forbidden),
+      },
     ],
   },
   {
