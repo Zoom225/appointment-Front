@@ -15,6 +15,7 @@ export class Users implements OnInit {
 
   protected readonly users = signal<AppUser[]>([]);
   protected readonly isLoading = signal(true);
+  protected readonly pendingUserId = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
 
   ngOnInit(): void {
@@ -26,6 +27,22 @@ export class Users implements OnInit {
       error: () => {
         this.errorMessage.set('Impossible de charger les utilisateurs pour le moment.');
         this.isLoading.set(false);
+      },
+    });
+  }
+
+  protected toggleUserStatus(user: AppUser): void {
+    this.pendingUserId.set(user.id);
+    this.usersApi.updateStatus(user.id, !user.isActive).subscribe({
+      next: (updatedUser) => {
+        this.users.update((users) =>
+          users.map((currentUser) => (currentUser.id === updatedUser.id ? updatedUser : currentUser)),
+        );
+        this.pendingUserId.set(null);
+      },
+      error: () => {
+        this.errorMessage.set('La mise à jour de l’utilisateur a échoué.');
+        this.pendingUserId.set(null);
       },
     });
   }

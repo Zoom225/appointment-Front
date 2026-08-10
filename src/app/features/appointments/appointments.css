@@ -52,6 +52,16 @@ button:disabled {
   opacity: 0.7;
 }
 
+button.secondary {
+  background: #eff4ff;
+  color: #155eef;
+}
+
+button.danger {
+  background: #fef3f2;
+  color: #b42318;
+}
+
 .error {
   color: #b42318;
   margin: 0;
@@ -87,6 +97,15 @@ th {
   font-size: 0.8rem;
   font-weight: 700;
   padding: 4px 10px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 8px 10px;
 }
 
 @media (max-width: 980px) {

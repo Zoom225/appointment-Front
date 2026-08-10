@@ -16,6 +16,7 @@
           <th>Nom</th>
           <th>Rôle</th>
           <th>Statut</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -28,6 +29,15 @@
               <span class="status" [class.inactive]="!user.isActive">
                 {{ user.isActive ? 'Actif' : 'Inactif' }}
               </span>
+            </td>
+            <td>
+              <button
+                type="button"
+                [disabled]="pendingUserId() === user.id"
+                (click)="toggleUserStatus(user)"
+              >
+                {{ user.isActive ? 'Désactiver' : 'Activer' }}
+              </button>
             </td>
           </tr>
         }

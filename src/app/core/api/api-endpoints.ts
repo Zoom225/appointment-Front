@@ -1,11 +1,11 @@
-import { environment } from '../../../environments/environment';
+import { API_BASE_URL } from './api.config';
 
 export const API_ENDPOINTS = {
   auth: {
-    login: `${environment.apiUrl}/auth/login`,
-    me: `${environment.apiUrl}/auth/me`,
+    login: `${API_BASE_URL}/auth/login`,
+    me: `${API_BASE_URL}/auth/me`,
   },
-  appointments: `${environment.apiUrl}/appointments`,
-  users: `${environment.apiUrl}/users`,
-  profile: `${environment.apiUrl}/profile`,
+  appointments: `${API_BASE_URL}/appointments`,
+  users: `${API_BASE_URL}/users`,
+  profile: `${API_BASE_URL}/profile`,
 } as const;
