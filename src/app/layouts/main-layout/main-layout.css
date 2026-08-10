@@ -51,6 +51,17 @@
   padding: 18px 28px;
 }
 
+.topbar span {
+  color: #101828;
+  font-weight: 700;
+}
+
+.topbar p {
+  color: #667085;
+  font-size: 0.9rem;
+  margin: 4px 0 0;
+}
+
 .topbar button {
   background: #155eef;
   border: 0;
