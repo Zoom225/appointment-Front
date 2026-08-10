@@ -17,3 +17,7 @@ export interface CreateAppointmentPayload {
   patientName?: string;
   userId?: string;
 }
+
+export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload> & {
+  status?: AppointmentStatus;
+};

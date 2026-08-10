@@ -2,7 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../api/api-endpoints';
-import { Appointment, CreateAppointmentPayload } from '../models/appointment.models';
+import {
+  Appointment,
+  AppointmentStatus,
+  CreateAppointmentPayload,
+  UpdateAppointmentPayload,
+} from '../models/appointment.models';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentsApi {
@@ -14,6 +19,14 @@ export class AppointmentsApi {
 
   create(payload: CreateAppointmentPayload): Observable<Appointment> {
     return this.http.post<Appointment>(API_ENDPOINTS.appointments, payload);
+  }
+
+  update(id: string, payload: UpdateAppointmentPayload): Observable<Appointment> {
+    return this.http.patch<Appointment>(`${API_ENDPOINTS.appointments}/${id}`, payload);
+  }
+
+  updateStatus(id: string, status: AppointmentStatus): Observable<Appointment> {
+    return this.update(id, { status });
   }
 
   delete(id: string): Observable<void> {

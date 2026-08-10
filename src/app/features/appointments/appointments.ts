@@ -19,6 +19,7 @@ export class Appointments implements OnInit {
   protected readonly appointments = signal<Appointment[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly isCreating = signal(false);
+  protected readonly pendingAppointmentId = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly createErrorMessage = signal<string | null>(null);
 
@@ -51,6 +52,42 @@ export class Appointments implements OnInit {
       error: () => {
         this.createErrorMessage.set('La création du rendez-vous a échoué.');
         this.isCreating.set(false);
+      },
+    });
+  }
+
+  protected updateStatus(appointment: Appointment): void {
+    const nextStatus = appointment.status === 'confirmed' ? 'completed' : 'confirmed';
+
+    this.pendingAppointmentId.set(appointment.id);
+    this.appointmentsApi.updateStatus(appointment.id, nextStatus).subscribe({
+      next: (updatedAppointment) => {
+        this.appointments.update((appointments) =>
+          appointments.map((currentAppointment) =>
+            currentAppointment.id === updatedAppointment.id ? updatedAppointment : currentAppointment,
+          ),
+        );
+        this.pendingAppointmentId.set(null);
+      },
+      error: () => {
+        this.errorMessage.set('La mise à jour du rendez-vous a échoué.');
+        this.pendingAppointmentId.set(null);
+      },
+    });
+  }
+
+  protected deleteAppointment(appointment: Appointment): void {
+    this.pendingAppointmentId.set(appointment.id);
+    this.appointmentsApi.delete(appointment.id).subscribe({
+      next: () => {
+        this.appointments.update((appointments) =>
+          appointments.filter((currentAppointment) => currentAppointment.id !== appointment.id),
+        );
+        this.pendingAppointmentId.set(null);
+      },
+      error: () => {
+        this.errorMessage.set('La suppression du rendez-vous a échoué.');
+        this.pendingAppointmentId.set(null);
       },
     });
   }

@@ -15,4 +15,8 @@ export class UsersApi {
   findById(id: string): Observable<AppUser> {
     return this.http.get<AppUser>(`${API_ENDPOINTS.users}/${id}`);
   }
+
+  updateStatus(id: string, isActive: boolean): Observable<AppUser> {
+    return this.http.patch<AppUser>(`${API_ENDPOINTS.users}/${id}`, { isActive });
+  }
 }
