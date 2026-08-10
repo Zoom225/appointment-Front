@@ -5,11 +5,18 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:production": "ng build --configuration production",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "typecheck:spec": "tsc -p tsconfig.spec.json --noEmit",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
+  "engines": {
+    "node": ">=24.15.0 <25",
+    "npm": ">=11 <12"
+  },
   "dependencies": {
     "@angular/common": "^22.1.0",
     "@angular/compiler": "^22.1.0",
