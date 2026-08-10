@@ -20,9 +20,9 @@ export class Auth {
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(API_ENDPOINTS.auth.login, credentials).pipe(
       tap((response) => {
-        this.tokenStorage.setToken(response.accessToken);
-        this.tokenSignal.set(response.accessToken);
-        this.userSignal.set(response.user);
+        this.tokenStorage.setToken(response.token);
+        this.tokenSignal.set(response.token);
+        this.userSignal.set(this.mapAuthResponseToUser(response));
       }),
     );
   }
@@ -44,5 +44,15 @@ export class Auth {
 
   getAccessToken(): string | null {
     return this.tokenSignal();
+  }
+
+  private mapAuthResponseToUser(response: AuthResponse): User {
+    return {
+      id: response.id,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      roles: response.roles,
+    };
   }
 }

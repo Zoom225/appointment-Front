@@ -3,7 +3,7 @@ export interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-  role?: string;
+  roles: string[];
 }
 
 export interface LoginCredentials {
@@ -12,6 +12,11 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  user: User;
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  message?: string;
+  roles: string[];
+  token: string;
 }
