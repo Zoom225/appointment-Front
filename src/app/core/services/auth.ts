@@ -6,12 +6,14 @@ import { API_ENDPOINTS } from '../api/api-endpoints';
 import { isJwtExpired } from '../auth/jwt';
 import { AppRole, hasAnyRole } from '../auth/roles';
 import { AuthResponse, LoginCredentials, User } from '../models/auth.models';
+import { SessionFeedback } from './session-feedback';
 import { TokenStorage } from './token-storage';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly sessionFeedback = inject(SessionFeedback);
   private readonly tokenStorage = inject(TokenStorage);
   private readonly tokenSignal = signal<string | null>(this.tokenStorage.getToken());
   private readonly userSignal = signal<User | null>(this.tokenStorage.getUser());
@@ -54,6 +56,11 @@ export class Auth {
     this.tokenStorage.clear();
     this.tokenSignal.set(null);
     this.userSignal.set(null);
+
+    if (options?.sessionExpired) {
+      this.sessionFeedback.setSessionExpired();
+    }
+
     void this.router.navigate(['/login'], {
       queryParams: options?.sessionExpired ? { sessionExpired: 'true' } : undefined,
     });
