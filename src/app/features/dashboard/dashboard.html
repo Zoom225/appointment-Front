@@ -1,30 +1,36 @@
 <app-page-header eyebrow="Vue globale" title="Tableau de bord" />
 
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Synchronisation avec le backend Render..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur API" [description]="errorMessage()!" />
+} @else {
 <section class="stats-grid">
   <article class="stat-card">
     <span>Rendez-vous</span>
-    <strong>—</strong>
-    <p>Total à synchroniser avec l’API.</p>
+    <strong>{{ upcomingAppointmentsCount() }}</strong>
+    <p>Rendez-vous actifs récupérés depuis l'API.</p>
   </article>
 
   <article class="stat-card">
     <span>Utilisateurs</span>
-    <strong>—</strong>
-    <p>Comptes actifs à afficher depuis le backend.</p>
+    <strong>{{ activeUsersCount() }}</strong>
+    <p>Comptes actifs récupérés depuis le backend.</p>
   </article>
 
   <article class="stat-card">
     <span>Statut API</span>
-    <strong>Prêt</strong>
-    <p>Services frontend typés et prêts à brancher.</p>
+    <strong>Connecté</strong>
+    <p>Le frontend consomme les endpoints Render configurés.</p>
   </article>
 </section>
 
 <section class="dashboard-panel">
-  <h2>Prochaines intégrations</h2>
+  <h2>État de l'intégration</h2>
   <ul>
-    <li>Remplacer l’URL Render temporaire par l’URL réelle du backend.</li>
-    <li>Aligner les modèles frontend avec les réponses réelles de l’API.</li>
-    <li>Ajouter les actions modifier, annuler et supprimer selon les droits utilisateur.</li>
+    <li>URL Render configurée.</li>
+    <li>Réponses API normalisées côté frontend.</li>
+    <li>JWT transmis automatiquement par l'interceptor.</li>
   </ul>
 </section>
+}

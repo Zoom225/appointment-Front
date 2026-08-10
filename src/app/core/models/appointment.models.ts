@@ -1,5 +1,24 @@
 export type AppointmentStatus = 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
 
+export interface BackendAppointment {
+  id?: string | number;
+  _id?: string;
+  title?: string;
+  reason?: string;
+  startsAt?: string;
+  starts_at?: string;
+  startDate?: string;
+  date?: string;
+  endsAt?: string;
+  ends_at?: string;
+  endDate?: string;
+  status?: string;
+  patientName?: string;
+  patient_name?: string;
+  userId?: string | number;
+  user_id?: string | number;
+}
+
 export interface Appointment {
   id: string;
   title: string;
