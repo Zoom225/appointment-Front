@@ -1,3 +1,45 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
+import { MainLayout } from './layouts/main-layout/main-layout';
 
-export const routes: Routes = [];
+export const routes: Routes = [
+  {
+    path: 'login',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
+  },
+  {
+    path: '',
+    component: MainLayout,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'appointments',
+        loadComponent: () =>
+          import('./features/appointments/appointments').then((m) => m.Appointments),
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./features/users/users').then((m) => m.Users),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+      },
+    ],
+  },
+  {
+    path: '**',
+    redirectTo: '',
+  },
+];

@@ -1,0 +1,23 @@
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/dashboard">Rendez-vous</a>
+
+    <nav class="nav" aria-label="Navigation principale">
+      <a routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
+      <a routerLink="/appointments" routerLinkActive="active">Rendez-vous</a>
+      <a routerLink="/users" routerLinkActive="active">Utilisateurs</a>
+      <a routerLink="/profile" routerLinkActive="active">Profil</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <span>Frontend Rendez-vous</span>
+      <button type="button" (click)="auth.logout()">Déconnexion</button>
+    </header>
+
+    <section class="page">
+      <router-outlet />
+    </section>
+  </main>
+</div>
