@@ -3,12 +3,11 @@
     <a class="brand" routerLink="/dashboard">Rendez-vous</a>
 
     <nav class="nav" aria-label="Navigation principale">
-      <a routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
-      <a routerLink="/appointments" routerLinkActive="active">Rendez-vous</a>
-      @if (canManageUsers()) {
-        <a routerLink="/users" routerLinkActive="active">Utilisateurs</a>
+      @for (item of navigationItems; track item.route) {
+        @if (canShowNavigationItem(item)) {
+          <a [routerLink]="item.route" routerLinkActive="active">{{ item.label }}</a>
+        }
       }
-      <a routerLink="/profile" routerLinkActive="active">Profil</a>
     </nav>
   </aside>
 
