@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { getApiErrorMessage } from '../../core/errors/api-error';
 import { User } from '../../core/models/auth.models';
 import { ProfileApi } from '../../core/services/profile-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
@@ -23,8 +24,8 @@ export class Profile implements OnInit {
         this.profile.set(profile);
         this.isLoading.set(false);
       },
-      error: () => {
-        this.errorMessage.set('Impossible de charger le profil pour le moment.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.isLoading.set(false);
       },
     });

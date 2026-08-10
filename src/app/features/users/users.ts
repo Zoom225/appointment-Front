@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { getApiErrorMessage } from '../../core/errors/api-error';
 import { AppUser } from '../../core/models/user.models';
 import { UsersApi } from '../../core/services/users-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
@@ -24,8 +25,8 @@ export class Users implements OnInit {
         this.users.set(users);
         this.isLoading.set(false);
       },
-      error: () => {
-        this.errorMessage.set('Impossible de charger les utilisateurs pour le moment.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.isLoading.set(false);
       },
     });
@@ -40,8 +41,8 @@ export class Users implements OnInit {
         );
         this.pendingUserId.set(null);
       },
-      error: () => {
-        this.errorMessage.set('La mise à jour de l’utilisateur a échoué.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.pendingUserId.set(null);
       },
     });

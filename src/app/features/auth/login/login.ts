@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { getApiErrorMessage } from '../../../core/errors/api-error';
 import { Auth } from '../../../core/services/auth';
 
 @Component({
@@ -37,8 +38,8 @@ export class Login {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
         void this.router.navigateByUrl(returnUrl);
       },
-      error: () => {
-        this.errorMessage.set('Identifiants invalides ou serveur indisponible.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.isSubmitting.set(false);
       },
     });

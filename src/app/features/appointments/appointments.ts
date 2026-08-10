@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { getApiErrorMessage } from '../../core/errors/api-error';
 import { Appointment } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
@@ -49,8 +50,8 @@ export class Appointments implements OnInit {
         this.form.reset();
         this.isCreating.set(false);
       },
-      error: () => {
-        this.createErrorMessage.set('La création du rendez-vous a échoué.');
+      error: (error: unknown) => {
+        this.createErrorMessage.set(getApiErrorMessage(error));
         this.isCreating.set(false);
       },
     });
@@ -69,8 +70,8 @@ export class Appointments implements OnInit {
         );
         this.pendingAppointmentId.set(null);
       },
-      error: () => {
-        this.errorMessage.set('La mise à jour du rendez-vous a échoué.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.pendingAppointmentId.set(null);
       },
     });
@@ -85,8 +86,8 @@ export class Appointments implements OnInit {
         );
         this.pendingAppointmentId.set(null);
       },
-      error: () => {
-        this.errorMessage.set('La suppression du rendez-vous a échoué.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.pendingAppointmentId.set(null);
       },
     });
@@ -98,8 +99,8 @@ export class Appointments implements OnInit {
         this.appointments.set(appointments);
         this.isLoading.set(false);
       },
-      error: () => {
-        this.errorMessage.set('Impossible de charger les rendez-vous pour le moment.');
+      error: (error: unknown) => {
+        this.errorMessage.set(getApiErrorMessage(error));
         this.isLoading.set(false);
       },
     });
