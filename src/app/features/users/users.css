@@ -1,0 +1,43 @@
+.panel {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 1px solid #eaecf0;
+  padding: 13px 10px;
+  text-align: left;
+}
+
+th {
+  color: #667085;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.status {
+  background: #ecfdf3;
+  border-radius: 999px;
+  color: #027a48;
+  display: inline-flex;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.status.inactive {
+  background: #fef3f2;
+  color: #b42318;
+}

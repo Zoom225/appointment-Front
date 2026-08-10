@@ -1,2 +1,74 @@
 <app-page-header eyebrow="Planning" title="Gestion des rendez-vous" />
-<p>Liste, création, modification et annulation des rendez-vous seront branchées ici.</p>
+
+<section class="appointment-grid">
+  <form class="panel" [formGroup]="form" (ngSubmit)="createAppointment()">
+    <h2>Nouveau rendez-vous</h2>
+
+    <label>
+      Titre
+      <input type="text" formControlName="title" placeholder="Consultation initiale" />
+    </label>
+
+    <label>
+      Patient
+      <input type="text" formControlName="patientName" placeholder="Nom du patient" />
+    </label>
+
+    <label>
+      Début
+      <input type="datetime-local" formControlName="startsAt" />
+    </label>
+
+    <label>
+      Fin
+      <input type="datetime-local" formControlName="endsAt" />
+    </label>
+
+    @if (createErrorMessage()) {
+      <p class="error">{{ createErrorMessage() }}</p>
+    }
+
+    <button type="submit" [disabled]="isCreating()">
+      {{ isCreating() ? 'Création...' : 'Créer le rendez-vous' }}
+    </button>
+  </form>
+
+  <section class="panel">
+    <h2>Liste des rendez-vous</h2>
+
+@if (isLoading()) {
+      <app-state-card title="Chargement" description="Récupération des rendez-vous..." />
+} @else if (errorMessage()) {
+      <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (appointments().length === 0) {
+      <app-state-card title="Aucun rendez-vous" description="Les rendez-vous créés apparaîtront ici." />
+} @else {
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Titre</th>
+              <th>Patient</th>
+              <th>Début</th>
+              <th>Fin</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (appointment of appointments(); track appointment.id) {
+              <tr>
+                <td>{{ appointment.title }}</td>
+                <td>{{ appointment.patientName || '—' }}</td>
+                <td>{{ appointment.startsAt | date: 'short' }}</td>
+                <td>{{ appointment.endsAt | date: 'short' }}</td>
+                <td>
+                  <span class="status">{{ appointment.status }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+}
+  </section>
+</section>

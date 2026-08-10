@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 
 @Component({
@@ -11,6 +11,7 @@ import { Auth } from '../../../core/services/auth';
 })
 export class Login {
   private readonly auth = inject(Auth);
+  private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
 
@@ -32,7 +33,10 @@ export class Login {
     this.errorMessage.set(null);
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => void this.router.navigateByUrl('/dashboard'),
+      next: () => {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+        void this.router.navigateByUrl(returnUrl);
+      },
       error: () => {
         this.errorMessage.set('Identifiants invalides ou serveur indisponible.');
         this.isSubmitting.set(false);

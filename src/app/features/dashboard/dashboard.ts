@@ -5,5 +5,6 @@ import { PageHeader } from '../../shared/components/page-header/page-header';
   selector: 'app-dashboard',
   imports: [PageHeader],
   templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
 export class Dashboard {}
