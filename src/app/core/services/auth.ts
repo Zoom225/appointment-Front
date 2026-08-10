@@ -2,10 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
+import { API_ENDPOINTS } from '../api/api-endpoints';
 import { AuthResponse, LoginCredentials, User } from '../models/auth.models';
 import { TokenStorage } from './token-storage';
-
-const API_URL = 'https://ton-backend-render.example.com/api';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
@@ -18,10 +17,18 @@ export class Auth {
   readonly isAuthenticated = computed(() => Boolean(this.tokenStorage.getToken()));
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${API_URL}/auth/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(API_ENDPOINTS.auth.login, credentials).pipe(
       tap((response) => {
         this.tokenStorage.setToken(response.accessToken);
         this.userSignal.set(response.user);
+      }),
+    );
+  }
+
+  loadCurrentUser(): Observable<User> {
+    return this.http.get<User>(API_ENDPOINTS.auth.me).pipe(
+      tap((user) => {
+        this.userSignal.set(user);
       }),
     );
   }
