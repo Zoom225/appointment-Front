@@ -1,2 +1,15 @@
 <app-page-header eyebrow="Planning" title="Gestion des rendez-vous" />
-<p>Liste, création, modification et annulation des rendez-vous seront branchées ici.</p>
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération des rendez-vous..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (appointments().length === 0) {
+  <app-state-card title="Aucun rendez-vous" description="Les rendez-vous créés apparaîtront ici." />
+} @else {
+  <ul>
+    @for (appointment of appointments(); track appointment.id) {
+      <li>{{ appointment.title }} — {{ appointment.status }}</li>
+    }
+  </ul>
+}

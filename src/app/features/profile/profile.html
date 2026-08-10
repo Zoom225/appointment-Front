@@ -1,2 +1,12 @@
 <app-page-header eyebrow="Compte" title="Profil" />
-<p>Informations personnelles, préférences et sécurité du compte.</p>
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération du profil..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (profile(); as currentUser) {
+  <app-state-card
+    title="Informations du compte"
+    [description]="currentUser.email"
+  />
+}

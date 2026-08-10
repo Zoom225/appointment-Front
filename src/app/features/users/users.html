@@ -1,2 +1,15 @@
 <app-page-header eyebrow="Administration" title="Gestion des utilisateurs" />
-<p>Gestion des comptes, rôles et statuts utilisateurs.</p>
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération des utilisateurs..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (users().length === 0) {
+  <app-state-card title="Aucun utilisateur" description="Les utilisateurs apparaîtront ici." />
+} @else {
+  <ul>
+    @for (user of users(); track user.id) {
+      <li>{{ user.email }} — {{ user.role }}</li>
+    }
+  </ul>
+}
