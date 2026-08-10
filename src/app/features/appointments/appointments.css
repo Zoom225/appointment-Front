@@ -71,6 +71,35 @@ button.danger {
   overflow-x: auto;
 }
 
+.toolbar {
+  align-items: end;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(180px, 1fr) minmax(160px, 220px) auto;
+  margin-bottom: 18px;
+}
+
+.toolbar label {
+  color: #344054;
+  display: grid;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.toolbar input,
+.toolbar select {
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.toolbar span {
+  color: #667085;
+  padding-bottom: 10px;
+  white-space: nowrap;
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -111,5 +140,13 @@ th {
 @media (max-width: 980px) {
   .appointment-grid {
     grid-template-columns: 1fr;
+  }
+
+  .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .toolbar span {
+    padding-bottom: 0;
   }
 }

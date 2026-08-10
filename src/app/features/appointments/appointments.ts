@@ -1,15 +1,15 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { getApiErrorMessage } from '../../core/errors/api-error';
-import { Appointment } from '../../core/models/appointment.models';
+import { Appointment, AppointmentStatus } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 import { StateCard } from '../../shared/components/state-card/state-card';
 
 @Component({
   selector: 'app-appointments',
-  imports: [DatePipe, PageHeader, ReactiveFormsModule, StateCard],
+  imports: [DatePipe, FormsModule, PageHeader, ReactiveFormsModule, StateCard],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
@@ -23,6 +23,31 @@ export class Appointments implements OnInit {
   protected readonly pendingAppointmentId = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly createErrorMessage = signal<string | null>(null);
+  protected readonly searchTerm = signal('');
+  protected readonly statusFilter = signal<AppointmentStatus | 'all'>('all');
+  protected readonly filteredAppointments = computed(() => {
+    const searchTerm = this.searchTerm().trim().toLowerCase();
+    const statusFilter = this.statusFilter();
+
+    return this.appointments().filter((appointment) => {
+      const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
+      const matchesSearch =
+        !searchTerm ||
+        [appointment.title, appointment.patientName, appointment.status].some((value) =>
+          value?.toLowerCase().includes(searchTerm),
+        );
+
+      return matchesStatus && matchesSearch;
+    });
+  });
+
+  protected readonly statusOptions: Array<{ label: string; value: AppointmentStatus | 'all' }> = [
+    { label: 'Tous', value: 'all' },
+    { label: 'Planifiés', value: 'scheduled' },
+    { label: 'Confirmés', value: 'confirmed' },
+    { label: 'Terminés', value: 'completed' },
+    { label: 'Annulés', value: 'cancelled' },
+  ];
 
   protected readonly form = this.formBuilder.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
@@ -58,6 +83,10 @@ export class Appointments implements OnInit {
   }
 
   protected updateStatus(appointment: Appointment): void {
+    if (appointment.status === 'cancelled' || appointment.status === 'completed') {
+      return;
+    }
+
     const nextStatus = appointment.status === 'confirmed' ? 'completed' : 'confirmed';
 
     this.pendingAppointmentId.set(appointment.id);
@@ -78,6 +107,10 @@ export class Appointments implements OnInit {
   }
 
   protected deleteAppointment(appointment: Appointment): void {
+    if (this.pendingAppointmentId()) {
+      return;
+    }
+
     this.pendingAppointmentId.set(appointment.id);
     this.appointmentsApi.delete(appointment.id).subscribe({
       next: () => {
