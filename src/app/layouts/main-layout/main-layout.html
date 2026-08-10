@@ -5,7 +5,9 @@
     <nav class="nav" aria-label="Navigation principale">
       <a routerLink="/dashboard" routerLinkActive="active">Tableau de bord</a>
       <a routerLink="/appointments" routerLinkActive="active">Rendez-vous</a>
-      <a routerLink="/users" routerLinkActive="active">Utilisateurs</a>
+      @if (canManageUsers()) {
+        <a routerLink="/users" routerLinkActive="active">Utilisateurs</a>
+      }
       <a routerLink="/profile" routerLinkActive="active">Profil</a>
     </nav>
   </aside>
@@ -15,7 +17,7 @@
       <div>
         <span>Frontend Rendez-vous</span>
         @if (auth.user(); as currentUser) {
-          <p>{{ currentUser.firstName || currentUser.email }} · {{ currentUser.roles.join(', ') }}</p>
+          <p>{{ auth.displayName() }} · {{ currentUser.roles.join(', ') }}</p>
         }
       </div>
 

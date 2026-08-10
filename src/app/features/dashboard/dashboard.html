@@ -1,5 +1,9 @@
 <app-page-header eyebrow="Vue globale" title="Tableau de bord" />
 
+@if (forbiddenMessage()) {
+  <p class="notice">{{ forbiddenMessage() }}</p>
+}
+
 @if (isLoading()) {
   <app-state-card title="Chargement" description="Synchronisation avec le backend Render..." />
 } @else if (errorMessage()) {
@@ -12,11 +16,13 @@
     <p>Rendez-vous actifs récupérés depuis l'API.</p>
   </article>
 
+  @if (canViewUsers()) {
   <article class="stat-card">
     <span>Utilisateurs</span>
     <strong>{{ activeUsersCount() }}</strong>
     <p>Comptes actifs récupérés depuis le backend.</p>
   </article>
+  }
 
   <article class="stat-card">
     <span>Statut API</span>

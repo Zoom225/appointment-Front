@@ -10,4 +10,6 @@ import { Auth } from '../../core/services/auth';
 })
 export class MainLayout {
   protected readonly auth = inject(Auth);
+
+  protected readonly canManageUsers = () => this.auth.hasAnyRole(['ADMIN']);
 }

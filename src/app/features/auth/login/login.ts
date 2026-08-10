@@ -17,7 +17,11 @@ export class Login {
   private readonly router = inject(Router);
 
   protected readonly isSubmitting = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorMessage = signal<string | null>(
+    this.route.snapshot.queryParamMap.get('sessionExpired')
+      ? 'Ta session a expiré. Connecte-toi à nouveau.'
+      : null,
+  );
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
