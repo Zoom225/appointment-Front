@@ -10,6 +10,7 @@ import {
   AppointmentStatus,
   BackendAppointment,
   UpdateAppointmentPayload,
+  normalizeAppointmentStatus,
 } from '../models/appointment.models';
 
 @Injectable({ providedIn: 'root' })
@@ -58,7 +59,7 @@ export class AppointmentsApi {
       title: appointment.title ?? appointment.reason ?? 'Rendez-vous',
       startsAt,
       endsAt: appointment.endsAt ?? appointment.ends_at ?? appointment.endDateTime ?? appointment.endDate ?? startsAt,
-      status: this.mapStatus(appointment.status),
+      status: normalizeAppointmentStatus(appointment.status),
       patientName: appointment.patientName ?? appointment.patient_name,
       userId:
         appointment.userId === undefined && appointment.user_id === undefined
@@ -67,11 +68,4 @@ export class AppointmentsApi {
     };
   }
 
-  private mapStatus(status: string | undefined): AppointmentStatus {
-    if (status === 'confirmed' || status === 'cancelled' || status === 'completed') {
-      return status;
-    }
-
-    return 'scheduled';
-  }
 }

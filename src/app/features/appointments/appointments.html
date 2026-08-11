@@ -37,7 +37,10 @@
     <h2>Liste des rendez-vous</h2>
 
 @if (isLoading()) {
-      <app-state-card title="Chargement" description="Récupération des rendez-vous..." />
+      <app-state-card
+        title="Chargement"
+        [description]="slowLoadingMessage() || 'Récupération des rendez-vous...'"
+      />
 } @else if (errorMessage()) {
       <app-state-card title="Erreur" [description]="errorMessage()!" />
 } @else if (appointments().length === 0) {

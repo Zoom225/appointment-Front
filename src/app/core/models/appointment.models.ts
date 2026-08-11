@@ -1,5 +1,20 @@
 export type AppointmentStatus = 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
 
+export function normalizeAppointmentStatus(status: string | undefined): AppointmentStatus {
+  const normalizedStatus = status?.trim().toLowerCase();
+
+  if (
+    normalizedStatus === 'scheduled' ||
+    normalizedStatus === 'confirmed' ||
+    normalizedStatus === 'cancelled' ||
+    normalizedStatus === 'completed'
+  ) {
+    return normalizedStatus;
+  }
+
+  return 'scheduled';
+}
+
 export interface BackendAppointment {
   id?: string | number;
   _id?: string;
