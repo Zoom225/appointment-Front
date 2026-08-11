@@ -1,6 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize, timer } from 'rxjs';
 import { getApiErrorMessage } from '../../core/errors/api-error';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
@@ -19,10 +21,12 @@ export class Appointments implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApi);
   private readonly auth = inject(Auth);
   private readonly confirmDialog = inject(ConfirmDialog);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly appointments = signal<Appointment[]>([]);
   protected readonly isLoading = signal(true);
+  protected readonly slowLoadingMessage = signal<string | null>(null);
   protected readonly isCreating = signal(false);
   protected readonly pendingAppointmentId = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
@@ -83,22 +87,27 @@ export class Appointments implements OnInit {
 
     const formValue = this.form.getRawValue();
 
-    this.appointmentsApi.create({
-      reason: formValue.title,
-      startDateTime: formValue.startsAt,
-      endDateTime: formValue.endsAt,
-      userId: currentUserId,
-    }).subscribe({
-      next: (appointment) => {
-        this.appointments.update((appointments) => [appointment, ...appointments]);
-        this.form.reset();
-        this.isCreating.set(false);
-      },
-      error: (error: unknown) => {
-        this.createErrorMessage.set(getApiErrorMessage(error));
-        this.isCreating.set(false);
-      },
-    });
+    this.appointmentsApi
+      .create({
+        reason: formValue.title,
+        startDateTime: formValue.startsAt,
+        endDateTime: formValue.endsAt,
+        userId: currentUserId,
+      })
+      .pipe(
+        finalize(() => {
+          this.isCreating.set(false);
+        }),
+      )
+      .subscribe({
+        next: (appointment) => {
+          this.appointments.update((appointments) => [appointment, ...appointments]);
+          this.form.reset();
+        },
+        error: (error: unknown) => {
+          this.createErrorMessage.set(getApiErrorMessage(error));
+        },
+      });
   }
 
   protected updateStatus(appointment: Appointment): void {
@@ -137,9 +146,7 @@ export class Appointments implements OnInit {
       return;
     }
 
-    const confirmed = this.confirmDialog.confirm(
-      `Supprimer définitivement le rendez-vous "${appointment.title}" ?`,
-    );
+    const confirmed = this.confirmDialog.confirm(`Supprimer définitivement le rendez-vous "${appointment.title}" ?`);
 
     if (!confirmed) {
       return;
@@ -161,16 +168,34 @@ export class Appointments implements OnInit {
   }
 
   private loadAppointments(): void {
-    this.appointmentsApi.findAll().subscribe({
-      next: (appointments) => {
-        this.appointments.set(appointments);
-        this.isLoading.set(false);
-      },
-      error: (error: unknown) => {
-        this.errorMessage.set(getApiErrorMessage(error));
-        this.isLoading.set(false);
-      },
-    });
+    this.isLoading.set(true);
+    this.slowLoadingMessage.set(null);
+    this.errorMessage.set(null);
+
+    timer(3000)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.isLoading()) {
+          this.slowLoadingMessage.set('Le serveur démarre, cela peut prendre quelques secondes...');
+        }
+      });
+
+    this.appointmentsApi
+      .findAll()
+      .pipe(
+        finalize(() => {
+          this.isLoading.set(false);
+          this.slowLoadingMessage.set(null);
+        }),
+      )
+      .subscribe({
+        next: (appointments) => {
+          this.appointments.set(appointments);
+        },
+        error: (error: unknown) => {
+          this.errorMessage.set(getApiErrorMessage(error));
+        },
+      });
   }
 
   private getCurrentUserId(): number | null {

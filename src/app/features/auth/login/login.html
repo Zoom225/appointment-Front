@@ -17,6 +17,10 @@
       <p class="error">{{ errorMessage() }}</p>
     }
 
+    @if (slowMessage()) {
+      <p class="slow">{{ slowMessage() }}</p>
+    }
+
     <button type="submit" [disabled]="isSubmitting()">
       {{ isSubmitting() ? 'Connexion...' : 'Se connecter' }}
     </button>
