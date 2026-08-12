@@ -1,8 +1,8 @@
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  firstName: string;
+  lastName: string;
   roles: string[];
 }
 
@@ -12,16 +12,11 @@ export interface LoginCredentials {
 }
 
 export interface AuthResponse {
-  id: string;
+  id: number;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  message?: string;
-  roles: string[];
-  token: string;
-}
-
-export interface UpdateProfilePayload {
   firstName: string;
   lastName: string;
+  message: string;
+  roles: string[];
+  token: string;
 }

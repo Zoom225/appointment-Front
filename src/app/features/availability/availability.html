@@ -1,0 +1,28 @@
+<app-page-header eyebrow="Créneaux" title="Disponibilités" />
+
+<section class="panel">
+  <form class="toolbar" [formGroup]="form" (ngSubmit)="search()">
+    <label>
+      Date
+      <input type="date" formControlName="date" />
+    </label>
+    <button type="submit">Rechercher</button>
+  </form>
+</section>
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération des créneaux disponibles..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (slots().length === 0) {
+  <app-state-card title="Aucun créneau" description="Choisissez une date pour interroger l’API de disponibilité." />
+} @else {
+  <section class="slot-grid">
+    @for (slot of slots(); track slot.startDateTime) {
+      <article class="slot-card">
+        <strong>{{ slot.startDateTime | date: 'shortTime' }} - {{ slot.endDateTime | date: 'shortTime' }}</strong>
+        <p>{{ slot.startDateTime | date: 'fullDate' }}</p>
+      </article>
+    }
+  </section>
+}

@@ -1,126 +1,108 @@
-<app-page-header eyebrow="Planning" title="Gestion des rendez-vous" />
+<app-page-header eyebrow="Planning" title="Mes rendez-vous" />
 
 <section class="appointment-grid">
-  <form class="panel" [formGroup]="form" (ngSubmit)="createAppointment()">
-    <h2>Nouveau rendez-vous</h2>
+  <form class="panel form-panel" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="section-header">
+      <h2>{{ selectedAppointment() ? 'Modifier un rendez-vous' : 'Nouveau rendez-vous' }}</h2>
+      @if (selectedAppointment()) {
+        <button type="button" class="secondary" (click)="resetForm()">Annuler l’édition</button>
+      }
+    </div>
 
     <label>
-      Titre
-      <input type="text" formControlName="title" placeholder="Consultation initiale" />
+      Motif
+      <input type="text" formControlName="reason" placeholder="Consultation de suivi" />
     </label>
 
     <label>
-      Patient
-      <input type="text" formControlName="patientName" placeholder="Nom du patient" />
+      Jour
+      <input type="date" formControlName="date" (change)="loadAvailability()" />
     </label>
 
-    <label>
-      Début
-      <input type="datetime-local" formControlName="startsAt" />
-    </label>
+    <div class="datetime-grid">
+      <label>
+        Début
+        <input type="datetime-local" formControlName="startDateTime" />
+      </label>
 
-    <label>
-      Fin
-      <input type="datetime-local" formControlName="endsAt" />
-    </label>
+      <label>
+        Fin
+        <input type="datetime-local" formControlName="endDateTime" />
+      </label>
+    </div>
 
-    @if (createErrorMessage()) {
-      <p class="error">{{ createErrorMessage() }}</p>
+    <div class="slots-panel">
+      <div class="section-header">
+        <h3>Disponibilités backend</h3>
+        @if (isLoadingAvailability()) {
+          <span>Chargement...</span>
+        }
+      </div>
+
+      @if (availableSlots().length === 0) {
+        <p class="muted">Choisissez une date pour récupérer les créneaux de `GET /api/appointments/availability`.</p>
+      } @else {
+        <div class="slot-list">
+          @for (slot of availableSlots(); track slot.startDateTime) {
+            <button type="button" class="slot" (click)="selectSlot(slot)">
+              {{ slot.startDateTime | date: 'shortTime' }} - {{ slot.endDateTime | date: 'shortTime' }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    @if (formMessage()) {
+      <p class="error">{{ formMessage() }}</p>
     }
 
-    <button type="submit" [disabled]="isCreating()">
-      {{ isCreating() ? 'Création...' : 'Créer le rendez-vous' }}
+    <button type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Envoi...' : selectedAppointment() ? 'Mettre à jour' : 'Créer le rendez-vous' }}
     </button>
   </form>
 
   <section class="panel">
-    <h2>Liste des rendez-vous</h2>
+    <div class="section-header">
+      <h2>Historique</h2>
+      <label class="filter">
+        Statut
+        <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
+          <option value="ALL">Tous</option>
+          <option value="PENDING">PENDING</option>
+          <option value="SCHEDULED">SCHEDULED</option>
+          <option value="CONFIRMED">CONFIRMED</option>
+          <option value="CANCELLED">CANCELLED</option>
+          <option value="COMPLETED">COMPLETED</option>
+        </select>
+      </label>
+    </div>
 
-@if (isLoading()) {
-      <app-state-card
-        title="Chargement"
-        [description]="slowLoadingMessage() || 'Récupération des rendez-vous...'"
-      />
-} @else if (errorMessage()) {
+    @if (isLoading()) {
+      <app-state-card title="Chargement" description="Récupération des rendez-vous..." />
+    } @else if (errorMessage()) {
       <app-state-card title="Erreur" [description]="errorMessage()!" />
-} @else if (appointments().length === 0) {
-      <app-state-card title="Aucun rendez-vous" description="Les rendez-vous créés apparaîtront ici." />
-} @else {
-      <div class="toolbar">
-        <label>
-          Rechercher
-          <input
-            type="search"
-            [ngModel]="searchTerm()"
-            (ngModelChange)="searchTerm.set($event)"
-            placeholder="Titre, patient ou statut"
-          />
-        </label>
-
-        <label>
-          Statut
-          <select
-            [ngModel]="statusFilter()"
-            (ngModelChange)="statusFilter.set($event)"
-          >
-            @for (statusOption of statusOptions; track statusOption.value) {
-              <option [ngValue]="statusOption.value">{{ statusOption.label }}</option>
-            }
-          </select>
-        </label>
-
-        <span>{{ filteredAppointments().length }} rendez-vous</span>
+    } @else if (filteredAppointments().length === 0) {
+      <app-state-card title="Aucun rendez-vous" description="Aucun résultat pour le filtre en cours." />
+    } @else {
+      <div class="list">
+        @for (appointment of filteredAppointments(); track appointment.id) {
+          <article class="appointment-card">
+            <div>
+              <p class="status">{{ appointment.status }}</p>
+              <h3>{{ appointment.reason }}</h3>
+              <p>{{ appointment.startDateTime | date: 'fullDate' }} · {{ appointment.startDateTime | date: 'shortTime' }}</p>
+            </div>
+            <div class="actions">
+              <button type="button" class="secondary" [disabled]="!canEdit(appointment)" (click)="editAppointment(appointment)">
+                Modifier
+              </button>
+              <button type="button" class="danger" [disabled]="appointment.status === 'CANCELLED'" (click)="cancelAppointment(appointment)">
+                Annuler
+              </button>
+            </div>
+          </article>
+        }
       </div>
-
-      @if (filteredAppointments().length === 0) {
-        <app-state-card title="Aucun résultat" description="Aucun rendez-vous ne correspond aux filtres." />
-      } @else {
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Patient</th>
-              <th>Début</th>
-              <th>Fin</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (appointment of filteredAppointments(); track appointment.id) {
-              <tr>
-                <td>{{ appointment.title }}</td>
-                <td>{{ appointment.patientName || '—' }}</td>
-                <td>{{ appointment.startsAt | date: 'short' }}</td>
-                <td>{{ appointment.endsAt | date: 'short' }}</td>
-                <td>
-                  <span class="status">{{ appointment.status }}</span>
-                </td>
-                <td class="actions">
-                  <button
-                    type="button"
-                    class="secondary"
-                    [disabled]="pendingAppointmentId() === appointment.id || appointment.status === 'cancelled' || appointment.status === 'completed'"
-                    (click)="updateStatus(appointment)"
-                  >
-                    {{ appointment.status === 'confirmed' ? 'Terminer' : 'Confirmer' }}
-                  </button>
-                  <button
-                    type="button"
-                    class="danger"
-                    [disabled]="pendingAppointmentId() === appointment.id"
-                    (click)="deleteAppointment(appointment)"
-                  >
-                    Supprimer
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      }
-}
+    }
   </section>
 </section>

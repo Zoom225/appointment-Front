@@ -2,22 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { normalizeAppointmentStatus } from './appointment.models';
 
 describe('appointment models', () => {
-  it('normalizes backend appointment statuses to frontend statuses', () => {
-    expect(normalizeAppointmentStatus('SCHEDULED')).toBe('scheduled');
-    expect(normalizeAppointmentStatus('CONFIRMED')).toBe('confirmed');
-    expect(normalizeAppointmentStatus('CANCELLED')).toBe('cancelled');
-    expect(normalizeAppointmentStatus('COMPLETED')).toBe('completed');
+  it('normalizes backend appointment statuses', () => {
+    expect(normalizeAppointmentStatus('PENDING')).toBe('PENDING');
+    expect(normalizeAppointmentStatus('SCHEDULED')).toBe('SCHEDULED');
+    expect(normalizeAppointmentStatus('CONFIRMED')).toBe('CONFIRMED');
+    expect(normalizeAppointmentStatus('CANCELLED')).toBe('CANCELLED');
+    expect(normalizeAppointmentStatus('COMPLETED')).toBe('COMPLETED');
   });
 
-  it('keeps already normalized frontend statuses unchanged', () => {
-    expect(normalizeAppointmentStatus('scheduled')).toBe('scheduled');
-    expect(normalizeAppointmentStatus('confirmed')).toBe('confirmed');
-    expect(normalizeAppointmentStatus('cancelled')).toBe('cancelled');
-    expect(normalizeAppointmentStatus('completed')).toBe('completed');
-  });
-
-  it('falls back to scheduled for missing or unknown statuses', () => {
-    expect(normalizeAppointmentStatus(undefined)).toBe('scheduled');
-    expect(normalizeAppointmentStatus('UNKNOWN')).toBe('scheduled');
+  it('falls back to SCHEDULED for missing or unknown statuses', () => {
+    expect(normalizeAppointmentStatus(undefined)).toBe('SCHEDULED');
+    expect(normalizeAppointmentStatus('UNKNOWN')).toBe('SCHEDULED');
   });
 });

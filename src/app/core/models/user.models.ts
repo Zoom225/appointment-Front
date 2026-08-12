@@ -1,25 +1,17 @@
-export type UserRole = 'admin' | 'staff' | 'user';
+export type UserRole = 'ROLE_ADMIN' | 'ROLE_USER';
 
 export interface BackendUser {
-  id?: string | number;
-  _id?: string;
-  email?: string;
-  firstName?: string;
-  first_name?: string;
-  lastName?: string;
-  last_name?: string;
-  role?: string;
-  roles?: string[];
-  isActive?: boolean;
-  active?: boolean;
-  enabled?: boolean;
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
 }
 
 export interface AppUser {
-  id: string;
+  id: number;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  role: UserRole;
-  isActive: boolean;
+  firstName: string;
+  lastName: string;
+  roles: string[];
 }

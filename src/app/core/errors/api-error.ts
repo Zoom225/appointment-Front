@@ -27,9 +27,13 @@ export function getApiErrorMessage(error: unknown): string {
     case 401:
       return 'Email ou mot de passe incorrect.';
     case 403:
-      return 'Accès refusé pour ce compte.';
+      return 'Accès interdit.';
     case 404:
       return 'Ressource introuvable.';
+    case 409:
+      return 'Conflit métier détecté. Vérifie les disponibilités ou le statut.';
+    case 422:
+      return 'Les données envoyées ne respectent pas les règles attendues.';
     case 500:
       return 'Erreur serveur. Réessaie plus tard.';
     default:

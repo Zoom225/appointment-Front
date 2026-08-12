@@ -9,6 +9,9 @@ import { SessionFeedback } from '../../../core/services/session-feedback';
 
 type LoginState = 'idle' | 'loading' | 'slow' | 'success' | 'error';
 
+const DEMO_EMAIL = 'demo@gestion-rendez-vous.com';
+const DEMO_PASSWORD = 'Demo2026!';
+
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule],
@@ -28,15 +31,20 @@ export class Login {
   protected readonly slowMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(
     this.sessionFeedback.message() ??
-      (this.route.snapshot.queryParamMap.get('sessionExpired')
-        ? 'Ta session a expiré. Connecte-toi à nouveau.'
-        : null),
+      (this.route.snapshot.queryParamMap.get('sessionExpired') ? 'Votre session a expiré. Connectez-vous à nouveau.' : null),
   );
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
+
+  protected fillDemoCredentials(): void {
+    this.form.setValue({
+      email: DEMO_EMAIL,
+      password: DEMO_PASSWORD,
+    });
+  }
 
   protected submit(): void {
     if (this.isSubmitting() || this.loginState() === 'success') {
@@ -59,7 +67,7 @@ export class Login {
       .subscribe(() => {
         if (this.loginState() === 'loading') {
           this.loginState.set('slow');
-          this.slowMessage.set('Le serveur démarre, cela peut prendre quelques secondes...');
+          this.slowMessage.set('Le backend Render démarre. L’authentification peut prendre quelques secondes.');
         }
       });
 

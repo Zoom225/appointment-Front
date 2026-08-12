@@ -1,71 +1,73 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { API_ENDPOINTS } from '../api/api-endpoints';
-import { unwrapCollection } from '../api/api-response';
 import {
   Appointment,
+  AppointmentAvailabilitySlot,
   AppointmentCreateRequest,
   AppointmentStatus,
-  BackendAppointment,
-  UpdateAppointmentPayload,
-  normalizeAppointmentStatus,
+  AppointmentStatusUpdateRequest,
+  AppointmentUpdateRequest,
 } from '../models/appointment.models';
+import { PageResponse } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class AppointmentsApi {
   private readonly http = inject(HttpClient);
 
-  findAll(): Observable<Appointment[]> {
-    return this.http
-      .get<BackendAppointment[] | { data?: BackendAppointment[]; items?: BackendAppointment[]; results?: BackendAppointment[]; content?: BackendAppointment[] }>(
-        API_ENDPOINTS.appointments,
-      )
-      .pipe(map((response) => unwrapCollection(response).map((appointment) => this.mapAppointment(appointment))));
+  findAll(params?: {
+    page?: number;
+    size?: number;
+    status?: AppointmentStatus;
+    startFrom?: string;
+    startTo?: string;
+  }): Observable<PageResponse<Appointment>> {
+    let httpParams = new HttpParams();
+
+    if (params?.page !== undefined) {
+      httpParams = httpParams.set('page', params.page);
+    }
+    if (params?.size !== undefined) {
+      httpParams = httpParams.set('size', params.size);
+    }
+    if (params?.status) {
+      httpParams = httpParams.set('status', params.status);
+    }
+    if (params?.startFrom) {
+      httpParams = httpParams.set('startFrom', params.startFrom);
+    }
+    if (params?.startTo) {
+      httpParams = httpParams.set('startTo', params.startTo);
+    }
+
+    return this.http.get<PageResponse<Appointment>>(API_ENDPOINTS.appointments, { params: httpParams });
+  }
+
+  findById(id: number): Observable<Appointment> {
+    return this.http.get<Appointment>(`${API_ENDPOINTS.appointments}/${id}`);
   }
 
   create(payload: AppointmentCreateRequest): Observable<Appointment> {
-    return this.http
-      .post<BackendAppointment>(API_ENDPOINTS.appointments, payload)
-      .pipe(map((appointment) => this.mapAppointment(appointment)));
+    return this.http.post<Appointment>(API_ENDPOINTS.appointments, payload);
   }
 
-  update(id: string, payload: UpdateAppointmentPayload): Observable<Appointment> {
-    return this.http
-      .patch<BackendAppointment>(`${API_ENDPOINTS.appointments}/${id}`, payload)
-      .pipe(map((appointment) => this.mapAppointment(appointment)));
+  update(id: number, payload: AppointmentUpdateRequest): Observable<Appointment> {
+    return this.http.put<Appointment>(`${API_ENDPOINTS.appointments}/${id}`, payload);
   }
 
-  updateStatus(id: string, status: AppointmentStatus): Observable<Appointment> {
-    return this.update(id, { status });
+  updateStatus(id: number, status: AppointmentStatus): Observable<Appointment> {
+    const payload: AppointmentStatusUpdateRequest = { status };
+    return this.http.patch<Appointment>(`${API_ENDPOINTS.appointments}/${id}`, payload);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${API_ENDPOINTS.appointments}/${id}`);
+  cancel(id: number): Observable<Appointment> {
+    return this.http.patch<Appointment>(`${API_ENDPOINTS.appointments}/${id}/cancel`, {});
   }
 
-  private mapAppointment(appointment: BackendAppointment): Appointment {
-    const startsAt =
-      appointment.startsAt ??
-      appointment.starts_at ??
-      appointment.startDateTime ??
-      appointment.startDate ??
-      appointment.date ??
-      '';
-
-    return {
-      id: String(appointment.id ?? appointment._id ?? ''),
-      title: appointment.title ?? appointment.reason ?? 'Rendez-vous',
-      startsAt,
-      endsAt: appointment.endsAt ?? appointment.ends_at ?? appointment.endDateTime ?? appointment.endDate ?? startsAt,
-      status: normalizeAppointmentStatus(appointment.status),
-      patientName: appointment.patientName ?? appointment.patient_name,
-      userId:
-        appointment.userId === undefined && appointment.user_id === undefined
-          ? undefined
-          : String(appointment.userId ?? appointment.user_id),
-    };
+  getAvailability(userId: number, date: string): Observable<AppointmentAvailabilitySlot[]> {
+    return this.http.get<AppointmentAvailabilitySlot[]>(`${API_ENDPOINTS.appointments}/availability`, {
+      params: new HttpParams().set('userId', userId).set('date', date),
+    });
   }
-
 }

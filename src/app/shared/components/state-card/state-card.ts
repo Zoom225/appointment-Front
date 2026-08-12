@@ -12,7 +12,7 @@ import { Component, input } from '@angular/core';
     .state-card {
       background: #fff;
       border: 1px solid #e4e7ec;
-      border-radius: 16px;
+      border-radius: 8px;
       padding: 20px;
     }
 

@@ -5,34 +5,91 @@
 } @else if (errorMessage()) {
   <app-state-card title="Erreur API" [description]="errorMessage()!" />
 } @else {
-<section class="stats-grid">
-  <article class="stat-card">
-    <span>Rendez-vous</span>
-    <strong>{{ upcomingAppointmentsCount() }}</strong>
-    <p>Rendez-vous actifs récupérés depuis l'API.</p>
-  </article>
+  <section class="stats-grid">
+    <article class="stat-card">
+      <span>Rendez-vous actifs</span>
+      <strong>{{ activeAppointmentsCount() }}</strong>
+      <p>Synchronisés depuis `GET /api/appointments`.</p>
+    </article>
 
-  @if (canViewUsers()) {
-  <article class="stat-card">
-    <span>Utilisateurs</span>
-    <strong>{{ activeUsersCount() }}</strong>
-    <p>Comptes actifs récupérés depuis le backend.</p>
-  </article>
+    <article class="stat-card">
+      <span>Notifications non lues</span>
+      <strong>{{ unreadNotificationsCount() }}</strong>
+      <p>Issues de `GET /api/notifications`.</p>
+    </article>
+
+    <article class="stat-card">
+      <span>Authentification</span>
+      <strong>JWT actif</strong>
+      <p>Bearer injecté automatiquement sur les appels API.</p>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <article class="panel">
+      <h2>Prochain rendez-vous</h2>
+      @if (nextAppointment(); as appointment) {
+        <dl>
+          <div>
+            <dt>Motif</dt>
+            <dd>{{ appointment.reason }}</dd>
+          </div>
+          <div>
+            <dt>Début</dt>
+            <dd>{{ appointment.startDateTime | date: 'fullDate' }} à {{ appointment.startDateTime | date: 'shortTime' }}</dd>
+          </div>
+          <div>
+            <dt>Statut</dt>
+            <dd>{{ appointment.status }}</dd>
+          </div>
+        </dl>
+      } @else {
+        <p class="muted">Aucun rendez-vous futur pour le moment.</p>
+      }
+    </article>
+
+    <article class="panel">
+      <h2>Session courante</h2>
+      @if (auth.user(); as user) {
+        <dl>
+          <div>
+            <dt>Utilisateur</dt>
+            <dd>{{ user.firstName }} {{ user.lastName }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ user.email }}</dd>
+          </div>
+          <div>
+            <dt>Rôles</dt>
+            <dd>{{ user.roles.join(', ') }}</dd>
+          </div>
+        </dl>
+      }
+    </article>
+  </section>
+
+  @if (statistics(); as statistics) {
+    <section class="panel">
+      <h2>Indicateurs administrateur</h2>
+      <div class="stats-grid compact">
+        <article class="stat-card">
+          <span>Utilisateurs</span>
+          <strong>{{ statistics.totalUsers }}</strong>
+        </article>
+        <article class="stat-card">
+          <span>Rendez-vous</span>
+          <strong>{{ statistics.totalAppointments }}</strong>
+        </article>
+        <article class="stat-card">
+          <span>En attente</span>
+          <strong>{{ statistics.pendingAppointments }}</strong>
+        </article>
+        <article class="stat-card">
+          <span>Confirmés</span>
+          <strong>{{ statistics.confirmedAppointments }}</strong>
+        </article>
+      </div>
+    </section>
   }
-
-  <article class="stat-card">
-    <span>Statut API</span>
-    <strong>Connecté</strong>
-    <p>Le frontend consomme les endpoints Render configurés.</p>
-  </article>
-</section>
-
-<section class="dashboard-panel">
-  <h2>État de l'intégration</h2>
-  <ul>
-    <li>URL Render configurée.</li>
-    <li>Réponses API normalisées côté frontend.</li>
-    <li>JWT transmis automatiquement par l'interceptor.</li>
-  </ul>
-</section>
 }

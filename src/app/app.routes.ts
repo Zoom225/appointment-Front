@@ -15,29 +15,38 @@ export const routes: Routes = [
     component: MainLayout,
     canActivate: [authGuard],
     children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'dashboard',
-      },
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
         path: 'appointments',
-        loadComponent: () =>
-          import('./features/appointments/appointments').then((m) => m.Appointments),
+        loadComponent: () => import('./features/appointments/appointments').then((m) => m.Appointments),
+      },
+      {
+        path: 'availability',
+        loadComponent: () => import('./features/availability/availability').then((m) => m.Availability),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./features/notifications/notifications').then((m) => m.Notifications),
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+      },
+      {
+        path: 'admin',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
       },
       {
         path: 'users',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] },
         loadComponent: () => import('./features/users/users').then((m) => m.Users),
-      },
-      {
-        path: 'profile',
-        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
       },
       {
         path: 'forbidden',

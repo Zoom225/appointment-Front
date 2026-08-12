@@ -23,9 +23,15 @@ import { Component, input } from '@angular/core';
 
     .page-header h1 {
       color: #101828;
-      font-size: clamp(2rem, 4vw, 3rem);
+      font-size: 2.25rem;
       line-height: 1;
       margin: 0;
+    }
+
+    @media (max-width: 720px) {
+      .page-header h1 {
+        font-size: 1.9rem;
+      }
     }
   `,
 })

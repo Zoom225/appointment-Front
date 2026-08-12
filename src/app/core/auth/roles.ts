@@ -1,9 +1,9 @@
-export type AppRole = 'ADMIN' | 'STAFF' | 'USER';
+export type AppRole = 'ADMIN' | 'USER';
 
 export function normalizeRole(role: string): AppRole | null {
   const normalizedRole = role.replace(/^ROLE_/i, '').trim().toUpperCase();
 
-  if (normalizedRole === 'ADMIN' || normalizedRole === 'STAFF' || normalizedRole === 'USER') {
+  if (normalizedRole === 'ADMIN' || normalizedRole === 'USER') {
     return normalizedRole;
   }
 

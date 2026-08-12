@@ -19,7 +19,9 @@ export class Auth {
   private readonly userSignal = signal<User | null>(this.tokenStorage.getUser());
 
   readonly user = this.userSignal.asReadonly();
-  readonly isAuthenticated = computed(() => Boolean(this.tokenSignal()) && !isJwtExpired(this.tokenSignal()));
+  readonly token = this.tokenSignal.asReadonly();
+  readonly isAuthenticated = computed(() => Boolean(this.getAccessToken()) && Boolean(this.userSignal()));
+  readonly roles = computed(() => this.userSignal()?.roles ?? []);
   readonly displayName = computed(() => {
     const user = this.userSignal();
 
@@ -34,7 +36,6 @@ export class Auth {
     return this.http.post<AuthResponse>(API_ENDPOINTS.auth.login, credentials).pipe(
       tap((response) => {
         const user = this.mapAuthResponseToUser(response);
-
         this.tokenStorage.setToken(response.token);
         this.tokenStorage.setUser(user);
         this.tokenSignal.set(response.token);
@@ -43,22 +44,13 @@ export class Auth {
     );
   }
 
-  loadCurrentUser(): Observable<User> {
-    return this.http.get<User>(API_ENDPOINTS.auth.me).pipe(
-      tap((user) => {
-        this.tokenStorage.setUser(user);
-        this.userSignal.set(user);
-      }),
-    );
-  }
-
   logout(options?: { sessionExpired?: boolean }): void {
-    this.tokenStorage.clear();
-    this.tokenSignal.set(null);
-    this.userSignal.set(null);
+    this.clearSession();
 
     if (options?.sessionExpired) {
       this.sessionFeedback.setSessionExpired();
+    } else {
+      this.sessionFeedback.clear();
     }
 
     void this.router.navigate(['/login'], {
@@ -69,7 +61,11 @@ export class Auth {
   getAccessToken(): string | null {
     const token = this.tokenSignal();
 
-    return isJwtExpired(token) ? null : token;
+    if (!token || isJwtExpired(token)) {
+      return null;
+    }
+
+    return token;
   }
 
   hasStoredToken(): boolean {
@@ -88,9 +84,7 @@ export class Auth {
   }
 
   hasAnyRole(allowedRoles: AppRole[]): boolean {
-    const user = this.userSignal();
-
-    return user ? hasAnyRole(user.roles, allowedRoles) : false;
+    return hasAnyRole(this.roles(), allowedRoles);
   }
 
   private mapAuthResponseToUser(response: AuthResponse): User {
