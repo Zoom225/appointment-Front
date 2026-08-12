@@ -1,17 +1,37 @@
 <main class="login-page">
   <section class="login-shell">
     <div class="intro">
-      <p class="eyebrow">Portfolio Full Stack</p>
-      <h1>Gestion de rendez-vous</h1>
+      <p class="eyebrow">PROJET FULL STACK EN PRODUCTION</p>
+      <h1>Gestion de rendez-vous Full Stack</h1>
+      <p class="stack-line">Angular • Spring Boot • PostgreSQL • JWT • API REST</p>
       <p class="lede">
-        Frontend Angular connecté au backend Spring Boot déployé sur Render avec JWT, rôles et appels API réels.
+        Application complète de gestion de rendez-vous avec authentification sécurisée,
+        gestion des disponibilités, notifications et suivi des rendez-vous.
       </p>
+
+      <div class="badge-list" aria-label="Services et technologies du projet">
+        <span>Frontend Vercel</span>
+        <span>Backend Render</span>
+        <span>API REST</span>
+        <span>JWT sécurisé</span>
+      </div>
+
+      <section class="features-panel" aria-labelledby="features-title">
+        <h2 id="features-title">Fonctionnalités principales</h2>
+        <ul>
+          <li>Gestion des rendez-vous</li>
+          <li>Disponibilités en temps réel</li>
+          <li>Notifications</li>
+          <li>Authentification JWT</li>
+        </ul>
+      </section>
     </div>
 
     <form class="login-card" [formGroup]="form" (ngSubmit)="submit()">
       <div class="card-header">
         <p class="eyebrow">Connexion</p>
-        <h2>Accéder à l'application</h2>
+        <h2>Accès recruteur</h2>
+        <p>Testez directement l'application avec le compte de démonstration.</p>
       </div>
 
       <label>
@@ -50,5 +70,20 @@
         {{ isSubmitting() ? 'Connexion...' : 'Se connecter' }}
       </button>
     </form>
+
+    <section class="tech-stack" aria-labelledby="tech-stack-title">
+      <h2 id="tech-stack-title">Stack technique</h2>
+      <div>
+        <span>Angular</span>
+        <span>TypeScript</span>
+        <span>Spring Boot</span>
+        <span>Java</span>
+        <span>PostgreSQL</span>
+        <span>JWT</span>
+        <span>REST API</span>
+        <span>Render</span>
+        <span>Vercel</span>
+      </div>
+    </section>
   </section>
 </main>

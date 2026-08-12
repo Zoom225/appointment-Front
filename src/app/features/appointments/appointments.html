@@ -35,12 +35,12 @@
       <div class="section-header">
         <h3>Disponibilités backend</h3>
         @if (isLoadingAvailability()) {
-          <span>Chargement...</span>
+          <span class="loading-label">Chargement...</span>
         }
       </div>
 
       @if (availableSlots().length === 0) {
-        <p class="muted">Choisissez une date pour récupérer les créneaux de `GET /api/appointments/availability`.</p>
+        <p class="muted">Choisissez une date pour récupérer les créneaux disponibles.</p>
       } @else {
         <div class="slot-list">
           @for (slot of availableSlots(); track slot.startDateTime) {
@@ -87,10 +87,17 @@
       <div class="list">
         @for (appointment of filteredAppointments(); track appointment.id) {
           <article class="appointment-card">
-            <div>
-              <p class="status">{{ appointment.status }}</p>
+            <div class="appointment-content">
+              <p [class]="statusClass(appointment.status)">{{ statusLabel(appointment.status) }}</p>
               <h3>{{ appointment.reason }}</h3>
-              <p>{{ appointment.startDateTime | date: 'fullDate' }} · {{ appointment.startDateTime | date: 'shortTime' }}</p>
+              <p class="appointment-meta">
+                <span aria-hidden="true">📅</span>
+                {{ formatDate(appointment.startDateTime) }}
+              </p>
+              <p class="appointment-meta">
+                <span aria-hidden="true">🕒</span>
+                {{ formatTimeRange(appointment) }}
+              </p>
             </div>
             @if (canEdit(appointment)) {
               <div class="actions">

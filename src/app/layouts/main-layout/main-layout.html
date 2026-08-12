@@ -1,14 +1,20 @@
 <div class="shell">
   <aside class="sidebar" [class.open]="isMenuOpen()">
     <div class="sidebar-header">
-      <a class="brand" routerLink="/dashboard" (click)="closeMenu()">Gestion de rendez-vous</a>
+      <a class="brand" routerLink="/dashboard" (click)="closeMenu()">
+        <span class="brand-mark">GR</span>
+        <span>Gestion de rendez-vous</span>
+      </a>
       <button type="button" class="menu-close" (click)="closeMenu()">Fermer</button>
     </div>
 
     <nav class="nav" aria-label="Navigation principale">
       @for (item of navigationItems; track item.route) {
         @if (canShowNavigationItem(item)) {
-          <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMenu()">{{ item.label }}</a>
+          <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMenu()">
+            <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span>
+            <span>{{ item.label }}</span>
+          </a>
         }
       }
     </nav>

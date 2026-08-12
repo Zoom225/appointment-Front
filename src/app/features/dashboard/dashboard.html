@@ -7,18 +7,21 @@
 } @else {
   <section class="stats-grid">
     <article class="stat-card">
+      <span class="stat-icon">◷</span>
       <span>Rendez-vous actifs</span>
       <strong>{{ activeAppointmentsCount() }}</strong>
-      <p>Synchronisés depuis `GET /api/appointments`.</p>
+      <p>Synchronisés depuis l’API rendez-vous.</p>
     </article>
 
     <article class="stat-card">
+      <span class="stat-icon">◦</span>
       <span>Notifications non lues</span>
       <strong>{{ unreadNotificationsCount() }}</strong>
-      <p>Issues de `GET /api/notifications`.</p>
+      <p>Derniers changements liés à vos rendez-vous.</p>
     </article>
 
     <article class="stat-card">
+      <span class="stat-icon">✓</span>
       <span>Authentification</span>
       <strong>JWT actif</strong>
       <p>Bearer injecté automatiquement sur les appels API.</p>
@@ -36,11 +39,11 @@
           </div>
           <div>
             <dt>Début</dt>
-            <dd>{{ appointment.startDateTime | date: 'fullDate' }} à {{ appointment.startDateTime | date: 'shortTime' }}</dd>
+            <dd>{{ formatDateTime(appointment.startDateTime) }}</dd>
           </div>
           <div>
             <dt>Statut</dt>
-            <dd>{{ appointment.status }}</dd>
+            <dd><span [class]="appointmentStatusClass(appointment.status)">{{ appointmentStatusLabel(appointment.status) }}</span></dd>
           </div>
         </dl>
       } @else {

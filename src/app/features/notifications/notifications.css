@@ -1,21 +1,57 @@
+.notifications-summary {
+  align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+}
+
+.notifications-summary p {
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.notifications-summary strong {
+  color: var(--color-primary);
+}
+
 .notification-list {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .notification-card {
   align-items: flex-start;
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
   display: flex;
   gap: 16px;
   justify-content: space-between;
-  padding: 18px 20px;
+  padding: 20px;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.notification-card:hover {
+  background: #f8fbff;
+  border-color: #bfdbfe;
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
 }
 
 .notification-card.unread {
-  border-color: #84caff;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 12%), var(--shadow-sm);
 }
 
 .type,
@@ -27,10 +63,70 @@
 
 .type,
 .notification-card small {
-  color: #667085;
+  color: var(--color-muted);
 }
 
 .notification-card h2 {
-  color: #101828;
+  color: var(--color-text);
   margin: 6px 0;
+}
+
+.type {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 750;
+  padding: 6px 10px;
+}
+
+.type.created,
+.type.status-changed {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.type.updated {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.type.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.type.reminder {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+button.secondary {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  color: #344054;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+button.secondary:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  box-shadow: 0 8px 18px rgb(15 23 42 / 8%);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+@media (max-width: 720px) {
+  .notification-card,
+  .notifications-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }

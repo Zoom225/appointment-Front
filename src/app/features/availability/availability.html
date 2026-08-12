@@ -20,8 +20,8 @@
   <section class="slot-grid">
     @for (slot of slots(); track slot.startDateTime) {
       <article class="slot-card">
-        <strong>{{ slot.startDateTime | date: 'shortTime' }} - {{ slot.endDateTime | date: 'shortTime' }}</strong>
-        <p>{{ slot.startDateTime | date: 'fullDate' }}</p>
+        <strong>{{ formatTime(slot.startDateTime) }} – {{ formatTime(slot.endDateTime) }}</strong>
+        <p>{{ formatDate(slot.startDateTime) }}</p>
       </article>
     }
   </section>

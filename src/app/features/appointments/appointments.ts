@@ -166,6 +166,40 @@ export class Appointments implements OnInit {
     return appointment.status !== 'CANCELLED' && appointment.status !== 'COMPLETED';
   }
 
+  protected statusLabel(status: AppointmentStatus): string {
+    const labels: Record<AppointmentStatus, string> = {
+      PENDING: 'En attente',
+      SCHEDULED: 'Planifié',
+      CONFIRMED: 'Confirmé',
+      COMPLETED: 'Terminé',
+      CANCELLED: 'Annulé',
+    };
+
+    return labels[status];
+  }
+
+  protected statusClass(status: AppointmentStatus): string {
+    return `status ${status.toLowerCase()}`;
+  }
+
+  protected formatDate(value: string): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).format(new Date(value));
+  }
+
+  protected formatTimeRange(appointment: Appointment): string {
+    const formatter = new Intl.DateTimeFormat('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    return `${formatter.format(new Date(appointment.startDateTime))} – ${formatter.format(new Date(appointment.endDateTime))}`;
+  }
+
   private loadAppointments(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);

@@ -1,27 +1,81 @@
-# Frontend Rendez-vous
+# Gestion de rendez-vous — Frontend Angular
 
-Frontend Angular pour l’application de gestion de rendez-vous.
+Frontend Angular moderne pour une application full stack de gestion de rendez-vous.
 
-## Stack
+Application pensée comme projet portfolio : authentification sécurisée, interface SaaS responsive, gestion des rendez-vous, disponibilités, notifications et profil utilisateur.
+
+## Démo
+
+- Frontend Vercel : `https://appointment-front-gilt.vercel.app`
+- Backend Render : `https://appointment-backend-vab1.onrender.com`
+- API base URL : `https://appointment-backend-vab1.onrender.com/api`
+
+## Stack technique
 
 - Angular 22
+- TypeScript
 - Standalone Components
 - Signals
+- Reactive Forms
+- Angular Router
 - Guards
 - HTTP Interceptors
-- Reactive Forms
-- Backend Render : `https://appointment-backend-vab1.onrender.com/api`
+- JWT Bearer Token
+- API REST Spring Boot
+- Déploiement Vercel
+
+## Fonctionnalités
+
+- Connexion avec compte recruteur de démonstration
+- Gestion de session JWT
+- Protection des routes avec guards
+- Injection automatique du token via interceptor HTTP
+- Tableau de bord
+- Création de rendez-vous
+- Modification de rendez-vous
+- Annulation de rendez-vous
+- Historique avec statuts
+- Recherche de disponibilités backend
+- Notifications
+- Profil utilisateur
+- Déconnexion
+- Interface responsive desktop, tablette et mobile
+
+## Architecture
+
+```text
+src/app
+├── core
+│   ├── api
+│   ├── errors
+│   ├── guards
+│   ├── interceptors
+│   ├── models
+│   └── services
+├── features
+│   ├── appointments
+│   ├── auth
+│   ├── availability
+│   ├── dashboard
+│   ├── notifications
+│   ├── profile
+│   └── users
+├── layouts
+├── shared
+├── app.config.ts
+└── app.routes.ts
+```
 
 ## Prérequis
 
-Angular CLI 22 exige une version Node compatible :
+Le projet utilise Angular 22. La version Node doit respecter les contraintes du projet :
 
 ```bash
 node >=24.15.0 <25
 npm >=11 <12
 ```
 
-La version locale `v24.13.0` ne suffit pas pour lancer `ng build`.
+La version Node `v24.13.0` est insuffisante pour lancer Angular CLI 22.
 
 ## Installation
 
@@ -43,9 +97,22 @@ http://localhost:4200
 
 ## Vérifications
 
+Typecheck application :
+
 ```bash
 npm run typecheck
+```
+
+Typecheck des tests :
+
+```bash
 npm run typecheck:spec
+```
+
+Tests Angular :
+
+```bash
+npm test -- --watch=false
 ```
 
 ## Build production
@@ -54,7 +121,7 @@ npm run typecheck:spec
 npm run build:production
 ```
 
-Sortie attendue pour Vercel :
+Sortie attendue :
 
 ```text
 dist/frontend-rendez-vous/browser
@@ -62,12 +129,17 @@ dist/frontend-rendez-vous/browser
 
 ## Déploiement Vercel
 
-Configuration présente dans `vercel.json` :
+La configuration Vercel est définie dans `vercel.json` :
 
-- installation : `npm ci`
-- build : `npm run build:production`
-- output : `dist/frontend-rendez-vous/browser`
-- rewrite SPA vers `index.html`
+```json
+{
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build:production",
+  "outputDirectory": "dist/frontend-rendez-vous/browser"
+}
+```
+
+Une rewrite SPA redirige les routes Angular vers `index.html`.
 
 ## Configuration API
 
@@ -79,8 +151,46 @@ src/environments/environment.prod.ts
 src/app/core/api/api-endpoints.ts
 ```
 
-URL production actuelle :
+Backend production :
 
 ```text
 https://appointment-backend-vab1.onrender.com/api
+```
+
+Endpoint de connexion :
+
+```text
+POST /api/auth/login
+```
+
+Endpoint rendez-vous :
+
+```text
+POST /api/appointments
+PATCH /api/appointments/{id}
+```
+
+## Notes techniques
+
+- Le backend Render peut être lent au premier appel si l’instance gratuite est en veille.
+- Le frontend affiche un état de chargement et un message adapté lors d’un réveil lent du serveur.
+- Les valeurs techniques des statuts backend sont conservées côté API.
+- Les libellés affichés à l’utilisateur sont traduits en français.
+
+## Sécurité
+
+- Authentification JWT côté backend Spring Security.
+- Token stocké côté frontend après connexion.
+- Header `Authorization: Bearer <token>` ajouté via interceptor HTTP.
+- Routes privées protégées par guard Angular.
+
+## Commandes utiles
+
+```bash
+npm ci
+npm start
+npm run typecheck
+npm run typecheck:spec
+npm test -- --watch=false
+npm run build:production
 ```

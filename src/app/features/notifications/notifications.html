@@ -1,5 +1,10 @@
 <app-page-header eyebrow="Centre de messages" title="Notifications" />
 
+<section class="notifications-summary">
+  <p>Suivez les changements liés à vos rendez-vous.</p>
+  <strong>{{ unreadCount() }} non lue(s)</strong>
+</section>
+
 @if (isLoading()) {
   <app-state-card title="Chargement" description="Récupération des notifications..." />
 } @else if (errorMessage()) {
@@ -11,10 +16,10 @@
     @for (notification of notifications(); track notification.id) {
       <article class="notification-card" [class.unread]="!notification.readAt">
         <div>
-          <p class="type">{{ notification.type }}</p>
+          <p [class]="typeClass(notification.type)">{{ typeLabel(notification.type) }}</p>
           <h2>{{ notification.title }}</h2>
           <p>{{ notification.message }}</p>
-          <small>{{ notification.createdAt | date: 'fullDate' }} · {{ notification.createdAt | date: 'shortTime' }}</small>
+          <small>{{ formatDateTime(notification.createdAt) }}</small>
         </div>
         <button type="button" class="secondary" [disabled]="!!notification.readAt" (click)="markAsRead(notification)">
           {{ notification.readAt ? 'Déjà lue' : 'Marquer comme lue' }}

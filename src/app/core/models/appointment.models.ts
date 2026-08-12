@@ -1,5 +1,7 @@
 export type AppointmentStatus = 'PENDING' | 'SCHEDULED' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 
+export const ACTIVE_APPOINTMENT_STATUSES: AppointmentStatus[] = ['PENDING', 'SCHEDULED', 'CONFIRMED'];
+
 export function normalizeAppointmentStatus(status: string | undefined): AppointmentStatus {
   const normalizedStatus = status?.trim().toUpperCase();
 
@@ -14,6 +16,10 @@ export function normalizeAppointmentStatus(status: string | undefined): Appointm
   }
 
   return 'SCHEDULED';
+}
+
+export function isActiveAppointmentStatus(status: AppointmentStatus): boolean {
+  return ACTIVE_APPOINTMENT_STATUSES.includes(status);
 }
 
 export interface Appointment {

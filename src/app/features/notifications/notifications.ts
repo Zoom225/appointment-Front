@@ -36,6 +36,36 @@ export class Notifications implements OnInit {
     });
   }
 
+  protected unreadCount(): number {
+    return this.notifications().filter((notification) => !notification.readAt).length;
+  }
+
+  protected typeLabel(type: AppNotification['type']): string {
+    const labels: Record<AppNotification['type'], string> = {
+      CREATED: 'Créé',
+      UPDATED: 'Modifié',
+      CANCELLED: 'Annulé',
+      STATUS_CHANGED: 'Statut modifié',
+      REMINDER: 'Rappel',
+    };
+
+    return labels[type] ?? type;
+  }
+
+  protected typeClass(type: AppNotification['type']): string {
+    return `type ${type.toLowerCase().replace('_', '-')}`;
+  }
+
+  protected formatDateTime(value: string): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value));
+  }
+
   private loadNotifications(): void {
     this.notificationsApi.findAll({ page: 0, size: 20 }).subscribe({
       next: (response) => {

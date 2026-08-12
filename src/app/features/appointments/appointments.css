@@ -1,26 +1,54 @@
 .appointment-grid {
+  align-items: start;
   display: grid;
-  gap: 16px;
-  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  gap: 28px;
+  grid-template-columns: minmax(340px, 440px) minmax(0, 1fr);
 }
 
 .panel {
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 8px;
-  padding: 20px;
+  background: var(--surface);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  padding: 26px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .panel:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+  }
 }
 
 .form-panel,
 .list,
 label {
   display: grid;
-  gap: 12px;
+}
+
+.form-panel {
+  gap: 18px;
+  position: sticky;
+  top: 96px;
+}
+
+.list {
+  gap: 14px;
+}
+
+label {
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  gap: 10px;
 }
 
 .section-header,
 .actions,
-.datetime-grid,
 .slot-list {
   display: flex;
   gap: 12px;
@@ -32,49 +60,119 @@ label {
   justify-content: space-between;
 }
 
-.datetime-grid {
-  flex-wrap: wrap;
+.section-header h2,
+.section-header h3 {
+  color: var(--text);
+  line-height: 1.15;
+  margin: 0;
 }
 
-label {
-  color: #344054;
-  font-weight: 600;
+.section-header h2 {
+  font-size: 1.25rem;
+}
+
+.section-header h3 {
+  font-size: 1rem;
+}
+
+.datetime-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 input,
 select,
 button {
-  border-radius: 8px;
+  border-radius: 12px;
   font: inherit;
 }
 
 input,
 select {
-  border: 1px solid #d0d5dd;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  color: var(--text);
+  min-height: 46px;
   padding: 12px 14px;
 }
 
+input::placeholder {
+  color: #94a3b8;
+}
+
+input:hover,
+select:hover {
+  border-color: #94a3b8;
+}
+
+input:focus,
+select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgb(37 99 235 / 12%);
+  outline: 0;
+}
+
 button {
-  background: #175cd3;
+  background: #2563eb;
   border: 0;
   color: #fff;
   cursor: pointer;
+  font-weight: 650;
+  min-height: 44px;
   padding: 11px 14px;
 }
 
-button.secondary {
-  background: #fff;
-  border: 1px solid #d0d5dd;
-  color: #344054;
+button:hover:not(:disabled) {
+  background: #1d4ed8;
+  box-shadow: 0 10px 20px rgb(37 99 235 / 18%);
+  transform: translateY(-1px);
 }
 
-button.danger {
-  background: #d92d20;
+button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 button:disabled {
+  background: #94a3b8;
+  box-shadow: none;
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.65;
+  transform: none;
+}
+
+.form-panel > button[type="submit"] {
+  width: 100%;
+}
+
+button.secondary {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+button.secondary:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  box-shadow: 0 8px 18px rgb(15 23 42 / 8%);
+}
+
+button.danger {
+  background: #dc2626;
+}
+
+button.danger:hover:not(:disabled) {
+  background: #b91c1c;
+  box-shadow: 0 10px 20px rgb(220 38 38 / 18%);
+}
+
+.slots-panel {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
 }
 
 .slot-list {
@@ -82,19 +180,44 @@ button:disabled {
 }
 
 .slot {
-  background: #eff8ff;
-  border: 1px solid #b2ddff;
-  color: #175cd3;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  color: #1d4ed8;
+  font-size: 0.92rem;
+  min-height: 38px;
+  padding: 9px 12px;
+}
+
+.slot:hover:not(:disabled),
+.slot:focus-visible {
+  background: #eff6ff;
+  border-color: #93c5fd;
+  box-shadow: 0 8px 18px rgb(37 99 235 / 10%);
 }
 
 .appointment-card {
   align-items: center;
-  border: 1px solid #e4e7ec;
-  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   display: flex;
   gap: 16px;
   justify-content: space-between;
   padding: 16px;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .appointment-card:hover {
+    background: #f8fbff;
+    border-color: #bfdbfe;
+    box-shadow: var(--shadow-sm);
+    transform: translateX(3px);
+  }
 }
 
 .appointment-card h3,
@@ -105,18 +228,83 @@ button:disabled {
   margin: 0;
 }
 
+.appointment-content {
+  min-width: 0;
+}
+
+.appointment-card h3 {
+  color: var(--text);
+  font-size: 1.04rem;
+  font-weight: 750;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.appointment-meta {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  font-size: 0.92rem;
+  gap: 7px;
+  line-height: 1.45;
+}
+
 .status,
 .muted {
-  color: #667085;
+  color: #64748b;
+}
+
+.status {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+}
+
+.status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status.scheduled {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status.confirmed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status.completed {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .error {
-  color: #b42318;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  color: #991b1b;
+  padding: 10px 12px;
+}
+
+.loading-label {
+  color: #64748b;
+  font-size: 0.9rem;
 }
 
 .filter {
   align-items: center;
   display: flex;
+  gap: 10px;
 }
 
 @media (max-width: 1000px) {
@@ -124,9 +312,42 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  .form-panel {
+    position: static;
+  }
+
   .appointment-card,
   .section-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel {
+    padding: 18px;
+  }
+
+  .datetime-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter,
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter,
+  .filter select {
+    width: 100%;
   }
 }

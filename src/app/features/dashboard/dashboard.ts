@@ -11,6 +11,7 @@ import { Auth } from '../../core/services/auth';
 import { NotificationsApi } from '../../core/services/notifications-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 import { StateCard } from '../../shared/components/state-card/state-card';
+import { getNextActiveFutureAppointment } from './dashboard.utils';
 
 @Component({
   selector: 'app-dashboard',
@@ -36,12 +37,34 @@ export class Dashboard implements OnInit {
   protected readonly unreadNotificationsCount = computed(
     () => this.notifications().filter((notification) => !notification.readAt).length,
   );
-  protected readonly nextAppointment = computed(() =>
-    this.appointments()
-      .filter((appointment) => new Date(appointment.startDateTime).getTime() >= Date.now())
-      .sort((left, right) => left.startDateTime.localeCompare(right.startDateTime))[0],
-  );
+  protected readonly nextAppointment = computed(() => getNextActiveFutureAppointment(this.appointments()));
   protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['ADMIN']));
+
+  protected appointmentStatusLabel(status: Appointment['status']): string {
+    const labels: Record<Appointment['status'], string> = {
+      PENDING: 'En attente',
+      SCHEDULED: 'Planifié',
+      CONFIRMED: 'Confirmé',
+      COMPLETED: 'Terminé',
+      CANCELLED: 'Annulé',
+    };
+
+    return labels[status];
+  }
+
+  protected appointmentStatusClass(status: Appointment['status']): string {
+    return `status-badge ${status.toLowerCase()}`;
+  }
+
+  protected formatDateTime(value: string): string {
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(value));
+  }
 
   ngOnInit(): void {
     forkJoin({
