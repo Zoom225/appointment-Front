@@ -92,14 +92,16 @@
               <h3>{{ appointment.reason }}</h3>
               <p>{{ appointment.startDateTime | date: 'fullDate' }} · {{ appointment.startDateTime | date: 'shortTime' }}</p>
             </div>
-            <div class="actions">
-              <button type="button" class="secondary" [disabled]="!canEdit(appointment)" (click)="editAppointment(appointment)">
-                Modifier
-              </button>
-              <button type="button" class="danger" [disabled]="appointment.status === 'CANCELLED'" (click)="cancelAppointment(appointment)">
-                Annuler
-              </button>
-            </div>
+            @if (canEdit(appointment)) {
+              <div class="actions">
+                <button type="button" class="secondary" (click)="editAppointment(appointment)">
+                  Modifier
+                </button>
+                <button type="button" class="danger" (click)="cancelAppointment(appointment)">
+                  Annuler
+                </button>
+              </div>
+            }
           </article>
         }
       </div>

@@ -76,6 +76,10 @@ export class Appointments implements OnInit {
   }
 
   protected editAppointment(appointment: Appointment): void {
+    if (!this.canEdit(appointment)) {
+      return;
+    }
+
     this.selectedAppointment.set(appointment);
     this.formMessage.set(null);
     this.form.patchValue({
@@ -138,6 +142,10 @@ export class Appointments implements OnInit {
   }
 
   protected cancelAppointment(appointment: Appointment): void {
+    if (!this.canEdit(appointment)) {
+      return;
+    }
+
     if (!this.confirmDialog.confirm(`Annuler le rendez-vous "${appointment.reason}" ?`)) {
       return;
     }
