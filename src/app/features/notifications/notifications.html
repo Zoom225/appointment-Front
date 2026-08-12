@@ -1,0 +1,25 @@
+<app-page-header eyebrow="Centre de messages" title="Notifications" />
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération des notifications..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (notifications().length === 0) {
+  <app-state-card title="Aucune notification" description="Le backend n’a renvoyé aucun message pour ce compte." />
+} @else {
+  <section class="notification-list">
+    @for (notification of notifications(); track notification.id) {
+      <article class="notification-card" [class.unread]="!notification.readAt">
+        <div>
+          <p class="type">{{ notification.type }}</p>
+          <h2>{{ notification.title }}</h2>
+          <p>{{ notification.message }}</p>
+          <small>{{ notification.createdAt | date: 'fullDate' }} · {{ notification.createdAt | date: 'shortTime' }}</small>
+        </div>
+        <button type="button" class="secondary" [disabled]="!!notification.readAt" (click)="markAsRead(notification)">
+          {{ notification.readAt ? 'Déjà lue' : 'Marquer comme lue' }}
+        </button>
+      </article>
+    }
+  </section>
+}

@@ -1,0 +1,68 @@
+<app-page-header eyebrow="Back-office" title="Administration" />
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération des données administrateur..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else {
+  @if (statistics(); as statistics) {
+    <section class="stats-grid">
+      <article class="stat-card"><span>Utilisateurs</span><strong>{{ statistics.totalUsers }}</strong></article>
+      <article class="stat-card"><span>Rendez-vous</span><strong>{{ statistics.totalAppointments }}</strong></article>
+      <article class="stat-card"><span>En attente</span><strong>{{ statistics.pendingAppointments }}</strong></article>
+      <article class="stat-card"><span>Annulés</span><strong>{{ statistics.cancelledAppointments }}</strong></article>
+    </section>
+  }
+
+  <section class="admin-grid">
+    <article class="panel">
+      <h2>Rendez-vous</h2>
+      <div class="list">
+        @for (appointment of appointments(); track appointment.id) {
+          <article class="card">
+            <div>
+              <p class="muted">#{{ appointment.id }} · {{ appointment.status }}</p>
+              <h3>{{ appointment.reason }}</h3>
+              <p>{{ appointment.startDateTime | date: 'short' }} - {{ appointment.endDateTime | date: 'shortTime' }}</p>
+            </div>
+            <div class="actions">
+              <button type="button" class="secondary" (click)="updateStatus(appointment, 'CONFIRMED')">Confirmer</button>
+              <button type="button" class="secondary" (click)="updateStatus(appointment, 'COMPLETED')">Terminer</button>
+              <button type="button" class="secondary" (click)="loadHistory(appointment)">Historique</button>
+            </div>
+          </article>
+        }
+      </div>
+    </article>
+
+    <article class="panel">
+      <h2>Historique du rendez-vous</h2>
+      @if (selectedAppointmentId() === null) {
+        <p class="muted">Choisissez un rendez-vous pour charger son historique d’administration.</p>
+      } @else if (history().length === 0) {
+        <p class="muted">Aucun événement d’historique renvoyé.</p>
+      } @else {
+        <div class="list">
+          @for (entry of history(); track entry.id) {
+            <article class="card">
+              <p class="muted">{{ entry.action }} · {{ entry.occurredAt | date: 'short' }}</p>
+              <h3>{{ entry.actorEmail }}</h3>
+              <p>{{ entry.details }}</p>
+            </article>
+          }
+        </div>
+      }
+
+      <h2>Notifications admin</h2>
+      <div class="list">
+        @for (notification of notifications(); track notification.id) {
+          <article class="card">
+            <p class="muted">{{ notification.type }} · {{ notification.createdAt | date: 'short' }}</p>
+            <h3>{{ notification.title }}</h3>
+            <p>{{ notification.message }}</p>
+          </article>
+        }
+      </div>
+    </article>
+  </section>
+}

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { MAIN_NAVIGATION, NavigationItem } from './navigation';
@@ -12,8 +12,18 @@ import { MAIN_NAVIGATION, NavigationItem } from './navigation';
 export class MainLayout {
   protected readonly auth = inject(Auth);
   protected readonly navigationItems = MAIN_NAVIGATION;
+  protected readonly isMenuOpen = signal(false);
+  protected readonly roleLabel = computed(() => this.auth.roles().map((role) => role.replace('ROLE_', '')).join(', '));
 
   protected canShowNavigationItem(item: NavigationItem): boolean {
     return item.roles ? this.auth.hasAnyRole(item.roles) : true;
+  }
+
+  protected toggleMenu(): void {
+    this.isMenuOpen.update((open) => !open);
+  }
+
+  protected closeMenu(): void {
+    this.isMenuOpen.set(false);
   }
 }

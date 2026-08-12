@@ -1,11 +1,14 @@
 <div class="shell">
-  <aside class="sidebar">
-    <a class="brand" routerLink="/dashboard">Rendez-vous</a>
+  <aside class="sidebar" [class.open]="isMenuOpen()">
+    <div class="sidebar-header">
+      <a class="brand" routerLink="/dashboard" (click)="closeMenu()">Gestion de rendez-vous</a>
+      <button type="button" class="menu-close" (click)="closeMenu()">Fermer</button>
+    </div>
 
     <nav class="nav" aria-label="Navigation principale">
       @for (item of navigationItems; track item.route) {
         @if (canShowNavigationItem(item)) {
-          <a [routerLink]="item.route" routerLinkActive="active">{{ item.label }}</a>
+          <a [routerLink]="item.route" routerLinkActive="active" (click)="closeMenu()">{{ item.label }}</a>
         }
       }
     </nav>
@@ -13,14 +16,16 @@
 
   <main class="content">
     <header class="topbar">
-      <div>
-        <span>Frontend Rendez-vous</span>
+      <button type="button" class="menu-button" (click)="toggleMenu()">Menu</button>
+
+      <div class="identity">
+        <span>{{ auth.displayName() }}</span>
         @if (auth.user(); as currentUser) {
-          <p>{{ auth.displayName() }} · {{ currentUser.roles.join(', ') }}</p>
+          <p>{{ currentUser.email }} · {{ roleLabel() }}</p>
         }
       </div>
 
-      <button type="button" (click)="auth.logout()">Déconnexion</button>
+      <button type="button" class="logout-button" (click)="auth.logout()">Déconnexion</button>
     </header>
 
     <section class="page">

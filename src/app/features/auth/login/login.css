@@ -1,34 +1,52 @@
 .login-page {
   align-items: center;
-  background: linear-gradient(135deg, #eff4ff, #f8fafc);
+  background: #f2f4f7;
   display: flex;
-  min-height: 100dvh;
   justify-content: center;
+  min-height: 100dvh;
   padding: 24px;
 }
 
-.login-card {
-  background: #fff;
-  border: 1px solid #e4e7ec;
-  border-radius: 20px;
-  box-shadow: 0 24px 80px rgb(16 24 40 / 12%);
+.login-shell {
   display: grid;
-  gap: 18px;
-  max-width: 420px;
-  padding: 32px;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 420px);
+  max-width: 1080px;
   width: 100%;
 }
 
+.intro,
+.login-card {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  padding: 32px;
+}
+
 .eyebrow {
-  color: #155eef;
+  color: #175cd3;
+  font-size: 0.78rem;
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 12px;
   text-transform: uppercase;
 }
 
-h1 {
+.intro h1,
+.login-card h2 {
   color: #101828;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
+}
+
+.lede {
+  color: #475467;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.login-card {
+  display: grid;
+  gap: 14px;
 }
 
 label {
@@ -40,36 +58,85 @@ label {
 
 input {
   border: 1px solid #d0d5dd;
-  border-radius: 10px;
+  border-radius: 8px;
   font: inherit;
   padding: 12px 14px;
 }
 
-button {
-  background: #155eef;
-  border: 0;
-  border-radius: 10px;
-  color: #fff;
-  cursor: pointer;
-  font-weight: 700;
-  padding: 13px 16px;
+input:focus {
+  border-color: #175cd3;
+  outline: 2px solid #d1e0ff;
 }
 
-button:disabled {
-  cursor: wait;
-  opacity: 0.7;
+.demo-access {
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px;
 }
 
+.demo-access h3,
+.demo-access p,
+.card-header p,
+.card-header h2 {
+  margin: 0;
+}
+
+.demo-access p {
+  color: #475467;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+.field-error,
+.error,
+.slow {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.field-error,
 .error {
   color: #b42318;
-  margin: 0;
 }
 
 .slow {
-  background: #fffaeb;
-  border: 1px solid #fedf89;
-  border-radius: 10px;
-  color: #93370d;
-  margin: 0;
-  padding: 10px 12px;
+  color: #175cd3;
+}
+
+button {
+  background: #175cd3;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  padding: 12px 16px;
+}
+
+button.secondary {
+  background: #fff;
+  border: 1px solid #d0d5dd;
+  color: #344054;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 900px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .intro,
+  .login-card {
+    padding: 24px;
+  }
 }

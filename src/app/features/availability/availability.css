@@ -1,0 +1,35 @@
+.panel,
+.slot-card {
+  background: #fff;
+  border: 1px solid #e4e7ec;
+  border-radius: 8px;
+}
+
+.panel {
+  margin-bottom: 16px;
+  padding: 20px;
+}
+
+.toolbar,
+.slot-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.toolbar {
+  align-items: end;
+  grid-template-columns: minmax(0, 240px) auto;
+}
+
+.slot-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.slot-card {
+  padding: 18px;
+}
+
+.slot-card p {
+  color: #667085;
+  margin: 8px 0 0;
+}

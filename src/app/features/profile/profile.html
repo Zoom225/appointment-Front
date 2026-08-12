@@ -1,51 +1,40 @@
 <app-page-header eyebrow="Compte" title="Profil" />
 
-<section class="profile-panel">
 @if (isLoading()) {
   <app-state-card title="Chargement" description="Récupération du profil..." />
 } @else if (errorMessage()) {
   <app-state-card title="Erreur" [description]="errorMessage()!" />
-} @else if (profile(); as currentUser) {
-  <app-state-card
-    title="Informations du compte"
-    [description]="currentUser.email"
-  />
+} @else if (profile(); as profile) {
+  <section class="profile-grid">
+    <article class="panel">
+      <h2>Identité</h2>
+      <dl>
+        <div>
+          <dt>Prénom</dt>
+          <dd>{{ profile.firstName }}</dd>
+        </div>
+        <div>
+          <dt>Nom</dt>
+          <dd>{{ profile.lastName }}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ profile.email }}</dd>
+        </div>
+      </dl>
+    </article>
 
-  <dl>
-    <div>
-      <dt>Email</dt>
-      <dd>{{ currentUser.email }}</dd>
-    </div>
-    <div>
-      <dt>Rôles</dt>
-      <dd>{{ currentUser.roles.length ? currentUser.roles.join(', ') : 'Non renseigné' }}</dd>
-    </div>
-  </dl>
-
-  <form class="profile-form" [formGroup]="form" (ngSubmit)="saveProfile()">
-    <h2>Modifier mes informations</h2>
-
-    <label>
-      Prénom
-      <input type="text" formControlName="firstName" autocomplete="given-name" />
-    </label>
-
-    <label>
-      Nom
-      <input type="text" formControlName="lastName" autocomplete="family-name" />
-    </label>
-
-    @if (successMessage()) {
-      <p class="success">{{ successMessage() }}</p>
-    }
-
-    @if (errorMessage()) {
-      <p class="error">{{ errorMessage() }}</p>
-    }
-
-    <button type="submit" [disabled]="isSaving()">
-      {{ isSaving() ? 'Enregistrement...' : 'Enregistrer' }}
-    </button>
-  </form>
+    <article class="panel">
+      <h2>Autorisation frontend</h2>
+      <p>
+        Les routes Angular sont filtrées selon les rôles renvoyés par le backend, mais l’autorisation réelle reste
+        gérée côté Spring Security.
+      </p>
+      <ul>
+        @for (role of profile.roles; track role) {
+          <li>{{ role }}</li>
+        }
+      </ul>
+    </article>
+  </section>
 }
-</section>

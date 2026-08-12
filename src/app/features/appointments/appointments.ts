@@ -1,10 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize, timer } from 'rxjs';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { getApiErrorMessage } from '../../core/errors/api-error';
-import { Appointment, AppointmentStatus } from '../../core/models/appointment.models';
+import { Appointment, AppointmentAvailabilitySlot, AppointmentStatus } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
 import { Auth } from '../../core/services/auth';
 import { PageHeader } from '../../shared/components/page-header/page-header';
@@ -13,7 +12,7 @@ import { ConfirmDialog } from '../../shared/services/confirm-dialog';
 
 @Component({
   selector: 'app-appointments',
-  imports: [DatePipe, FormsModule, PageHeader, ReactiveFormsModule, StateCard],
+  imports: [DatePipe, PageHeader, ReactiveFormsModule, StateCard],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css',
 })
@@ -21,186 +20,158 @@ export class Appointments implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApi);
   private readonly auth = inject(Auth);
   private readonly confirmDialog = inject(ConfirmDialog);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly appointments = signal<Appointment[]>([]);
+  protected readonly availableSlots = signal<AppointmentAvailabilitySlot[]>([]);
   protected readonly isLoading = signal(true);
-  protected readonly slowLoadingMessage = signal<string | null>(null);
-  protected readonly isCreating = signal(false);
-  protected readonly pendingAppointmentId = signal<string | null>(null);
+  protected readonly isSubmitting = signal(false);
+  protected readonly isLoadingAvailability = signal(false);
+  protected readonly selectedAppointment = signal<Appointment | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly createErrorMessage = signal<string | null>(null);
-  protected readonly searchTerm = signal('');
-  protected readonly statusFilter = signal<AppointmentStatus | 'all'>('all');
-  protected readonly filteredAppointments = computed(() => {
-    const searchTerm = this.searchTerm().trim().toLowerCase();
-    const statusFilter = this.statusFilter();
+  protected readonly formMessage = signal<string | null>(null);
+  protected readonly statusFilter = signal<AppointmentStatus | 'ALL'>('ALL');
 
-    return this.appointments().filter((appointment) => {
-      const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
-      const matchesSearch =
-        !searchTerm ||
-        [appointment.title, appointment.patientName, appointment.status].some((value) =>
-          value?.toLowerCase().includes(searchTerm),
-        );
-
-      return matchesStatus && matchesSearch;
-    });
-  });
-
-  protected readonly statusOptions: Array<{ label: string; value: AppointmentStatus | 'all' }> = [
-    { label: 'Tous', value: 'all' },
-    { label: 'Planifiés', value: 'scheduled' },
-    { label: 'Confirmés', value: 'confirmed' },
-    { label: 'Terminés', value: 'completed' },
-    { label: 'Annulés', value: 'cancelled' },
-  ];
+  protected readonly filteredAppointments = computed(() =>
+    this.statusFilter() === 'ALL'
+      ? this.appointments()
+      : this.appointments().filter((appointment) => appointment.status === this.statusFilter()),
+  );
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    title: ['', [Validators.required, Validators.minLength(3)]],
-    patientName: [''],
-    startsAt: ['', Validators.required],
-    endsAt: ['', Validators.required],
+    reason: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
+    date: ['', Validators.required],
+    startDateTime: ['', Validators.required],
+    endDateTime: ['', Validators.required],
   });
 
   ngOnInit(): void {
     this.loadAppointments();
   }
 
-  protected createAppointment(): void {
-    if (this.form.invalid) {
+  protected loadAvailability(): void {
+    const userId = this.auth.user()?.id;
+    const date = this.form.controls.date.value;
+
+    if (!userId || !date) {
+      this.availableSlots.set([]);
+      return;
+    }
+
+    this.isLoadingAvailability.set(true);
+    this.appointmentsApi
+      .getAvailability(userId, date)
+      .pipe(finalize(() => this.isLoadingAvailability.set(false)))
+      .subscribe({
+        next: (slots) => this.availableSlots.set(slots),
+        error: (error: unknown) => this.formMessage.set(getApiErrorMessage(error)),
+      });
+  }
+
+  protected selectSlot(slot: AppointmentAvailabilitySlot): void {
+    this.form.patchValue({
+      startDateTime: this.toDatetimeLocal(slot.startDateTime),
+      endDateTime: this.toDatetimeLocal(slot.endDateTime),
+    });
+  }
+
+  protected editAppointment(appointment: Appointment): void {
+    this.selectedAppointment.set(appointment);
+    this.formMessage.set(null);
+    this.form.patchValue({
+      reason: appointment.reason,
+      date: appointment.startDateTime.slice(0, 10),
+      startDateTime: this.toDatetimeLocal(appointment.startDateTime),
+      endDateTime: this.toDatetimeLocal(appointment.endDateTime),
+    });
+    this.loadAvailability();
+  }
+
+  protected resetForm(): void {
+    this.selectedAppointment.set(null);
+    this.form.reset();
+    this.availableSlots.set([]);
+    this.formMessage.set(null);
+  }
+
+  protected submit(): void {
+    if (this.form.invalid || this.isSubmitting()) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.isCreating.set(true);
-    this.createErrorMessage.set(null);
+    const userId = this.auth.user()?.id;
 
-    const currentUserId = this.getCurrentUserId();
-
-    if (currentUserId === null) {
-      this.createErrorMessage.set('Impossible de créer le rendez-vous : utilisateur connecté introuvable.');
-      this.isCreating.set(false);
+    if (!userId) {
+      this.formMessage.set('Utilisateur connecté introuvable.');
       return;
     }
 
-    const formValue = this.form.getRawValue();
+    this.isSubmitting.set(true);
+    this.formMessage.set(null);
+    const { reason, startDateTime, endDateTime } = this.form.getRawValue();
+    const request = {
+      reason,
+      startDateTime,
+      endDateTime,
+    };
 
-    this.appointmentsApi
-      .create({
-        reason: formValue.title,
-        startDateTime: formValue.startsAt,
-        endDateTime: formValue.endsAt,
-        userId: currentUserId,
-      })
-      .pipe(
-        finalize(() => {
-          this.isCreating.set(false);
-        }),
-      )
-      .subscribe({
-        next: (appointment) => {
-          this.appointments.update((appointments) => [appointment, ...appointments]);
-          this.form.reset();
-        },
-        error: (error: unknown) => {
-          this.createErrorMessage.set(getApiErrorMessage(error));
-        },
-      });
+    const operation = this.selectedAppointment()
+      ? this.appointmentsApi.update(this.selectedAppointment()!.id, request)
+      : this.appointmentsApi.create({ ...request, userId });
+
+    operation.pipe(finalize(() => this.isSubmitting.set(false))).subscribe({
+      next: (appointment) => {
+        if (this.selectedAppointment()) {
+          this.appointments.update((items) =>
+            items.map((item) => (item.id === appointment.id ? appointment : item)),
+          );
+        } else {
+          this.appointments.update((items) => [appointment, ...items]);
+        }
+        this.resetForm();
+      },
+      error: (error: unknown) => {
+        this.formMessage.set(getApiErrorMessage(error));
+      },
+    });
   }
 
-  protected updateStatus(appointment: Appointment): void {
-    if (appointment.status === 'cancelled' || appointment.status === 'completed') {
+  protected cancelAppointment(appointment: Appointment): void {
+    if (!this.confirmDialog.confirm(`Annuler le rendez-vous "${appointment.reason}" ?`)) {
       return;
     }
 
-    const nextStatus = appointment.status === 'confirmed' ? 'completed' : 'confirmed';
-    const confirmed = this.confirmDialog.confirm(
-      `Confirmer le changement de statut du rendez-vous "${appointment.title}" ?`,
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.pendingAppointmentId.set(appointment.id);
-    this.appointmentsApi.updateStatus(appointment.id, nextStatus).subscribe({
+    this.appointmentsApi.cancel(appointment.id).subscribe({
       next: (updatedAppointment) => {
-        this.appointments.update((appointments) =>
-          appointments.map((currentAppointment) =>
-            currentAppointment.id === updatedAppointment.id ? updatedAppointment : currentAppointment,
-          ),
+        this.appointments.update((items) =>
+          items.map((item) => (item.id === updatedAppointment.id ? updatedAppointment : item)),
         );
-        this.pendingAppointmentId.set(null);
       },
       error: (error: unknown) => {
         this.errorMessage.set(getApiErrorMessage(error));
-        this.pendingAppointmentId.set(null);
       },
     });
   }
 
-  protected deleteAppointment(appointment: Appointment): void {
-    if (this.pendingAppointmentId()) {
-      return;
-    }
-
-    const confirmed = this.confirmDialog.confirm(`Supprimer définitivement le rendez-vous "${appointment.title}" ?`);
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.pendingAppointmentId.set(appointment.id);
-    this.appointmentsApi.delete(appointment.id).subscribe({
-      next: () => {
-        this.appointments.update((appointments) =>
-          appointments.filter((currentAppointment) => currentAppointment.id !== appointment.id),
-        );
-        this.pendingAppointmentId.set(null);
-      },
-      error: (error: unknown) => {
-        this.errorMessage.set(getApiErrorMessage(error));
-        this.pendingAppointmentId.set(null);
-      },
-    });
+  protected canEdit(appointment: Appointment): boolean {
+    return appointment.status !== 'CANCELLED' && appointment.status !== 'COMPLETED';
   }
 
   private loadAppointments(): void {
     this.isLoading.set(true);
-    this.slowLoadingMessage.set(null);
     this.errorMessage.set(null);
 
-    timer(3000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.isLoading()) {
-          this.slowLoadingMessage.set('Le serveur démarre, cela peut prendre quelques secondes...');
-        }
-      });
-
     this.appointmentsApi
-      .findAll()
-      .pipe(
-        finalize(() => {
-          this.isLoading.set(false);
-          this.slowLoadingMessage.set(null);
-        }),
-      )
+      .findAll({ page: 0, size: 50 })
+      .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe({
-        next: (appointments) => {
-          this.appointments.set(appointments);
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set(getApiErrorMessage(error));
-        },
+        next: (response) => this.appointments.set(response.content),
+        error: (error: unknown) => this.errorMessage.set(getApiErrorMessage(error)),
       });
   }
 
-  private getCurrentUserId(): number | null {
-    const userId = Number(this.auth.user()?.id);
-
-    return Number.isInteger(userId) && userId > 0 ? userId : null;
+  private toDatetimeLocal(value: string): string {
+    return value.slice(0, 16);
   }
 }

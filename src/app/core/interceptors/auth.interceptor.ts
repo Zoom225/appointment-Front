@@ -1,14 +1,16 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
+import { API_BASE_URL } from '../api/api.config';
 import { Auth } from '../services/auth';
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(Auth);
   const token = auth.getAccessToken();
-  const isLoginRequest = request.url.endsWith('/auth/login');
+  const isApiRequest = request.url.startsWith(API_BASE_URL);
+  const isLoginRequest = request.url === `${API_BASE_URL}/api/auth/login`;
 
-  if (!token) {
+  if (!token || !isApiRequest) {
     return next(request);
   }
 
@@ -20,7 +22,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
     }),
   ).pipe(
     catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && [401, 403].includes(error.status) && !isLoginRequest) {
+      if (error instanceof HttpErrorResponse && error.status === 401 && !isLoginRequest) {
         auth.logout({ sessionExpired: true });
       }
 

@@ -1,56 +1,28 @@
-export type AppointmentStatus = 'scheduled' | 'confirmed' | 'cancelled' | 'completed';
+export type AppointmentStatus = 'PENDING' | 'SCHEDULED' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 
 export function normalizeAppointmentStatus(status: string | undefined): AppointmentStatus {
-  const normalizedStatus = status?.trim().toLowerCase();
+  const normalizedStatus = status?.trim().toUpperCase();
 
   if (
-    normalizedStatus === 'scheduled' ||
-    normalizedStatus === 'confirmed' ||
-    normalizedStatus === 'cancelled' ||
-    normalizedStatus === 'completed'
+    normalizedStatus === 'PENDING' ||
+    normalizedStatus === 'SCHEDULED' ||
+    normalizedStatus === 'CONFIRMED' ||
+    normalizedStatus === 'CANCELLED' ||
+    normalizedStatus === 'COMPLETED'
   ) {
     return normalizedStatus;
   }
 
-  return 'scheduled';
-}
-
-export interface BackendAppointment {
-  id?: string | number;
-  _id?: string;
-  title?: string;
-  reason?: string;
-  startsAt?: string;
-  starts_at?: string;
-  startDateTime?: string;
-  startDate?: string;
-  date?: string;
-  endsAt?: string;
-  ends_at?: string;
-  endDateTime?: string;
-  endDate?: string;
-  status?: string;
-  patientName?: string;
-  patient_name?: string;
-  userId?: string | number;
-  user_id?: string | number;
+  return 'SCHEDULED';
 }
 
 export interface Appointment {
-  id: string;
-  title: string;
-  startsAt: string;
-  endsAt: string;
+  id: number;
+  startDateTime: string;
+  endDateTime: string;
+  reason: string;
   status: AppointmentStatus;
-  patientName?: string;
-  userId?: string;
-}
-
-export interface CreateAppointmentPayload {
-  title: string;
-  startsAt: string;
-  endsAt: string;
-  patientName?: string;
+  userId: number;
 }
 
 export interface AppointmentCreateRequest {
@@ -60,6 +32,26 @@ export interface AppointmentCreateRequest {
   userId: number;
 }
 
-export type UpdateAppointmentPayload = Partial<CreateAppointmentPayload> & {
-  status?: AppointmentStatus;
-};
+export interface AppointmentUpdateRequest {
+  reason: string;
+  startDateTime: string;
+  endDateTime: string;
+}
+
+export interface AppointmentStatusUpdateRequest {
+  status: AppointmentStatus;
+}
+
+export interface AppointmentAvailabilitySlot {
+  startDateTime: string;
+  endDateTime: string;
+}
+
+export interface AppointmentAudit {
+  id: number;
+  appointmentId: number;
+  action: 'CREATED' | 'UPDATED' | 'CANCELLED' | 'STATUS_CHANGED';
+  actorEmail: string;
+  occurredAt: string;
+  details: string;
+}
