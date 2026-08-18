@@ -1,0 +1,87 @@
+<main class="landing-page">
+  <nav class="landing-nav" aria-label="Navigation principale">
+    <a class="brand" routerLink="/">
+      <span class="brand-mark">RV</span>
+      <span>Rendez-vous</span>
+    </a>
+
+    <a class="login-link" routerLink="/login">Se connecter</a>
+  </nav>
+
+  <section class="hero" aria-labelledby="landing-title">
+    <div class="hero-content">
+      <p class="eyebrow">Application de gestion de rendez-vous</p>
+      <h1 id="landing-title">Pilotez vos rendez-vous, disponibilités et notifications depuis une interface claire.</h1>
+      <p class="hero-description">
+        Une solution Angular professionnelle pour organiser les créneaux, suivre l’activité et sécuriser l’accès aux
+        espaces privés avec une authentification JWT.
+      </p>
+
+      <div class="hero-actions">
+        <a class="primary-action" routerLink="/login">Se connecter</a>
+        <a class="secondary-action" href="#features">Voir les fonctionnalités</a>
+      </div>
+    </div>
+
+    <aside class="hero-card" aria-label="Aperçu produit">
+      <div class="card-header">
+        <span>Tableau de bord</span>
+        <strong>Aujourd’hui</strong>
+      </div>
+      <div class="metric-row">
+        <span>Rendez-vous actifs</span>
+        <strong>24</strong>
+      </div>
+      <div class="metric-row">
+        <span>Créneaux disponibles</span>
+        <strong>12</strong>
+      </div>
+      <div class="notification-preview">
+        <span class="pulse"></span>
+        Nouvelle notification de confirmation
+      </div>
+    </aside>
+  </section>
+
+  <section id="features" class="features" aria-labelledby="features-title">
+    <div class="section-heading">
+      <p class="eyebrow">Fonctionnalités</p>
+      <h2 id="features-title">Les modules essentiels pour gérer une activité de rendez-vous.</h2>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature-card">
+        <span class="feature-icon">📅</span>
+        <h3>Gestion des rendez-vous</h3>
+        <p>Centralisez la création, le suivi et l’état des rendez-vous dans un espace dédié.</p>
+      </article>
+
+      <article class="feature-card">
+        <span class="feature-icon">🕒</span>
+        <h3>Gestion des disponibilités</h3>
+        <p>Organisez les créneaux disponibles pour fluidifier la planification.</p>
+      </article>
+
+      <article class="feature-card">
+        <span class="feature-icon">📊</span>
+        <h3>Tableau de bord</h3>
+        <p>Visualisez rapidement les indicateurs utiles et les prochaines actions à traiter.</p>
+      </article>
+
+      <article class="feature-card">
+        <span class="feature-icon">🔔</span>
+        <h3>Notifications</h3>
+        <p>Suivez les alertes importantes liées aux rendez-vous et à l’activité utilisateur.</p>
+      </article>
+
+      <article class="feature-card feature-card-wide">
+        <span class="feature-icon">🔐</span>
+        <h3>Authentification JWT</h3>
+        <p>
+          Protégez les pages privées avec un mécanisme d’authentification par token, sans exposer les espaces de gestion
+          aux visiteurs non connectés.
+        </p>
+      </article>
+    </div>
+  </section>
+</main>
