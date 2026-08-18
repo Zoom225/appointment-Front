@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,7 +18,7 @@ const DEMO_PASSWORD = 'Demo2026!';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+export class Login implements OnInit {
   private readonly auth = inject(Auth);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
@@ -44,6 +44,18 @@ export class Login {
       email: DEMO_EMAIL,
       password: DEMO_PASSWORD,
     });
+  }
+
+  ngOnInit(): void {
+    const queryParams = this.route.snapshot.queryParamMap;
+
+    if (queryParams.get('demo') === 'true' || queryParams.get('demoLogin') === 'true') {
+      this.fillDemoCredentials();
+    }
+
+    if (queryParams.get('demoLogin') === 'true') {
+      this.submit();
+    }
   }
 
   protected submit(): void {
