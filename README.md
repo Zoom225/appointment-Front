@@ -17,7 +17,7 @@ Ce projet a été conçu comme un projet portfolio afin de mettre en pratique un
 
 Frontend :
 
-`https://appointment-front-gilt.vercel.app`
+`https://gestion-de-rendez-vous.vercel.app`
 
 Backend :
 
