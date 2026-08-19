@@ -45,34 +45,34 @@
 }
 
 :root[data-theme='dark'] {
-  --primary: #60a5fa;
-  --primary-hover: #93c5fd;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
   --sidebar: #020617;
   --sidebar-secondary: #0f172a;
   --background: #020617;
   --surface: #0f172a;
-  --text: #e5edf7;
-  --text-secondary: #94a3b8;
+  --text: #ffffff;
+  --text-secondary: #d1d5db;
   --success: #4ade80;
   --warning: #fbbf24;
   --danger: #f87171;
   --color-primary: var(--primary);
   --color-primary-strong: var(--primary-hover);
   --color-background: var(--background);
-  --color-surface: #0f172a;
-  --color-surface-muted: #111c2f;
-  --color-surface-elevated: rgb(15 23 42 / 88%);
-  --color-surface-soft: #111827;
-  --color-glass: rgb(15 23 42 / 72%);
-  --color-glass-strong: rgb(15 23 42 / 88%);
+  --color-surface: #111827;
+  --color-surface-muted: #1f2937;
+  --color-surface-elevated: #111827;
+  --color-surface-soft: #1f2937;
+  --color-glass: rgb(17 24 39 / 84%);
+  --color-glass-strong: rgb(17 24 39 / 92%);
   --color-text: var(--text);
   --color-muted: var(--text-secondary);
-  --color-border: rgb(148 163 184 / 22%);
-  --color-border-strong: rgb(148 163 184 / 36%);
-  --color-hover: rgb(96 165 250 / 14%);
-  --color-focus-ring: rgb(96 165 250 / 26%);
-  --color-badge-bg: rgb(37 99 235 / 18%);
-  --color-badge-text: #bfdbfe;
+  --color-border: rgb(209 213 219 / 22%);
+  --color-border-strong: rgb(209 213 219 / 42%);
+  --color-hover: rgb(37 99 235 / 18%);
+  --color-focus-ring: rgb(37 99 235 / 34%);
+  --color-badge-bg: rgb(37 99 235 / 24%);
+  --color-badge-text: #dbeafe;
   --color-warning-bg: rgb(251 191 36 / 14%);
   --color-warning-text: #fde68a;
   --color-success-bg: rgb(74 222 128 / 14%);
@@ -371,7 +371,7 @@ html[data-theme='dark'] .landing-page h2,
 html[data-theme='dark'] .landing-page h3,
 html[data-theme='dark'] .landing-page strong,
 html[data-theme='dark'] .landing-page .landing-footer p {
-  color: #f8fafc !important;
+  color: #ffffff !important;
 }
 
 html[data-theme='dark'] .landing-page p,
@@ -384,33 +384,33 @@ html[data-theme='dark'] .landing-page .api-docs p,
 html[data-theme='dark'] .landing-page .credential-list span,
 html[data-theme='dark'] .landing-page .landing-footer,
 html[data-theme='dark'] .landing-page .landing-footer span {
-  color: #cbd5e1 !important;
+  color: #d1d5db !important;
 }
 
 html[data-theme='dark'] .landing-page .eyebrow {
-  color: #93c5fd !important;
+  color: #bfdbfe !important;
 }
 
 html[data-theme='dark'] .landing-page .login-link,
 html[data-theme='dark'] .landing-page .theme-toggle,
 html[data-theme='dark'] .landing-page .secondary-action,
 html[data-theme='dark'] .landing-page .api-docs-button {
-  background: rgb(15 23 42 / 86%) !important;
-  border-color: rgb(148 163 184 / 32%) !important;
-  color: #f8fafc !important;
+  background: rgb(17 24 39 / 92%) !important;
+  border-color: rgb(209 213 219 / 32%) !important;
+  color: #ffffff !important;
 }
 
 html[data-theme='dark'] .landing-page .hero-card,
 html[data-theme='dark'] .landing-page .demo-card,
 html[data-theme='dark'] .landing-page .feature-card {
-  background: rgb(15 23 42 / 88%) !important;
-  border-color: rgb(148 163 184 / 24%) !important;
+  background: #111827 !important;
+  border-color: rgb(209 213 219 / 24%) !important;
 }
 
 html[data-theme='dark'] .landing-page .metric-row,
 html[data-theme='dark'] .landing-page .credential-list div {
-  background: rgb(30 41 59 / 82%) !important;
-  border-color: rgb(148 163 184 / 22%) !important;
+  background: #1f2937 !important;
+  border-color: rgb(209 213 219 / 22%) !important;
 }
 
 html[data-theme='dark'] .landing-page .deployment-badges span,
@@ -418,7 +418,28 @@ html[data-theme='dark'] .landing-page .technology-list span,
 html[data-theme='dark'] .landing-page .notification-preview,
 html[data-theme='dark'] .landing-page .feature-icon,
 html[data-theme='dark'] .landing-page .api-docs-icon {
-  background: rgb(37 99 235 / 20%) !important;
-  border-color: rgb(96 165 250 / 28%) !important;
+  background: rgb(37 99 235 / 24%) !important;
+  border-color: rgb(147 197 253 / 32%) !important;
   color: #dbeafe !important;
+}
+
+html[data-theme='dark'] .landing-page .primary-action,
+html[data-theme='dark'] .landing-page button {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme='dark'] .landing-page .primary-action:hover,
+html[data-theme='dark'] .landing-page button:hover {
+  background: #1d4ed8 !important;
+}
+
+html[data-theme='dark'] .login-page input {
+  background: #111827 !important;
+  border-color: rgb(209 213 219 / 42%) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme='dark'] .login-page input::placeholder {
+  color: #d1d5db !important;
 }
