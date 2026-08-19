@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 
 const DEMO_EMAIL = 'demo@gestion-rendez-vous.com';
 const DEMO_PASSWORD = 'Demo2026!';
-const PROJECT_URL = 'https://appointment-front-gilt.vercel.app';
+const PROJECT_URL = 'https://appointment-front-git.vercel.app/';
 const FRONTEND_GITHUB_URL = 'https://github.com/Zoom225/appointment-Front';
 const BACKEND_GITHUB_URL = 'https://github.com/Zoom225/appointment-Backend';
 
