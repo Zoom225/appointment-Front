@@ -6,6 +6,12 @@
     linear-gradient(135deg, var(--color-background) 0%, var(--color-surface-muted) 48%, var(--color-surface) 100%);
 }
 
+:host-context(html[data-theme='dark']) {
+  background:
+    radial-gradient(circle at top left, rgb(96 165 250 / 18%), transparent 32rem),
+    linear-gradient(135deg, #020617 0%, #0f172a 48%, #111827 100%);
+}
+
 .landing-page {
   min-height: 100dvh;
   padding: 24px clamp(20px, 5vw, 72px) 56px;
