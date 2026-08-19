@@ -3,7 +3,7 @@
   min-height: 100dvh;
   background:
     radial-gradient(circle at top left, rgb(37 99 235 / 16%), transparent 32rem),
-    linear-gradient(135deg, #f8fafc 0%, #eef4ff 48%, #ffffff 100%);
+    linear-gradient(135deg, var(--color-background) 0%, var(--color-surface-muted) 48%, var(--color-surface) 100%);
 }
 
 .landing-page {
@@ -60,7 +60,7 @@
   padding: 0 18px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: rgb(255 255 255 / 78%);
+  background: var(--color-glass);
   color: var(--color-text);
   font-weight: 700;
 }
@@ -117,7 +117,7 @@ p {
 
 h1 {
   margin-bottom: 22px;
-  color: #0b1220;
+  color: var(--color-text);
   font-size: clamp(2.45rem, 6vw, 4.9rem);
   line-height: 0.98;
   letter-spacing: -0.055em;
@@ -149,10 +149,10 @@ h1 {
   align-items: center;
   min-height: 38px;
   padding: 0 14px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: rgb(239 246 255 / 82%);
-  color: #1e3a8a;
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
   font-size: 0.9rem;
   font-weight: 800;
 }
@@ -170,9 +170,9 @@ h1 {
   gap: 10px;
   min-height: 46px;
   padding: 0 18px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: rgb(255 255 255 / 82%);
+  background: var(--color-glass);
   color: var(--color-primary);
   font-weight: 850;
   text-decoration: none;
@@ -195,8 +195,8 @@ h1 {
   height: 26px;
   place-items: center;
   border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
   font-size: 0.95rem;
   line-height: 1;
 }
@@ -233,16 +233,16 @@ h1 {
 
 .secondary-action {
   border: 1px solid var(--color-border);
-  background: rgb(255 255 255 / 72%);
+  background: var(--color-glass);
   color: var(--color-text);
 }
 
 .hero-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgb(226 232 240 / 86%);
+  border: 1px solid var(--color-border);
   border-radius: 32px;
-  background: rgb(255 255 255 / 84%);
+  background: var(--color-surface-elevated);
   box-shadow: 0 28px 70px rgb(15 23 42 / 14%);
   padding: 28px;
   backdrop-filter: blur(18px);
@@ -279,7 +279,7 @@ h1 {
   margin-bottom: 14px;
   padding: 22px;
   border-radius: 22px;
-  background: #f8fafc;
+  background: var(--color-surface-muted);
   color: var(--color-muted);
 }
 
@@ -293,8 +293,8 @@ h1 {
   margin-top: 20px;
   padding: 18px;
   border-radius: 20px;
-  background: #eff6ff;
-  color: #1e3a8a;
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
   font-weight: 700;
 }
 
@@ -325,7 +325,7 @@ h1 {
 
 h2 {
   margin-bottom: 0;
-  color: #0b1220;
+  color: var(--color-text);
   font-size: clamp(2rem, 4vw, 3.2rem);
   line-height: 1.05;
   letter-spacing: -0.045em;
@@ -337,9 +337,9 @@ h2 {
   gap: 28px;
   align-items: center;
   padding: clamp(24px, 4vw, 34px);
-  border: 1px solid rgb(226 232 240 / 86%);
+  border: 1px solid var(--color-border);
   border-radius: 30px;
-  background: rgb(255 255 255 / 86%);
+  background: var(--color-surface-elevated);
   box-shadow: var(--shadow);
 }
 
@@ -353,7 +353,7 @@ h2 {
   padding: 20px;
   border: 1px solid var(--color-border);
   border-radius: 22px;
-  background: #f8fafc;
+  background: var(--color-surface-muted);
 }
 
 .credential-list span {
@@ -394,10 +394,10 @@ h2 {
   min-height: 42px;
   align-items: center;
   padding: 0 16px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: rgb(239 246 255 / 82%);
-  color: #1e3a8a;
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
   font-weight: 800;
 }
 
@@ -412,7 +412,7 @@ h2 {
   padding: 24px;
   border: 1px solid var(--color-border);
   border-radius: 26px;
-  background: rgb(255 255 255 / 82%);
+  background: var(--color-surface-elevated);
   box-shadow: var(--shadow-sm);
 }
 
@@ -423,7 +423,8 @@ h2 {
   margin-bottom: 20px;
   place-items: center;
   border-radius: 16px;
-  background: #eff6ff;
+  background: var(--color-badge-bg);
+  color: var(--color-badge-text);
   font-size: 1.35rem;
 }
 
