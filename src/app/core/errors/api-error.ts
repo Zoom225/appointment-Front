@@ -1,12 +1,17 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { TimeoutError } from 'rxjs';
 
 export function getApiErrorMessage(error: unknown): string {
+  if (error instanceof TimeoutError) {
+    return 'La connexion prend plus de temps que prévu.';
+  }
+
   if (!(error instanceof HttpErrorResponse)) {
     return 'Une erreur inattendue est survenue.';
   }
 
   if (error.status === 0) {
-    return 'Impossible de joindre le serveur. Vérifie ta connexion ou la configuration CORS.';
+    return 'Le serveur est en cours de démarrage. Merci de patienter quelques instants.';
   }
 
   if (typeof error.error === 'object' && error.error && 'message' in error.error) {
@@ -25,7 +30,7 @@ export function getApiErrorMessage(error: unknown): string {
     case 400:
       return 'Requête invalide. Vérifie les informations envoyées.';
     case 401:
-      return 'Email ou mot de passe incorrect.';
+      return 'Adresse e-mail ou mot de passe incorrect.';
     case 403:
       return 'Accès interdit.';
     case 404:
@@ -35,7 +40,7 @@ export function getApiErrorMessage(error: unknown): string {
     case 422:
       return 'Les données envoyées ne respectent pas les règles attendues.';
     case 500:
-      return 'Erreur serveur. Réessaie plus tard.';
+      return 'Erreur interne du serveur.';
     default:
       return `Erreur HTTP ${error.status}.`;
   }

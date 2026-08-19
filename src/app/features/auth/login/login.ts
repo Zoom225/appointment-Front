@@ -2,7 +2,7 @@ import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, timer } from 'rxjs';
+import { finalize, timeout, timer } from 'rxjs';
 import { getApiErrorMessage } from '../../../core/errors/api-error';
 import { Auth } from '../../../core/services/auth';
 import { SessionFeedback } from '../../../core/services/session-feedback';
@@ -11,6 +11,10 @@ type LoginState = 'idle' | 'loading' | 'slow' | 'success' | 'error';
 
 const DEMO_EMAIL = 'demo@gestion-rendez-vous.com';
 const DEMO_PASSWORD = 'Demo2026!';
+const SLOW_LOGIN_DELAY_MS = 3000;
+const LOGIN_TIMEOUT_MS = 60000;
+const RENDER_STARTUP_MESSAGE =
+  "Le serveur démarre actuellement. Le premier chargement peut prendre entre 30 et 60 secondes car l'application est hébergée sur une offre gratuite.";
 
 @Component({
   selector: 'app-login',
@@ -40,6 +44,10 @@ export class Login implements OnInit {
   });
 
   protected fillDemoCredentials(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
     this.form.setValue({
       email: DEMO_EMAIL,
       password: DEMO_PASSWORD,
@@ -74,18 +82,19 @@ export class Login implements OnInit {
     this.errorMessage.set(null);
     this.sessionFeedback.clear();
 
-    timer(3000)
+    timer(SLOW_LOGIN_DELAY_MS)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         if (this.loginState() === 'loading') {
           this.loginState.set('slow');
-          this.slowMessage.set('Le backend Render démarre. L’authentification peut prendre quelques secondes.');
+          this.slowMessage.set(RENDER_STARTUP_MESSAGE);
         }
       });
 
     this.auth
       .login(this.form.getRawValue())
       .pipe(
+        timeout(LOGIN_TIMEOUT_MS),
         finalize(() => {
           this.isSubmitting.set(false);
           this.slowMessage.set(null);

@@ -5,8 +5,8 @@
       <h1>Gestion de rendez-vous Full Stack</h1>
       <p class="stack-line">Angular • Spring Boot • PostgreSQL • JWT • API REST</p>
       <p class="lede">
-        Application complète de gestion de rendez-vous avec authentification sécurisée,
-        gestion des disponibilités, notifications et suivi des rendez-vous.
+        Application complète de gestion de rendez-vous avec authentification sécurisée, gestion des disponibilités,
+        notifications et suivi des rendez-vous.
       </p>
 
       <div class="badge-list" aria-label="Services et technologies du projet">
@@ -55,7 +55,7 @@
           <h3>Accès démo recruteur</h3>
           <p>Préremplit le compte de démonstration fourni par le backend.</p>
         </div>
-        <button type="button" class="secondary" (click)="fillDemoCredentials()">Préremplir</button>
+        <button type="button" class="secondary" (click)="fillDemoCredentials()" [disabled]="isSubmitting()">Préremplir</button>
       </section>
 
       @if (errorMessage()) {
@@ -66,8 +66,13 @@
         <p class="slow">{{ slowMessage() }}</p>
       }
 
-      <button type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Connexion...' : 'Se connecter' }}
+      <button type="submit" class="login-submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span class="button-spinner" aria-hidden="true"></span>
+          <span>Connexion en cours...</span>
+        } @else {
+          <span>Se connecter</span>
+        }
       </button>
     </form>
 
