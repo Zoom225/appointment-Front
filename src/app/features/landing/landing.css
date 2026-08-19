@@ -117,6 +117,78 @@ h1 {
   gap: 14px;
 }
 
+.deployment-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.deployment-badges span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: rgb(239 246 255 / 82%);
+  color: #1e3a8a;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.api-docs {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  margin-top: 22px;
+}
+
+.api-docs-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 82%);
+  color: var(--color-primary);
+  font-weight: 850;
+  text-decoration: none;
+  box-shadow: 0 12px 28px rgb(37 99 235 / 12%);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.api-docs-button:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 16px 34px rgb(37 99 235 / 18%);
+  transform: translateY(-1px);
+}
+
+.api-docs-icon {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.api-docs p {
+  max-width: 460px;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
 .primary-action,
 .secondary-action {
   display: inline-flex;
@@ -407,9 +479,15 @@ h2 {
   .hero-actions,
   .demo-actions,
   .link-actions,
+  .api-docs,
+  .api-docs-button,
   .primary-action,
   .secondary-action {
     width: 100%;
+  }
+
+  .api-docs-button {
+    justify-content: center;
   }
 
   .credential-list {
