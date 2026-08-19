@@ -1,10 +1,10 @@
-import { CanMatchFn, Routes } from '@angular/router';
+import { Routes, UrlMatcher } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { MainLayout } from './layouts/main-layout/main-layout';
 
-const nonRootRoute: CanMatchFn = (_route, segments) => segments.length > 0;
+const privateRouteMatcher: UrlMatcher = (segments) => (segments.length === 0 ? null : { consumed: [] });
 
 export const routes: Routes = [
   {
@@ -18,9 +18,8 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
-    path: '',
+    matcher: privateRouteMatcher,
     component: MainLayout,
-    canMatch: [nonRootRoute],
     canActivate: [authGuard],
     children: [
       {
