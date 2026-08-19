@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Theme } from '../../core/services/theme';
 
 const DEMO_EMAIL = 'demo@gestion-rendez-vous.com';
 const DEMO_PASSWORD = 'Demo2026!';
@@ -14,6 +15,7 @@ const BACKEND_GITHUB_URL = 'https://github.com/Zoom225/appointment-Backend';
   styleUrl: './landing.css',
 })
 export class Landing {
+  protected readonly theme = inject(Theme);
   protected readonly demoEmail = DEMO_EMAIL;
   protected readonly demoPassword = DEMO_PASSWORD;
   protected readonly projectUrl = PROJECT_URL;

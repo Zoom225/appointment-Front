@@ -16,9 +16,24 @@
   --color-background: var(--background);
   --color-surface: #ffffff;
   --color-surface-muted: #f1f5f9;
+  --color-surface-elevated: rgb(255 255 255 / 86%);
+  --color-surface-soft: #f8fafc;
+  --color-glass: rgb(255 255 255 / 78%);
+  --color-glass-strong: rgb(255 255 255 / 88%);
   --color-text: var(--text);
   --color-muted: var(--text-secondary);
   --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-hover: #eff6ff;
+  --color-focus-ring: #d1e0ff;
+  --color-badge-bg: #eff6ff;
+  --color-badge-text: #1d4ed8;
+  --color-warning-bg: #fff7ed;
+  --color-warning-text: #9a3412;
+  --color-success-bg: #dcfce7;
+  --color-success-text: #166534;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #991b1b;
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
@@ -27,6 +42,46 @@
   --radius-sm: 12px;
   --shadow: 0 18px 45px rgb(15 23 42 / 8%);
   --shadow-sm: 0 8px 22px rgb(15 23 42 / 6%);
+}
+
+:root[data-theme='dark'] {
+  --primary: #60a5fa;
+  --primary-hover: #93c5fd;
+  --sidebar: #020617;
+  --sidebar-secondary: #0f172a;
+  --background: #020617;
+  --surface: #0f172a;
+  --text: #e5edf7;
+  --text-secondary: #94a3b8;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-hover);
+  --color-background: var(--background);
+  --color-surface: #0f172a;
+  --color-surface-muted: #111c2f;
+  --color-surface-elevated: rgb(15 23 42 / 88%);
+  --color-surface-soft: #111827;
+  --color-glass: rgb(15 23 42 / 72%);
+  --color-glass-strong: rgb(15 23 42 / 88%);
+  --color-text: var(--text);
+  --color-muted: var(--text-secondary);
+  --color-border: rgb(148 163 184 / 22%);
+  --color-border-strong: rgb(148 163 184 / 36%);
+  --color-hover: rgb(96 165 250 / 14%);
+  --color-focus-ring: rgb(96 165 250 / 26%);
+  --color-badge-bg: rgb(37 99 235 / 18%);
+  --color-badge-text: #bfdbfe;
+  --color-warning-bg: rgb(251 191 36 / 14%);
+  --color-warning-text: #fde68a;
+  --color-success-bg: rgb(74 222 128 / 14%);
+  --color-success-text: #bbf7d0;
+  --color-danger-bg: rgb(248 113 113 / 14%);
+  --color-danger-text: #fecaca;
+  --color-info: var(--primary);
+  --shadow: 0 22px 60px rgb(0 0 0 / 34%);
+  --shadow-sm: 0 12px 34px rgb(0 0 0 / 28%);
 }
 
 * {
@@ -43,6 +98,14 @@ body {
   background: var(--color-background);
   color: var(--color-text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html {
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 button,
@@ -68,5 +131,188 @@ select:focus-visible {
 input,
 select,
 textarea {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
   color: var(--color-text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-muted);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-color: var(--color-focus-ring);
+}
+
+html[data-theme='dark'] .landing-page,
+html[data-theme='dark'] .login-page {
+  background:
+    radial-gradient(circle at top left, rgb(96 165 250 / 16%), transparent 32rem),
+    linear-gradient(135deg, #020617 0%, #0f172a 48%, #111827 100%);
+}
+
+html[data-theme='dark'] .intro,
+html[data-theme='dark'] .login-card,
+html[data-theme='dark'] .hero-card,
+html[data-theme='dark'] .demo-card,
+html[data-theme='dark'] .feature-card,
+html[data-theme='dark'] .panel,
+html[data-theme='dark'] .stat-card,
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .appointment-card,
+html[data-theme='dark'] .notification-card,
+html[data-theme='dark'] .user-card,
+html[data-theme='dark'] .state-card,
+html[data-theme='dark'] .error-card {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] .topbar,
+html[data-theme='dark'] .login-link,
+html[data-theme='dark'] .secondary-action,
+html[data-theme='dark'] .api-docs-button,
+html[data-theme='dark'] .theme-toggle {
+  background: var(--color-glass-strong);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] .features-panel,
+html[data-theme='dark'] .demo-access,
+html[data-theme='dark'] .metric-row,
+html[data-theme='dark'] .credential-list div,
+html[data-theme='dark'] .slots-panel {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border);
+}
+
+html[data-theme='dark'] h1,
+html[data-theme='dark'] h2,
+html[data-theme='dark'] h3,
+html[data-theme='dark'] strong,
+html[data-theme='dark'] .intro h1,
+html[data-theme='dark'] .login-card h2,
+html[data-theme='dark'] .feature-card h3,
+html[data-theme='dark'] .appointment-card h3,
+html[data-theme='dark'] .stat-card strong,
+html[data-theme='dark'] .card h3 {
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] p,
+html[data-theme='dark'] small,
+html[data-theme='dark'] label,
+html[data-theme='dark'] .lede,
+html[data-theme='dark'] .hero-description,
+html[data-theme='dark'] .card-header,
+html[data-theme='dark'] .feature-card p,
+html[data-theme='dark'] .appointment-card p,
+html[data-theme='dark'] .notification-card small,
+html[data-theme='dark'] .section-heading p:not(.eyebrow),
+html[data-theme='dark'] .landing-footer,
+html[data-theme='dark'] .demo-access p,
+html[data-theme='dark'] .credential-list span {
+  color: var(--color-muted);
+}
+
+html[data-theme='dark'] input,
+html[data-theme='dark'] select,
+html[data-theme='dark'] textarea {
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] input:hover,
+html[data-theme='dark'] select:hover,
+html[data-theme='dark'] textarea:hover {
+  border-color: var(--color-primary);
+}
+
+html[data-theme='dark'] input:focus,
+html[data-theme='dark'] select:focus,
+html[data-theme='dark'] textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+
+html[data-theme='dark'] .badge-list span,
+html[data-theme='dark'] .deployment-badges span,
+html[data-theme='dark'] .technology-list span,
+html[data-theme='dark'] .tech-stack span,
+html[data-theme='dark'] .feature-icon,
+html[data-theme='dark'] .api-docs-icon,
+html[data-theme='dark'] .status,
+html[data-theme='dark'] .role,
+html[data-theme='dark'] .chip {
+  background: var(--color-badge-bg);
+  border-color: var(--color-border);
+  color: var(--color-badge-text);
+}
+
+html[data-theme='dark'] .secondary,
+html[data-theme='dark'] button.secondary {
+  background: var(--color-surface-muted);
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] .secondary:hover:not(:disabled),
+html[data-theme='dark'] button.secondary:hover:not(:disabled),
+html[data-theme='dark'] .notification-card:hover,
+html[data-theme='dark'] .appointment-card:hover,
+html[data-theme='dark'] .slot-card:hover {
+  background: var(--color-hover);
+  border-color: var(--color-primary);
+}
+
+html[data-theme='dark'] table,
+html[data-theme='dark'] thead,
+html[data-theme='dark'] tbody,
+html[data-theme='dark'] tr,
+html[data-theme='dark'] th,
+html[data-theme='dark'] td {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] dialog,
+html[data-theme='dark'] .dialog,
+html[data-theme='dark'] .modal,
+html[data-theme='dark'] .confirm-dialog {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+html[data-theme='dark'] .slow,
+html[data-theme='dark'] .status.pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+html[data-theme='dark'] .status.confirmed,
+html[data-theme='dark'] .status.completed {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+html[data-theme='dark'] .error,
+html[data-theme='dark'] .field-error,
+html[data-theme='dark'] .status.cancelled,
+html[data-theme='dark'] .danger {
+  color: var(--color-danger-text);
+}
+
+html[data-theme='dark'] .landing-footer {
+  border-top-color: var(--color-border);
 }

@@ -31,7 +31,12 @@
         }
       </div>
 
-      <button type="button" class="logout-button" (click)="auth.logout()">Déconnexion</button>
+      <div class="topbar-actions">
+        <button type="button" class="theme-toggle" [attr.aria-label]="theme.toggleLabel()" (click)="theme.toggle()">
+          <span aria-hidden="true">{{ theme.toggleIcon() }}</span>
+        </button>
+        <button type="button" class="logout-button" (click)="auth.logout()">Déconnexion</button>
+      </div>
     </header>
 
     <section class="page">

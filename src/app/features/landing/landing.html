@@ -5,7 +5,12 @@
       <span>Rendez-vous</span>
     </a>
 
-    <a class="login-link" routerLink="/login">Se connecter</a>
+    <div class="nav-actions">
+      <button type="button" class="theme-toggle" [attr.aria-label]="theme.toggleLabel()" (click)="theme.toggle()">
+        <span aria-hidden="true">{{ theme.toggleIcon() }}</span>
+      </button>
+      <a class="login-link" routerLink="/login">Se connecter</a>
+    </div>
   </nav>
 
   <section class="hero" aria-labelledby="landing-title">

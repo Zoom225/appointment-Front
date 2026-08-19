@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { Theme } from '../../core/services/theme';
 import { MAIN_NAVIGATION, NavigationItem } from './navigation';
 
 @Component({
@@ -11,6 +12,7 @@ import { MAIN_NAVIGATION, NavigationItem } from './navigation';
 })
 export class MainLayout {
   protected readonly auth = inject(Auth);
+  protected readonly theme = inject(Theme);
   protected readonly navigationItems = MAIN_NAVIGATION;
   protected readonly isMenuOpen = signal(false);
   protected readonly roleLabel = computed(() => this.auth.roles().map((role) => role.replace('ROLE_', '')).join(', '));

@@ -121,9 +121,16 @@
   margin: 4px 0 0;
 }
 
+.topbar-actions {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
 .logout-button,
 .menu-button,
-.menu-close {
+.menu-close,
+.theme-toggle {
   background: var(--primary);
   border: 0;
   border-radius: 12px;
@@ -134,10 +141,22 @@
 }
 
 .logout-button:hover,
-.menu-button:hover {
+.menu-button:hover,
+.theme-toggle:hover {
   background: var(--primary-hover);
   box-shadow: 0 10px 20px rgb(37 99 235 / 18%);
   transform: translateY(-1px);
+}
+
+.theme-toggle {
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  min-width: 44px;
+}
+
+.theme-toggle:hover {
+  background: var(--color-surface);
 }
 
 .menu-close {
@@ -176,6 +195,10 @@
   .topbar {
     flex-wrap: wrap;
     padding: 16px 18px;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
   }
 
   .page {
