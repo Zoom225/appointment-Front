@@ -161,11 +161,14 @@ html[data-theme='dark'] .login-card,
 html[data-theme='dark'] .hero-card,
 html[data-theme='dark'] .demo-card,
 html[data-theme='dark'] .feature-card,
+html[data-theme='dark'] .form-panel,
+html[data-theme='dark'] .list,
 html[data-theme='dark'] .panel,
 html[data-theme='dark'] .stat-card,
 html[data-theme='dark'] .card,
 html[data-theme='dark'] .appointment-card,
 html[data-theme='dark'] .notification-card,
+html[data-theme='dark'] .slot-card,
 html[data-theme='dark'] .user-card,
 html[data-theme='dark'] .state-card,
 html[data-theme='dark'] .error-card {
@@ -198,11 +201,16 @@ html[data-theme='dark'] h1,
 html[data-theme='dark'] h2,
 html[data-theme='dark'] h3,
 html[data-theme='dark'] strong,
+html[data-theme='dark'] span,
+html[data-theme='dark'] .brand,
+html[data-theme='dark'] .identity span,
 html[data-theme='dark'] .intro h1,
 html[data-theme='dark'] .login-card h2,
 html[data-theme='dark'] .feature-card h3,
 html[data-theme='dark'] .appointment-card h3,
 html[data-theme='dark'] .stat-card strong,
+html[data-theme='dark'] .section-header h2,
+html[data-theme='dark'] .section-header h3,
 html[data-theme='dark'] .card h3 {
   color: var(--color-text);
 }
@@ -210,6 +218,13 @@ html[data-theme='dark'] .card h3 {
 html[data-theme='dark'] p,
 html[data-theme='dark'] small,
 html[data-theme='dark'] label,
+html[data-theme='dark'] .muted,
+html[data-theme='dark'] .loading-label,
+html[data-theme='dark'] .appointment-meta,
+html[data-theme='dark'] .stat-card span,
+html[data-theme='dark'] .user-card p,
+html[data-theme='dark'] .user-card span,
+html[data-theme='dark'] .slot-card p,
 html[data-theme='dark'] .lede,
 html[data-theme='dark'] .hero-description,
 html[data-theme='dark'] .card-header,
@@ -250,7 +265,6 @@ html[data-theme='dark'] .technology-list span,
 html[data-theme='dark'] .tech-stack span,
 html[data-theme='dark'] .feature-icon,
 html[data-theme='dark'] .api-docs-icon,
-html[data-theme='dark'] .status,
 html[data-theme='dark'] .role,
 html[data-theme='dark'] .chip {
   background: var(--color-badge-bg);
@@ -263,6 +277,12 @@ html[data-theme='dark'] button.secondary {
   background: var(--color-surface-muted);
   border-color: var(--color-border-strong);
   color: var(--color-text);
+}
+
+html[data-theme='dark'] .slot {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-badge-text);
 }
 
 html[data-theme='dark'] .secondary:hover:not(:disabled),
@@ -297,20 +317,48 @@ html[data-theme='dark'] .confirm-dialog {
 html[data-theme='dark'] .slow,
 html[data-theme='dark'] .status.pending {
   background: var(--color-warning-bg);
+  border-color: rgb(251 191 36 / 24%);
   color: var(--color-warning-text);
 }
 
 html[data-theme='dark'] .status.confirmed,
 html[data-theme='dark'] .status.completed {
   background: var(--color-success-bg);
+  border-color: rgb(74 222 128 / 24%);
   color: var(--color-success-text);
 }
 
-html[data-theme='dark'] .error,
-html[data-theme='dark'] .field-error,
-html[data-theme='dark'] .status.cancelled,
-html[data-theme='dark'] .danger {
+html[data-theme='dark'] .status.scheduled {
+  background: var(--color-badge-bg);
+  border-color: var(--color-border);
+  color: var(--color-badge-text);
+}
+
+html[data-theme='dark'] .status.cancelled {
+  background: var(--color-danger-bg);
+  border-color: rgb(248 113 113 / 24%);
   color: var(--color-danger-text);
+}
+
+html[data-theme='dark'] .error,
+html[data-theme='dark'] .field-error {
+  color: var(--color-danger-text);
+}
+
+html[data-theme='dark'] .error {
+  background: var(--color-danger-bg);
+  border-color: rgb(248 113 113 / 24%);
+}
+
+html[data-theme='dark'] button.danger,
+html[data-theme='dark'] .danger {
+  background: #b91c1c;
+  color: #fff;
+}
+
+html[data-theme='dark'] .brand-mark {
+  background: var(--color-surface);
+  color: var(--color-primary);
 }
 
 html[data-theme='dark'] .landing-footer {
