@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, computed, inject, signal } from '@angular/core';
 
-type ThemeMode = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark';
 
 const THEME_STORAGE_KEY = 'rendez_vous_theme';
 
@@ -16,7 +16,7 @@ export class Theme {
   readonly toggleIcon = computed(() => (this.isDark() ? '☀️' : '🌙'));
 
   constructor() {
-    this.applyTheme(this.modeSignal());
+    this.applyDocumentTheme(this.modeSignal());
   }
 
   toggle(): void {
@@ -24,7 +24,7 @@ export class Theme {
 
     this.modeSignal.set(nextMode);
     localStorage.setItem(THEME_STORAGE_KEY, nextMode);
-    this.applyTheme(nextMode);
+    this.applyDocumentTheme(nextMode);
   }
 
   private getStoredTheme(): ThemeMode {
@@ -33,7 +33,7 @@ export class Theme {
     return storedTheme === 'dark' ? 'dark' : 'light';
   }
 
-  private applyTheme(mode: ThemeMode): void {
+  private applyDocumentTheme(mode: ThemeMode): void {
     const root = this.document.documentElement;
 
     root.dataset['theme'] = mode;

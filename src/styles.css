@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
-:root {
+:root,
+app-root.light-theme {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --sidebar: #0f172a;
@@ -38,13 +39,25 @@
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-info: var(--primary);
+  --surface-secondary: var(--color-surface-muted);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-muted);
+  --text-muted: #94a3b8;
+  --border-color: var(--color-border);
+  --card-background: var(--color-surface-elevated);
+  --input-background: var(--color-surface);
+  --input-text: var(--color-text);
+  --input-border: var(--color-border-strong);
+  --button-background: var(--color-primary);
+  --button-text: #ffffff;
   --radius: 16px;
   --radius-sm: 12px;
   --shadow: 0 18px 45px rgb(15 23 42 / 8%);
   --shadow-sm: 0 8px 22px rgb(15 23 42 / 6%);
 }
 
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+app-root.dark-theme {
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --sidebar: #020617;
@@ -80,6 +93,17 @@
   --color-danger-bg: rgb(248 113 113 / 14%);
   --color-danger-text: #fecaca;
   --color-info: var(--primary);
+  --surface-secondary: var(--color-surface-muted);
+  --text-primary: var(--color-text);
+  --text-secondary: var(--color-muted);
+  --text-muted: #9ca3af;
+  --border-color: var(--color-border);
+  --card-background: var(--color-surface-elevated);
+  --input-background: #111827;
+  --input-text: #ffffff;
+  --input-border: rgb(209 213 219 / 42%);
+  --button-background: var(--color-primary);
+  --button-text: #ffffff;
   --shadow: 0 22px 60px rgb(0 0 0 / 34%);
   --shadow-sm: 0 12px 34px rgb(0 0 0 / 28%);
 }
@@ -442,4 +466,206 @@ html[data-theme='dark'] .login-page input {
 
 html[data-theme='dark'] .login-page input::placeholder {
   color: #d1d5db !important;
+}
+
+app-root.light-theme,
+app-root.dark-theme {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+app-root.dark-theme {
+  color-scheme: dark;
+}
+
+app-root.light-theme {
+  color-scheme: light;
+}
+
+app-root.dark-theme .landing-page,
+app-root.dark-theme .login-page,
+app-root.dark-theme .shell {
+  background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 18%), transparent 32rem),
+    linear-gradient(135deg, var(--background) 0%, #0f172a 48%, #111827 100%) !important;
+  color: var(--text-primary) !important;
+}
+
+app-root.dark-theme app-landing,
+app-root.dark-theme app-login {
+  background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 18%), transparent 32rem),
+    linear-gradient(135deg, var(--background) 0%, #0f172a 48%, #111827 100%) !important;
+}
+
+app-root.dark-theme h1,
+app-root.dark-theme h2,
+app-root.dark-theme h3,
+app-root.dark-theme h4,
+app-root.dark-theme h5,
+app-root.dark-theme h6,
+app-root.dark-theme strong,
+app-root.dark-theme label,
+app-root.dark-theme .brand,
+app-root.dark-theme .identity span,
+app-root.dark-theme .section-header h2,
+app-root.dark-theme .section-header h3,
+app-root.dark-theme .card h3,
+app-root.dark-theme .feature-card h3,
+app-root.dark-theme .appointment-card h3,
+app-root.dark-theme .stat-card strong,
+app-root.dark-theme .user-card h2,
+app-root.dark-theme .error-card h1,
+app-root.dark-theme .error-card h2 {
+  color: var(--text-primary) !important;
+}
+
+app-root.dark-theme p,
+app-root.dark-theme small,
+app-root.dark-theme span,
+app-root.dark-theme li,
+app-root.dark-theme .muted,
+app-root.dark-theme .loading-label,
+app-root.dark-theme .appointment-meta,
+app-root.dark-theme .hero-description,
+app-root.dark-theme .lede,
+app-root.dark-theme .card-header,
+app-root.dark-theme .section-heading p:not(.eyebrow),
+app-root.dark-theme .feature-card p,
+app-root.dark-theme .appointment-card p,
+app-root.dark-theme .notification-card small,
+app-root.dark-theme .demo-access p,
+app-root.dark-theme .credential-list span,
+app-root.dark-theme .user-card p,
+app-root.dark-theme .user-card span,
+app-root.dark-theme .landing-footer,
+app-root.dark-theme .landing-footer span {
+  color: var(--text-secondary) !important;
+}
+
+app-root.dark-theme .eyebrow,
+app-root.dark-theme a:not(.primary-action):not(.secondary-action):not(.api-docs-button):not(.brand),
+app-root.dark-theme .stack-line {
+  color: #bfdbfe !important;
+}
+
+app-root.dark-theme .intro,
+app-root.dark-theme .login-card,
+app-root.dark-theme .hero-card,
+app-root.dark-theme .demo-card,
+app-root.dark-theme .feature-card,
+app-root.dark-theme .features-panel,
+app-root.dark-theme .form-panel,
+app-root.dark-theme .list,
+app-root.dark-theme .panel,
+app-root.dark-theme .stat-card,
+app-root.dark-theme .card,
+app-root.dark-theme .appointment-card,
+app-root.dark-theme .notification-card,
+app-root.dark-theme .slot-card,
+app-root.dark-theme .user-card,
+app-root.dark-theme .state-card,
+app-root.dark-theme .error-card,
+app-root.dark-theme .topbar,
+app-root.dark-theme .tech-stack {
+  background: var(--card-background) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--text-primary) !important;
+}
+
+app-root.dark-theme .metric-row,
+app-root.dark-theme .credential-list div,
+app-root.dark-theme .demo-access,
+app-root.dark-theme .slots-panel {
+  background: var(--surface-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+app-root.dark-theme input,
+app-root.dark-theme textarea,
+app-root.dark-theme select {
+  background: var(--input-background) !important;
+  border-color: var(--input-border) !important;
+  color: var(--input-text) !important;
+  caret-color: var(--input-text);
+}
+
+app-root.dark-theme input::placeholder,
+app-root.dark-theme textarea::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+app-root.dark-theme input:hover,
+app-root.dark-theme textarea:hover,
+app-root.dark-theme select:hover,
+app-root.dark-theme input:focus,
+app-root.dark-theme textarea:focus,
+app-root.dark-theme select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px var(--color-focus-ring) !important;
+}
+
+app-root.dark-theme button:not(.theme-toggle):not(.secondary):not(.danger),
+app-root.dark-theme .primary-action {
+  background: var(--button-background) !important;
+  color: var(--button-text) !important;
+}
+
+app-root.dark-theme button:not(.theme-toggle):not(.secondary):not(.danger):hover,
+app-root.dark-theme .primary-action:hover {
+  background: var(--primary-hover) !important;
+}
+
+app-root.dark-theme .secondary,
+app-root.dark-theme button.secondary,
+app-root.dark-theme .secondary-action,
+app-root.dark-theme .api-docs-button,
+app-root.dark-theme .login-link,
+app-root.dark-theme .theme-toggle {
+  background: var(--surface-secondary) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+app-root.dark-theme .badge-list span,
+app-root.dark-theme .deployment-badges span,
+app-root.dark-theme .technology-list span,
+app-root.dark-theme .tech-stack span,
+app-root.dark-theme .feature-icon,
+app-root.dark-theme .api-docs-icon,
+app-root.dark-theme .notification-preview,
+app-root.dark-theme .slot,
+app-root.dark-theme .role,
+app-root.dark-theme .chip {
+  background: var(--color-badge-bg) !important;
+  border-color: rgb(147 197 253 / 32%) !important;
+  color: var(--color-badge-text) !important;
+}
+
+app-root.dark-theme table,
+app-root.dark-theme thead,
+app-root.dark-theme tbody,
+app-root.dark-theme tr,
+app-root.dark-theme th,
+app-root.dark-theme td {
+  background: var(--card-background) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+app-root.dark-theme dialog,
+app-root.dark-theme .dialog,
+app-root.dark-theme .modal,
+app-root.dark-theme .confirm-dialog {
+  background: var(--card-background) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+app-root.dark-theme input[type='checkbox'],
+app-root.dark-theme input[type='radio'] {
+  accent-color: var(--primary);
 }
