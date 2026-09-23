@@ -173,6 +173,21 @@ textarea:focus-visible {
   outline-color: var(--color-focus-ring);
 }
 
+.button-spinner {
+  animation: button-spinner-spin 760ms linear infinite;
+  border: 2px solid rgb(255 255 255 / 45%);
+  border-radius: 999px;
+  border-top-color: #fff;
+  height: 18px;
+  width: 18px;
+}
+
+@keyframes button-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 html[data-theme='dark'] .landing-page,
 html[data-theme='dark'] .login-page {
   background:

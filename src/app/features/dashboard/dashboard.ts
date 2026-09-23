@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
 import { getApiErrorMessage } from '../../core/errors/api-error';
@@ -15,7 +14,7 @@ import { getNextActiveFutureAppointment } from './dashboard.utils';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePipe, PageHeader, StateCard],
+  imports: [PageHeader, StateCard],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })

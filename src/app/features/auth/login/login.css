@@ -258,21 +258,6 @@ button:disabled {
   justify-content: center;
 }
 
-.button-spinner {
-  animation: button-spinner-spin 760ms linear infinite;
-  border: 2px solid rgb(255 255 255 / 45%);
-  border-radius: 999px;
-  border-top-color: #fff;
-  height: 18px;
-  width: 18px;
-}
-
-@keyframes button-spinner-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .tech-stack {
   background: rgb(255 255 255 / 72%);
   border: 1px solid #e4e7ec;

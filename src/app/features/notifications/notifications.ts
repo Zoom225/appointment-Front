@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { getApiErrorMessage } from '../../core/errors/api-error';
 import { AppNotification } from '../../core/models/notification.models';
@@ -8,7 +7,7 @@ import { StateCard } from '../../shared/components/state-card/state-card';
 
 @Component({
   selector: 'app-notifications',
-  imports: [DatePipe, PageHeader, StateCard],
+  imports: [PageHeader, StateCard],
   templateUrl: './notifications.html',
   styleUrl: './notifications.css',
 })
