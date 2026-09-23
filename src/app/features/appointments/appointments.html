@@ -1,117 +1,69 @@
 <app-page-header eyebrow="Planning" title="Mes rendez-vous" />
 
-<section class="appointment-grid">
-  <form class="panel form-panel" [formGroup]="form" (ngSubmit)="submit()">
-    <div class="section-header">
-      <h2>{{ selectedAppointment() ? 'Modifier un rendez-vous' : 'Nouveau rendez-vous' }}</h2>
-      @if (selectedAppointment()) {
-        <button type="button" class="secondary" (click)="resetForm()">Annuler l’édition</button>
-      }
-    </div>
+<div class="page-actions"><a class="primary-link" routerLink="/appointments/new">Prendre un rendez-vous</a></div>
+@if (successMessage()) { <p class="success-message" aria-live="polite">{{ successMessage() }}</p> }
 
-    <label>
-      Motif
-      <input type="text" formControlName="reason" placeholder="Consultation de suivi" />
-    </label>
-
-    <label>
-      Jour
-      <input type="date" formControlName="date" (change)="loadAvailability()" />
-    </label>
-
-    <div class="datetime-grid">
-      <label>
-        Début
-        <input type="datetime-local" formControlName="startDateTime" />
-      </label>
-
-      <label>
-        Fin
-        <input type="datetime-local" formControlName="endDateTime" />
-      </label>
-    </div>
-
-    <div class="slots-panel">
-      <div class="section-header">
-        <h3>Disponibilités backend</h3>
-        @if (isLoadingAvailability()) {
-          <span class="loading-label">Chargement...</span>
-        }
-      </div>
-
-      @if (availableSlots().length === 0) {
-        <p class="muted">Choisissez une date pour récupérer les créneaux disponibles.</p>
-      } @else {
-        <div class="slot-list">
-          @for (slot of availableSlots(); track slot.startDateTime) {
-            <button type="button" class="slot" (click)="selectSlot(slot)">
-              {{ slot.startDateTime | date: 'shortTime' }} - {{ slot.endDateTime | date: 'shortTime' }}
-            </button>
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération de vos rendez-vous à venir..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (appointments().length === 0) {
+  <app-state-card title="Aucun rendez-vous à venir" description="Vous pouvez réserver un nouveau créneau dès maintenant." />
+} @else {
+  <section class="appointment-list">
+    @for (appointment of appointments(); track appointment.id) {
+      <article class="appointment-card">
+        <div class="appointment-main">
+          <span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span>
+          <h2>{{ appointment.reason }}</h2>
+          <p>{{ formatDate(appointment.startDateTime) }} · {{ formatTime(appointment.startDateTime) }}</p>
+          @if (appointment.createdAt) { <small>Créé le {{ formatDate(appointment.createdAt) }}</small> }
+        </div>
+        <div class="actions">
+          <a class="secondary-link" [routerLink]="['/appointments']" [queryParams]="{ id: appointment.id }">Voir le détail</a>
+          @if (canEdit(appointment)) {
+            <button type="button" class="secondary" (click)="editAppointment(appointment)">Modifier</button>
+          }
+          @if (canCancel(appointment)) {
+            <button type="button" class="danger" (click)="requestCancellation(appointment)">Annuler</button>
           }
         </div>
-      }
-    </div>
-
-    @if (formMessage()) {
-      <p class="error">{{ formMessage() }}</p>
-    }
-
-    <button type="submit" [disabled]="isSubmitting()">
-      {{ isSubmitting() ? 'Envoi...' : selectedAppointment() ? 'Mettre à jour' : 'Créer le rendez-vous' }}
-    </button>
-  </form>
-
-  <section class="panel">
-    <div class="section-header">
-      <h2>Historique</h2>
-      <label class="filter">
-        Statut
-        <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)">
-          <option value="ALL">Tous</option>
-          <option value="PENDING">PENDING</option>
-          <option value="SCHEDULED">SCHEDULED</option>
-          <option value="CONFIRMED">CONFIRMED</option>
-          <option value="CANCELLED">CANCELLED</option>
-          <option value="COMPLETED">COMPLETED</option>
-        </select>
-      </label>
-    </div>
-
-    @if (isLoading()) {
-      <app-state-card title="Chargement" description="Récupération des rendez-vous..." />
-    } @else if (errorMessage()) {
-      <app-state-card title="Erreur" [description]="errorMessage()!" />
-    } @else if (filteredAppointments().length === 0) {
-      <app-state-card title="Aucun rendez-vous" description="Aucun résultat pour le filtre en cours." />
-    } @else {
-      <div class="list">
-        @for (appointment of filteredAppointments(); track appointment.id) {
-          <article class="appointment-card">
-            <div class="appointment-content">
-              <p [class]="statusClass(appointment.status)">{{ statusLabel(appointment.status) }}</p>
-              <h3>{{ appointment.reason }}</h3>
-              <p class="appointment-meta">
-                <span aria-hidden="true">📅</span>
-                {{ formatDate(appointment.startDateTime) }}
-              </p>
-              <p class="appointment-meta">
-                <span aria-hidden="true">🕒</span>
-                {{ formatTimeRange(appointment) }}
-              </p>
-            </div>
-            @if (canEdit(appointment)) {
-              <div class="actions">
-                <button type="button" class="secondary" (click)="editAppointment(appointment)">
-                  Modifier
-                </button>
-                <button type="button" class="danger" (click)="cancelAppointment(appointment)">
-                  Annuler
-                </button>
-              </div>
-            }
-          </article>
-        }
-      </div>
+      </article>
     }
   </section>
-</section>
+}
+
+@if (appointmentToEdit(); as appointment) {
+  <div class="dialog-backdrop" role="presentation">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+      <h2 id="edit-title">Modifier le rendez-vous</h2>
+      <form class="edit-form" [formGroup]="editForm" (ngSubmit)="updateAppointment()">
+        <label for="edit-reason">Motif</label>
+        <input id="edit-reason" name="reason" type="text" formControlName="reason" autocomplete="off" />
+        <label for="edit-start">Début</label>
+        <input id="edit-start" name="startDateTime" type="datetime-local" formControlName="startDateTime" />
+        <label for="edit-end">Fin</label>
+        <input id="edit-end" name="endDateTime" type="datetime-local" formControlName="endDateTime" />
+        <div class="actions">
+          <button type="button" class="secondary" (click)="closeEditDialog()">Fermer</button>
+          <button type="submit" [disabled]="editForm.invalid || isUpdating()">{{ isUpdating() ? 'Modification...' : 'Enregistrer' }}</button>
+        </div>
+      </form>
+    </section>
+  </div>
+}
+
+@if (appointmentToCancel(); as appointment) {
+  <div class="dialog-backdrop" role="presentation">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+      <h2 id="cancel-title">Voulez-vous vraiment annuler ce rendez-vous ?</h2>
+      <p>{{ appointment.reason }} · {{ formatDate(appointment.startDateTime) }}</p>
+      <div class="actions">
+        <button type="button" class="secondary" (click)="closeDialog()">Conserver</button>
+        <button type="button" class="danger" (click)="confirmCancellation()" [disabled]="isCancelling()">
+          {{ isCancelling() ? 'Annulation...' : 'Annuler le rendez-vous' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

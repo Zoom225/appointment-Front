@@ -1,0 +1,59 @@
+<app-page-header eyebrow="Administration" [title]="isHistory ? 'Historique des rendez-vous' : 'Gestion des rendez-vous'" />
+
+<form class="filters" [formGroup]="filters" (ngSubmit)="load(0)">
+  <label for="admin-search">Recherche<input id="admin-search" name="query" type="search" formControlName="query" autocomplete="off" /></label>
+  @if (!isHistory) {
+    <label for="admin-status">Statut<select id="admin-status" name="status" formControlName="status"><option value="">Tous</option><option value="PENDING">En attente</option><option value="SCHEDULED">Planifié</option><option value="CONFIRMED">Confirmé</option><option value="COMPLETED">Terminé</option><option value="CANCELLED">Annulé</option></select></label>
+  }
+  <label for="admin-from">Du<input id="admin-from" name="startFrom" type="date" formControlName="startFrom" /></label>
+  <label for="admin-to">Au<input id="admin-to" name="startTo" type="date" formControlName="startTo" /></label>
+  <div class="filter-actions"><button type="submit">Filtrer</button><button type="button" class="secondary" (click)="resetFilters()">Réinitialiser</button></div>
+</form>
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération des rendez-vous administrateur..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (appointments().length === 0) {
+  <app-state-card title="Aucun résultat" description="Aucun rendez-vous ne correspond aux filtres." />
+} @else {
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Date</th><th>Heure</th><th>Utilisateur</th><th>Email</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody>
+        @for (appointment of appointments(); track appointment.id) {
+          <tr>
+            <td>{{ formatDate(appointment.startDateTime) }}</td><td>{{ formatTime(appointment.startDateTime) }}</td>
+            <td>{{ userFor(appointment)?.firstName }} {{ userFor(appointment)?.lastName }}</td><td>{{ userFor(appointment)?.email || '—' }}</td>
+            <td>{{ appointment.reason }}</td><td><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></td>
+            <td><div class="row-actions">
+              @for (status of transitions(appointment); track status) {
+                <button type="button" [class.danger]="status === 'CANCELLED'" (click)="updateStatus(appointment, status)" [disabled]="updatingId() === appointment.id">{{ transitionLabel(status) }}</button>
+              }
+              <button type="button" class="secondary" (click)="loadHistory(appointment)">Historique</button>
+            </div></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <nav class="pagination" aria-label="Pagination"><button type="button" (click)="load(page() - 1)" [disabled]="page() === 0">Précédent</button><span>Page {{ page() + 1 }} sur {{ totalPages() }}</span><button type="button" (click)="load(page() + 1)" [disabled]="page() + 1 >= totalPages()">Suivant</button></nav>
+}
+
+@if (auditAppointment(); as appointment) {
+  <div class="audit-backdrop" role="presentation">
+    <section class="audit-dialog" role="dialog" aria-modal="true" aria-labelledby="audit-title">
+      <header><div><p class="muted">Rendez-vous #{{ appointment.id }}</p><h2 id="audit-title">Historique détaillé</h2></div><button type="button" class="secondary" (click)="closeHistory()">Fermer</button></header>
+      @if (isLoadingAudit()) { <p>Chargement de l’historique...</p> }
+      @else if (auditError()) { <p class="audit-error">{{ auditError() }}</p> }
+      @else if (auditEntries().length === 0) { <p class="muted">Aucun événement d’audit disponible.</p> }
+      @else {
+        <ol class="audit-list">
+          @for (entry of auditEntries(); track entry.id) {
+            <li><time>{{ formatDateTime(entry.occurredAt) }}</time><strong>{{ entry.action }}</strong><span>{{ entry.actorEmail }}</span><p>{{ entry.details }}</p></li>
+          }
+        </ol>
+      }
+    </section>
+  </div>
+}

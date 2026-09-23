@@ -28,7 +28,16 @@ export const routes: Routes = [
       },
       {
         path: 'appointments',
+        pathMatch: 'full',
         loadComponent: () => import('./features/appointments/appointments').then((m) => m.Appointments),
+      },
+      {
+        path: 'appointments/new',
+        loadComponent: () => import('./features/appointment-new/appointment-new').then((m) => m.AppointmentNew),
+      },
+      {
+        path: 'appointments/history',
+        loadComponent: () => import('./features/appointment-history/appointment-history').then((m) => m.AppointmentHistory),
       },
       {
         path: 'availability',
@@ -49,11 +58,24 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
       },
       {
-        path: 'users',
+        path: 'admin/appointments',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        loadComponent: () => import('./features/admin-appointments/admin-appointments').then((m) => m.AdminAppointments),
+      },
+      {
+        path: 'admin/appointments/history',
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'], history: true },
+        loadComponent: () => import('./features/admin-appointments/admin-appointments').then((m) => m.AdminAppointments),
+      },
+      {
+        path: 'admin/users',
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] },
         loadComponent: () => import('./features/users/users').then((m) => m.Users),
       },
+      { path: 'users', redirectTo: 'admin/users' },
       {
         path: 'forbidden',
         loadComponent: () => import('./features/forbidden/forbidden').then((m) => m.Forbidden),

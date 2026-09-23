@@ -2,9 +2,9 @@
 
 <section class="panel">
   <form class="toolbar" [formGroup]="form" (ngSubmit)="search()">
-    <label>
+    <label for="availability-date">
       Date
-      <input type="date" formControlName="date" />
+      <input id="availability-date" name="date" type="date" formControlName="date" />
     </label>
     <button type="submit">Rechercher</button>
   </form>

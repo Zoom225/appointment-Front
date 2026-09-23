@@ -1,0 +1,109 @@
+<app-page-header eyebrow="Rendez-vous" title="Prendre un rendez-vous" />
+
+@if (confirmation(); as appointment) {
+  <section class="result-card success-card" aria-live="polite">
+    <p class="eyebrow">Réservation terminée</p>
+    <h2>{{ appointment.status === 'PENDING' ? 'Rendez-vous en attente de confirmation' : 'Rendez-vous enregistré' }}</h2>
+    <dl>
+      <div><dt>Identifiant</dt><dd>#{{ appointment.id }}</dd></div>
+      <div><dt>Date</dt><dd>{{ formatDate(appointment.startDateTime) }}</dd></div>
+      <div><dt>Heure</dt><dd>{{ formatTime(appointment.startDateTime) }}</dd></div>
+      <div><dt>Motif</dt><dd>{{ appointment.reason }}</dd></div>
+      <div><dt>Statut</dt><dd><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></dd></div>
+    </dl>
+    <div class="actions">
+      <a class="button primary" routerLink="/appointments">Voir mes rendez-vous</a>
+      <a class="button secondary" routerLink="/dashboard">Retour au dashboard</a>
+    </div>
+  </section>
+} @else if (conflictMessage()) {
+  <section class="result-card conflict-card" aria-live="assertive">
+    <p class="eyebrow">Rendez-vous actif</p>
+    <h2>Vous avez déjà un rendez-vous actif</h2>
+    <p>{{ conflictMessage() }}</p>
+    @if (conflictingAppointment(); as appointment) {
+      <p><strong>{{ formatDate(appointment.startDateTime) }} à {{ formatTime(appointment.startDateTime) }}</strong></p>
+    }
+    <div class="actions">
+      <a class="button primary" routerLink="/appointments">Voir mon rendez-vous</a>
+      <button type="button" class="button danger" (click)="requestConflictCancellation()" [disabled]="!conflictingAppointment()">
+        Annuler mon rendez-vous
+      </button>
+    </div>
+  </section>
+} @else {
+  <form class="booking-grid" [formGroup]="form" (ngSubmit)="submit()">
+    <section class="step-card">
+      <span class="step-number">1</span>
+      <div>
+        <h2>Choisissez une date</h2>
+        <label for="appointment-date">Date</label>
+        <input id="appointment-date" name="date" type="date" formControlName="date" (change)="loadSlots()" />
+      </div>
+    </section>
+
+    <section class="step-card">
+      <span class="step-number">2</span>
+      <div>
+        <h2>Choisissez un créneau</h2>
+        @if (isLoadingSlots()) {
+          <p>Chargement des créneaux...</p>
+        } @else if (slots().length === 0) {
+          <p class="muted">Sélectionnez une date pour afficher les disponibilités.</p>
+        } @else {
+          <div class="slot-list">
+            @for (slot of slots(); track slot.startDateTime) {
+              <button
+                type="button"
+                class="slot"
+                [class.selected]="selectedSlot()?.startDateTime === slot.startDateTime"
+                (click)="chooseSlot(slot)"
+              >
+                {{ formatTime(slot.startDateTime) }} – {{ formatTime(slot.endDateTime) }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="step-card">
+      <span class="step-number">3</span>
+      <div>
+        <h2>Indiquez le motif</h2>
+        <label for="appointment-reason">Motif</label>
+        <textarea id="appointment-reason" name="reason" formControlName="reason" rows="4" autocomplete="off"></textarea>
+      </div>
+    </section>
+
+    <section class="step-card summary-card">
+      <span class="step-number">4</span>
+      <div>
+        <h2>Récapitulatif</h2>
+        <dl>
+          <div><dt>Date</dt><dd>{{ selectedSlot() ? formatDate(selectedSlot()!.startDateTime) : 'À choisir' }}</dd></div>
+          <div><dt>Heure</dt><dd>{{ selectedSlot() ? formatTime(selectedSlot()!.startDateTime) : 'À choisir' }}</dd></div>
+          <div><dt>Motif</dt><dd>{{ form.controls.reason.value || 'À renseigner' }}</dd></div>
+        </dl>
+        @if (errorMessage()) { <p class="error" aria-live="assertive">{{ errorMessage() }}</p> }
+        <button type="submit" class="button primary" [disabled]="!canSubmit()">
+          {{ isSubmitting() ? 'Enregistrement...' : 'Confirmer mon rendez-vous' }}
+        </button>
+      </div>
+    </section>
+  </form>
+}
+
+@if (showCancelDialog()) {
+  <div class="dialog-backdrop" role="presentation">
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+      <h2 id="cancel-title">Voulez-vous vraiment annuler ce rendez-vous ?</h2>
+      <div class="actions">
+        <button type="button" class="button secondary" (click)="showCancelDialog.set(false)">Conserver</button>
+        <button type="button" class="button danger" (click)="cancelConflictingAppointment()" [disabled]="isCancelling()">
+          {{ isCancelling() ? 'Annulation...' : 'Annuler le rendez-vous' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

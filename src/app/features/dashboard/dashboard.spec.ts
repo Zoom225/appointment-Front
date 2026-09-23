@@ -14,6 +14,8 @@ function createAppointment(
     endDateTime: startDateTime,
     reason: `Rendez-vous ${id}`,
     userId: 1,
+    createdAt: '2026-08-01T08:00:00Z',
+    updatedAt: '2026-08-01T08:00:00Z',
   };
 }
 

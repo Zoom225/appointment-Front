@@ -59,4 +59,16 @@ describe('AppointmentsApi', () => {
     const request = httpMock.expectOne(`${API_ENDPOINTS.appointments}/12/cancel`);
     expect(request.request.method).toBe('PATCH');
   });
+
+  it('requests the authenticated user upcoming appointments', () => {
+    service.findUpcoming(1, 5).subscribe();
+    const request = httpMock.expectOne(`${API_ENDPOINTS.myAppointments.upcoming}?page=1&size=5`);
+    expect(request.request.method).toBe('GET');
+  });
+
+  it('requests the authenticated user appointment history', () => {
+    service.findHistory(2, 10).subscribe();
+    const request = httpMock.expectOne(`${API_ENDPOINTS.myAppointments.history}?page=2&size=10`);
+    expect(request.request.method).toBe('GET');
+  });
 });

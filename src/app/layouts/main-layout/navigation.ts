@@ -1,18 +1,24 @@
-import { AppRole } from '../../core/auth/roles';
-
 export interface NavigationItem {
   label: string;
   route: string;
   icon: string;
-  roles?: AppRole[];
+  exact?: boolean;
 }
 
-export const MAIN_NAVIGATION: NavigationItem[] = [
-  { label: 'Tableau de bord', route: '/dashboard', icon: '⌂' },
-  { label: 'Mes rendez-vous', route: '/appointments', icon: '◷' },
-  { label: 'Disponibilités', route: '/availability', icon: '□' },
+export const USER_NAVIGATION: NavigationItem[] = [
+  { label: 'Dashboard', route: '/dashboard', icon: '⌂' },
+  { label: 'Prendre rendez-vous', route: '/appointments/new', icon: '+' },
+  { label: 'Mes rendez-vous', route: '/appointments', icon: '◷', exact: true },
+  { label: 'Historique', route: '/appointments/history', icon: '↺' },
   { label: 'Notifications', route: '/notifications', icon: '◦' },
   { label: 'Profil', route: '/profile', icon: '◎' },
-  { label: 'Administration', route: '/admin', icon: '◆', roles: ['ADMIN'] },
-  { label: 'Utilisateurs', route: '/users', icon: '◇', roles: ['ADMIN'] },
+];
+
+export const ADMIN_NAVIGATION: NavigationItem[] = [
+  { label: 'Dashboard', route: '/admin', icon: '⌂', exact: true },
+  { label: 'Rendez-vous', route: '/admin/appointments', icon: '◷', exact: true },
+  { label: 'Historique', route: '/admin/appointments/history', icon: '↺' },
+  { label: 'Utilisateurs', route: '/admin/users', icon: '◇' },
+  { label: 'Notifications', route: '/notifications', icon: '◦' },
+  { label: 'Profil', route: '/profile', icon: '◎' },
 ];

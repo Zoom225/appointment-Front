@@ -1,68 +1,27 @@
-<app-page-header eyebrow="Back-office" title="Administration" />
-
-@if (isLoading()) {
-  <app-state-card title="Chargement" description="Récupération des données administrateur..." />
-} @else if (errorMessage()) {
-  <app-state-card title="Erreur" [description]="errorMessage()!" />
-} @else {
-  @if (statistics(); as statistics) {
+<app-page-header eyebrow="Administrateur" title="Dashboard administration" />
+@if (isLoading()) { <app-state-card title="Chargement" description="Récupération des indicateurs administrateur..." /> }
+@else if (errorMessage()) { <app-state-card title="Erreur" [description]="errorMessage()!" /> }
+@else {
+  @if (statistics(); as stats) {
     <section class="stats-grid">
-      <article class="stat-card"><span>Utilisateurs</span><strong>{{ statistics.totalUsers }}</strong></article>
-      <article class="stat-card"><span>Rendez-vous</span><strong>{{ statistics.totalAppointments }}</strong></article>
-      <article class="stat-card"><span>En attente</span><strong>{{ statistics.pendingAppointments }}</strong></article>
-      <article class="stat-card"><span>Annulés</span><strong>{{ statistics.cancelledAppointments }}</strong></article>
+      <article><span>Aujourd’hui</span><strong>{{ stats.todayAppointments }}</strong></article><article><span>À venir</span><strong>{{ stats.upcomingAppointments }}</strong></article><article><span>En attente</span><strong>{{ stats.pendingAppointments }}</strong></article><article><span>Terminés</span><strong>{{ stats.completedAppointments }}</strong></article><article><span>Annulés</span><strong>{{ stats.cancelledAppointments }}</strong></article><article><span>Total rendez-vous</span><strong>{{ stats.totalAppointments }}</strong></article><article><span>Utilisateurs</span><strong>{{ stats.totalUsers }}</strong></article>
     </section>
   }
-
-  <section class="admin-grid">
-    <article class="panel">
-      <h2>Rendez-vous</h2>
-      <div class="list">
-        @for (appointment of appointments(); track appointment.id) {
-          <article class="card">
-            <div>
-              <p class="muted">#{{ appointment.id }} · {{ appointment.status }}</p>
-              <h3>{{ appointment.reason }}</h3>
-              <p>{{ appointment.startDateTime | date: 'short' }} - {{ appointment.endDateTime | date: 'shortTime' }}</p>
-            </div>
-            <div class="actions">
-              <button type="button" class="secondary" (click)="updateStatus(appointment, 'CONFIRMED')">Confirmer</button>
-              <button type="button" class="secondary" (click)="updateStatus(appointment, 'COMPLETED')">Terminer</button>
-              <button type="button" class="secondary" (click)="loadHistory(appointment)">Historique</button>
-            </div>
-          </article>
-        }
-      </div>
-    </article>
-
-    <article class="panel">
-      <h2>Historique du rendez-vous</h2>
-      @if (selectedAppointmentId() === null) {
-        <p class="muted">Choisissez un rendez-vous pour charger son historique d’administration.</p>
-      } @else if (history().length === 0) {
-        <p class="muted">Aucun événement d’historique renvoyé.</p>
-      } @else {
-        <div class="list">
-          @for (entry of history(); track entry.id) {
-            <article class="card">
-              <p class="muted">{{ entry.action }} · {{ entry.occurredAt | date: 'short' }}</p>
-              <h3>{{ entry.actorEmail }}</h3>
-              <p>{{ entry.details }}</p>
-            </article>
-          }
-        </div>
-      }
-
-      <h2>Notifications admin</h2>
-      <div class="list">
+  <section class="today-panel"><header><div><p>Planning</p><h2>Rendez-vous du jour</h2></div><a routerLink="/admin/appointments">Voir tous les rendez-vous</a></header>
+    @if (appointments().length === 0) { <p class="empty">Aucun rendez-vous aujourd’hui.</p> }
+    @else { <div class="table-scroll"><table><thead><tr><th>Heure</th><th>Utilisateur</th><th>Email</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead><tbody>
+      @for (item of appointments(); track item.id) { <tr><td>{{ formatTime(item.startDateTime) }}</td><td>{{ userFor(item)?.firstName }} {{ userFor(item)?.lastName }}</td><td>{{ userFor(item)?.email || '—' }}</td><td>{{ item.reason }}</td><td><span [class]="statusClass(item)">{{ statusLabel(item) }}</span></td><td><div class="actions">@for (status of transitions(item); track status) { <button type="button" [class.danger]="status === 'CANCELLED'" (click)="updateStatus(item,status)" [disabled]="updatingId() === item.id">{{ actionLabel(status) }}</button> }</div></td></tr> }
+    </tbody></table></div> }
+  </section>
+  <section class="notifications-panel">
+    <header><div><p>Activité</p><h2>Notifications récentes</h2></div><a routerLink="/notifications">Voir toutes les notifications</a></header>
+    @if (notifications().length === 0) { <p class="empty">Aucune notification récente.</p> }
+    @else {
+      <div class="notification-list">
         @for (notification of notifications(); track notification.id) {
-          <article class="card">
-            <p class="muted">{{ notification.type }} · {{ notification.createdAt | date: 'short' }}</p>
-            <h3>{{ notification.title }}</h3>
-            <p>{{ notification.message }}</p>
-          </article>
+          <article [class.unread]="!notification.readAt"><div><h3>{{ notification.title }}</h3><p>{{ notification.message }}</p></div><time>{{ formatDateTime(notification.createdAt) }}</time><span>{{ notification.readAt ? 'Lue' : 'Non lue' }}</span></article>
         }
       </div>
-    </article>
+    }
   </section>
 }
