@@ -29,6 +29,8 @@ export interface Appointment {
   reason: string;
   status: AppointmentStatus;
   userId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AppointmentCreateRequest {

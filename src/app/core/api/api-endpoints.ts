@@ -5,6 +5,10 @@ export const API_ENDPOINTS = {
     login: `${API_BASE_URL}/api/auth/login`,
   },
   appointments: `${API_BASE_URL}/api/appointments`,
+  myAppointments: {
+    upcoming: `${API_BASE_URL}/api/appointments/me/upcoming`,
+    history: `${API_BASE_URL}/api/appointments/me/history`,
+  },
   notifications: `${API_BASE_URL}/api/notifications`,
   users: `${API_BASE_URL}/api/users`,
   admin: {

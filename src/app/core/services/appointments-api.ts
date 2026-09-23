@@ -48,6 +48,18 @@ export class AppointmentsApi {
     return this.http.get<Appointment>(`${API_ENDPOINTS.appointments}/${id}`);
   }
 
+  findUpcoming(page = 0, size = 20): Observable<PageResponse<Appointment>> {
+    return this.http.get<PageResponse<Appointment>>(API_ENDPOINTS.myAppointments.upcoming, {
+      params: new HttpParams().set('page', page).set('size', size),
+    });
+  }
+
+  findHistory(page = 0, size = 20): Observable<PageResponse<Appointment>> {
+    return this.http.get<PageResponse<Appointment>>(API_ENDPOINTS.myAppointments.history, {
+      params: new HttpParams().set('page', page).set('size', size),
+    });
+  }
+
   create(payload: AppointmentCreateRequest): Observable<Appointment> {
     return this.http.post<Appointment>(API_ENDPOINTS.appointments, payload);
   }

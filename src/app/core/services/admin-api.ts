@@ -29,6 +29,7 @@ export class AdminApi {
     status?: AppointmentStatus;
     startFrom?: string;
     startTo?: string;
+    query?: string;
   }): Observable<PageResponse<Appointment>> {
     let httpParams = new HttpParams();
     if (params?.page !== undefined) {
@@ -48,6 +49,9 @@ export class AdminApi {
     }
     if (params?.startTo) {
       httpParams = httpParams.set('startTo', params.startTo);
+    }
+    if (params?.query) {
+      httpParams = httpParams.set('query', params.query);
     }
     return this.http.get<PageResponse<Appointment>>(API_ENDPOINTS.admin.appointments, { params: httpParams });
   }

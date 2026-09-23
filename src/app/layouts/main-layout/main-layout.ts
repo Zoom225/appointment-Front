@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { Theme } from '../../core/services/theme';
-import { MAIN_NAVIGATION, NavigationItem } from './navigation';
+import { NotificationsApi } from '../../core/services/notifications-api';
+import { ADMIN_NAVIGATION, NavigationItem, USER_NAVIGATION } from './navigation';
 
 @Component({
   selector: 'app-main-layout',
@@ -10,15 +11,23 @@ import { MAIN_NAVIGATION, NavigationItem } from './navigation';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css',
 })
-export class MainLayout {
+export class MainLayout implements OnInit {
   protected readonly auth = inject(Auth);
   protected readonly theme = inject(Theme);
-  protected readonly navigationItems = MAIN_NAVIGATION;
+  private readonly notificationsApi = inject(NotificationsApi);
   protected readonly isMenuOpen = signal(false);
-  protected readonly roleLabel = computed(() => this.auth.roles().map((role) => role.replace('ROLE_', '')).join(', '));
+  protected readonly unreadNotifications = signal(0);
+  protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['ADMIN']));
+  protected readonly navigationItems = computed<NavigationItem[]>(() =>
+    this.isAdmin() ? ADMIN_NAVIGATION : USER_NAVIGATION,
+  );
+  protected readonly roleLabel = computed(() => (this.isAdmin() ? 'Administrateur' : 'Utilisateur'));
 
-  protected canShowNavigationItem(item: NavigationItem): boolean {
-    return item.roles ? this.auth.hasAnyRole(item.roles) : true;
+  ngOnInit(): void {
+    this.notificationsApi.findAll({ page: 0, size: 1, unreadOnly: true }).subscribe({
+      next: (response) => this.unreadNotifications.set(response.totalElements),
+      error: () => this.unreadNotifications.set(0),
+    });
   }
 
   protected toggleMenu(): void {

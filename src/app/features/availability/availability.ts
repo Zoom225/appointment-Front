@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { getApiErrorMessage } from '../../core/errors/api-error';
@@ -10,7 +9,7 @@ import { StateCard } from '../../shared/components/state-card/state-card';
 
 @Component({
   selector: 'app-availability',
-  imports: [DatePipe, PageHeader, ReactiveFormsModule, StateCard],
+  imports: [PageHeader, ReactiveFormsModule, StateCard],
   templateUrl: './availability.html',
   styleUrl: './availability.css',
 })

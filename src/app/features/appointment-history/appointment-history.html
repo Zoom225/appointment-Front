@@ -1,0 +1,29 @@
+<app-page-header eyebrow="Archives" title="Historique des rendez-vous" />
+
+@if (isLoading()) {
+  <app-state-card title="Chargement" description="Récupération de votre historique..." />
+} @else if (errorMessage()) {
+  <app-state-card title="Erreur" [description]="errorMessage()!" />
+} @else if (appointments().length === 0) {
+  <app-state-card title="Historique vide" description="Aucun rendez-vous terminé ou annulé." />
+} @else {
+  <section class="history-list">
+    @for (appointment of appointments(); track appointment.id) {
+      <article class="history-card">
+        <div>
+          <span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span>
+          <h2>{{ appointment.reason }}</h2>
+        </div>
+        <dl>
+          <div><dt>Date</dt><dd>{{ formatDate(appointment.startDateTime) }}</dd></div>
+          <div><dt>Heure</dt><dd>{{ formatTime(appointment.startDateTime) }}</dd></div>
+        </dl>
+      </article>
+    }
+  </section>
+  <nav class="pagination" aria-label="Pagination de l’historique">
+    <button type="button" (click)="load(page() - 1)" [disabled]="page() === 0">Précédent</button>
+    <span>Page {{ page() + 1 }} sur {{ totalPages() }}</span>
+    <button type="button" (click)="load(page() + 1)" [disabled]="page() + 1 >= totalPages()">Suivant</button>
+  </nav>
+}
