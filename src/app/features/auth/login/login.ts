@@ -108,7 +108,9 @@ export class Login implements OnInit {
         },
         error: (error: unknown) => {
           this.loginState.set('error');
-          this.errorMessage.set(getApiErrorMessage(error));
+          this.errorMessage.set(
+            getApiErrorMessage(error, { unauthorizedMessage: 'Email ou mot de passe incorrect' }),
+          );
         },
       });
   }
