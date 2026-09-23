@@ -44,7 +44,7 @@ export class Auth {
     );
   }
 
-  logout(options?: { sessionExpired?: boolean }): void {
+  logout(options?: { sessionExpired?: boolean; redirect?: boolean }): void {
     this.clearSession();
 
     if (options?.sessionExpired) {
@@ -53,9 +53,11 @@ export class Auth {
       this.sessionFeedback.clear();
     }
 
-    void this.router.navigate(['/login'], {
-      queryParams: options?.sessionExpired ? { sessionExpired: 'true' } : undefined,
-    });
+    if (options?.redirect !== false) {
+      void this.router.navigate(['/login'], {
+        queryParams: options?.sessionExpired ? { sessionExpired: 'true' } : undefined,
+      });
+    }
   }
 
   getAccessToken(): string | null {
