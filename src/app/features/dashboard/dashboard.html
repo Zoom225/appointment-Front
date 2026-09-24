@@ -24,7 +24,6 @@
       <div class="actions"><a class="secondary-action" routerLink="/appointments">Voir le détail</a><button type="button" class="danger" (click)="cancelNext()" [disabled]="isCancelling()">{{ isCancelling() ? 'Annulation...' : 'Annuler' }}</button></div>
     } @else {
       <p class="empty">Aucun rendez-vous à venir</p>
-      <a class="primary-action" routerLink="/appointments/new">Prendre un rendez-vous</a>
     }
   </section>
 }

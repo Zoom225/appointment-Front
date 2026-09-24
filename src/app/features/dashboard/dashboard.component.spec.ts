@@ -14,6 +14,9 @@ describe('Dashboard user', () => {
     httpMock.expectOne(`${API_ENDPOINTS.myAppointments.upcoming}?page=0&size=20`).flush({ content: [], totalElements: 0, totalPages: 0, size: 20, number: 0, numberOfElements: 0, first: true, last: true, empty: true });
     httpMock.expectOne(`${API_ENDPOINTS.myAppointments.history}?page=0&size=100`).flush({ content: [], totalElements: 0, totalPages: 0, size: 100, number: 0, numberOfElements: 0, first: true, last: true, empty: true });
     httpMock.expectOne(`${API_ENDPOINTS.notifications}?page=0&size=100&unreadOnly=true`).flush({ content: [], totalElements: 3, totalPages: 1, size: 100, number: 0, numberOfElements: 0, first: true, last: true, empty: true });
+    fixture.detectChanges();
     expect((fixture.componentInstance as any).unreadCount()).toBe(3);
+    const bookingLinks = Array.from(fixture.nativeElement.querySelectorAll('a')).filter((link: any) => link.textContent.includes('Prendre un rendez-vous'));
+    expect(bookingLinks).toHaveLength(1);
   });
 });
