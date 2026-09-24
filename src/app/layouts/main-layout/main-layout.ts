@@ -1,8 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { Theme } from '../../core/services/theme';
 import { NotificationsApi } from '../../core/services/notifications-api';
+import { ConfirmDialog } from '../../shared/services/confirm-dialog';
 import { ADMIN_NAVIGATION, NavigationItem, USER_NAVIGATION } from './navigation';
 
 @Component({
@@ -15,6 +16,8 @@ export class MainLayout implements OnInit {
   protected readonly auth = inject(Auth);
   protected readonly theme = inject(Theme);
   private readonly notificationsApi = inject(NotificationsApi);
+  private readonly confirmDialog = inject(ConfirmDialog);
+  private readonly router = inject(Router);
   protected readonly isMenuOpen = signal(false);
   protected readonly unreadNotifications = signal(0);
   protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['ADMIN']));
@@ -36,5 +39,14 @@ export class MainLayout implements OnInit {
 
   protected closeMenu(): void {
     this.isMenuOpen.set(false);
+  }
+
+  protected changeSpace(): void {
+    if (!this.confirmDialog.confirm('Voulez-vous quitter cet espace et choisir un autre compte ?')) {
+      return;
+    }
+
+    this.auth.logout({ redirect: false });
+    void this.router.navigateByUrl('/');
   }
 }

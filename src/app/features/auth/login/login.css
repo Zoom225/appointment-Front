@@ -176,6 +176,105 @@ input:focus {
   margin: 0;
 }
 
+.demo-credentials {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.demo-credentials.admin-credentials {
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+}
+
+.demo-heading h3,
+.demo-credentials p,
+.demo-credentials dl {
+  margin: 0;
+}
+
+.demo-heading h3 {
+  color: #101828;
+  font-size: 1rem;
+  margin-top: 7px;
+}
+
+.demo-badge {
+  color: #175cd3;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.admin-credentials .demo-badge {
+  color: #6d28d9;
+}
+
+.demo-credentials dl {
+  display: grid;
+  gap: 10px;
+}
+
+.demo-credentials dl div {
+  background: rgb(255 255 255 / 80%);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.demo-credentials dt {
+  color: #667085;
+  font-size: .74rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.demo-credentials dd {
+  color: #101828;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .9rem;
+  font-weight: 700;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.demo-credentials p {
+  color: #475467;
+  font-size: .86rem;
+  line-height: 1.5;
+}
+
+.fill-button {
+  padding: 11px 14px;
+}
+
+.login-navigation {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+}
+
+.login-navigation a {
+  color: #164db4;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.login-navigation a:hover {
+  text-decoration: underline;
+}
+
+.login-navigation a:focus-visible,
+.fill-button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+
 .field-error,
 .error,
 .slow {

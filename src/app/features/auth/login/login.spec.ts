@@ -77,4 +77,38 @@ describe('Login', () => {
     expect(router.navigateByUrl).toHaveBeenCalledWith('/admin');
     fixture.destroy();
   });
+
+  it('shows and fills the public USER demo credentials without auto-login', () => {
+    queryParams = { mode: 'demo' };
+    const fixture = TestBed.createComponent(Login);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('demo.user@appointment.local');
+    expect(fixture.nativeElement.textContent).toContain('DemoUser2026!');
+    httpMock.expectNone(API_ENDPOINTS.auth.login);
+    component.fillDemoCredentials();
+    expect(component.form.getRawValue()).toEqual({ email: 'demo.user@appointment.local', password: 'DemoUser2026!' });
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    const links = Array.from(fixture.nativeElement.querySelectorAll('a')) as HTMLAnchorElement[];
+    expect(links.some((link) => link.textContent?.includes("Passer à l'espace Administration") && link.href.includes('mode=admin'))).toBe(true);
+    expect(links.some((link) => link.textContent?.includes("Retour à l'accueil") && link.pathname === '/')).toBe(true);
+    fixture.destroy();
+  });
+
+  it('shows and fills the public ADMIN demo credentials without auto-login', () => {
+    queryParams = { mode: 'admin' };
+    const fixture = TestBed.createComponent(Login);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('demo.admin@appointment.local');
+    expect(fixture.nativeElement.textContent).toContain('DemoAdmin2026!');
+    httpMock.expectNone(API_ENDPOINTS.auth.login);
+    component.fillDemoCredentials();
+    expect(component.form.getRawValue()).toEqual({ email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' });
+    const links = Array.from(fixture.nativeElement.querySelectorAll('a')) as HTMLAnchorElement[];
+    expect(links.some((link) => link.textContent?.includes("Passer à l'espace Utilisateur") && link.href.includes('mode=demo'))).toBe(true);
+    fixture.destroy();
+  });
 });

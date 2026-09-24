@@ -42,4 +42,13 @@ describe('AppointmentNew', () => {
     expect(component.conflictMessage()).toBe('Un rendez-vous actif existe déjà');
     expect(component.conflictingAppointment()).toEqual(appointment);
   });
+
+  it('loads available slots from the backend for the selected date', () => {
+    const component = TestBed.createComponent(AppointmentNew).componentInstance as any;
+    component.form.controls.date.setValue('2026-10-01');
+    component.loadSlots();
+    const slot = { startDateTime: appointment.startDateTime, endDateTime: appointment.endDateTime };
+    httpMock.expectOne((request) => request.url.includes('/availability') && request.params.get('date') === '2026-10-01').flush([slot]);
+    expect(component.slots()).toEqual([slot]);
+  });
 });
