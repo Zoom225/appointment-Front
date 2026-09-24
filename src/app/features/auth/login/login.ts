@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,8 +9,6 @@ import { SessionFeedback } from '../../../core/services/session-feedback';
 
 type LoginState = 'idle' | 'loading' | 'slow' | 'success' | 'error';
 
-const DEMO_EMAIL = 'demo@gestion-rendez-vous.com';
-const DEMO_PASSWORD = 'Demo2026!';
 const SLOW_LOGIN_DELAY_MS = 3000;
 const LOGIN_TIMEOUT_MS = 60000;
 const RENDER_STARTUP_MESSAGE =
@@ -22,13 +20,25 @@ const RENDER_STARTUP_MESSAGE =
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login implements OnInit {
+export class Login {
   private readonly auth = inject(Auth);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly sessionFeedback = inject(SessionFeedback);
+  private readonly requestedMode = this.route.snapshot.queryParamMap.get('mode');
+
+  protected readonly pageTitle = this.requestedMode === 'admin'
+    ? 'Connexion Administration'
+    : this.requestedMode === 'demo'
+      ? "Connexion à l'espace Démo"
+      : 'Connexion';
+  protected readonly pageDescription = this.requestedMode === 'admin'
+    ? "Accès réservé à l'administration de la plateforme."
+    : this.requestedMode === 'demo'
+      ? 'Connectez-vous pour tester la prise de rendez-vous.'
+      : 'Connectez-vous pour accéder à votre espace sécurisé.';
 
   protected readonly loginState = signal<LoginState>('idle');
   protected readonly isSubmitting = signal(false);
@@ -42,29 +52,6 @@ export class Login implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
-
-  protected fillDemoCredentials(): void {
-    if (this.isSubmitting()) {
-      return;
-    }
-
-    this.form.setValue({
-      email: DEMO_EMAIL,
-      password: DEMO_PASSWORD,
-    });
-  }
-
-  ngOnInit(): void {
-    const queryParams = this.route.snapshot.queryParamMap;
-
-    if (queryParams.get('demo') === 'true' || queryParams.get('demoLogin') === 'true') {
-      this.fillDemoCredentials();
-    }
-
-    if (queryParams.get('demoLogin') === 'true') {
-      this.submit();
-    }
-  }
 
   protected submit(): void {
     if (this.isSubmitting() || this.loginState() === 'success') {
@@ -103,7 +90,8 @@ export class Login implements OnInit {
       .subscribe({
         next: () => {
           this.loginState.set('success');
-          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl')
+            ?? (this.auth.hasAnyRole(['ADMIN']) ? '/admin' : '/dashboard');
           void this.router.navigateByUrl(returnUrl);
         },
         error: (error: unknown) => {

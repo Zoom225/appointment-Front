@@ -30,8 +30,8 @@
     <form class="login-card" [formGroup]="form" (ngSubmit)="submit()">
       <div class="card-header">
         <p class="eyebrow">Connexion</p>
-        <h2>Accès recruteur</h2>
-        <p>Testez directement l'application avec le compte de démonstration.</p>
+        <h2>{{ pageTitle }}</h2>
+        <p>{{ pageDescription }}</p>
       </div>
 
       <label for="email">
@@ -49,14 +49,6 @@
       @if (form.controls.password.invalid && form.controls.password.touched) {
         <p class="field-error">Le mot de passe doit contenir au moins 8 caractères.</p>
       }
-
-      <section class="demo-access">
-        <div>
-          <h3>Accès démo recruteur</h3>
-          <p>Préremplit le compte de démonstration fourni par le backend.</p>
-        </div>
-        <button type="button" class="secondary" (click)="fillDemoCredentials()" [disabled]="isSubmitting()">Préremplir</button>
-      </section>
 
       @if (errorMessage()) {
         <p class="error">{{ errorMessage() }}</p>

@@ -1,37 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Auth } from '../../core/services/auth';
 import { Theme } from '../../core/services/theme';
 
-const DEMO_EMAIL = 'demo@gestion-rendez-vous.com';
-const DEMO_PASSWORD = 'Demo2026!';
-const PROJECT_URL = 'https://gestion-de-rendez-vous.vercel.app';
-const FRONTEND_GITHUB_URL = 'https://github.com/Zoom225/appointment-Front';
-const BACKEND_GITHUB_URL = 'https://github.com/Zoom225/appointment-Backend';
-
-@Component({
-  selector: 'app-landing',
-  imports: [RouterLink],
-  templateUrl: './landing.html',
-  styleUrl: './landing.css',
-})
+@Component({ selector: 'app-landing', imports: [RouterLink], templateUrl: './landing.html', styleUrl: './landing.css' })
 export class Landing {
+  protected readonly auth = inject(Auth);
   protected readonly theme = inject(Theme);
-  protected readonly demoEmail = DEMO_EMAIL;
-  protected readonly demoPassword = DEMO_PASSWORD;
-  protected readonly projectUrl = PROJECT_URL;
-  protected readonly frontendGithubUrl = FRONTEND_GITHUB_URL;
-  protected readonly backendGithubUrl = BACKEND_GITHUB_URL;
-
-  protected readonly technologies = [
-    'Angular',
-    'Spring Boot',
-    'Java 21',
-    'PostgreSQL',
-    'Spring Security',
-    'JWT',
-    'REST API',
-    'Render',
-    'Vercel',
-    'GitHub',
-  ];
+  protected readonly authenticatedDestination = computed(() => this.auth.hasAnyRole(['ADMIN']) ? '/admin' : '/dashboard');
+  protected readonly authenticatedLabel = computed(() => this.auth.hasAnyRole(['ADMIN']) ? "Accéder à l'administration" : 'Accéder à mon espace');
+  protected readonly demoFeatures = ['Choisir un créneau disponible', 'Prendre un rendez-vous', 'Consulter ses rendez-vous', 'Modifier un rendez-vous actif', 'Annuler un rendez-vous', 'Consulter son historique', 'Recevoir ses notifications'];
+  protected readonly adminFeatures = ['Tableau de bord et rendez-vous du jour', 'Confirmer les demandes', 'Terminer ou annuler un rendez-vous', "Consulter l'historique et l'audit", 'Gérer les utilisateurs', 'Voir les notifications'];
+  protected readonly technologies = ['Angular', 'Spring Boot', 'Java', 'PostgreSQL', 'JWT'];
 }
