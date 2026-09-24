@@ -1,13 +1,19 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize, timeout, timer } from 'rxjs';
 import { getApiErrorMessage } from '../../../core/errors/api-error';
 import { Auth } from '../../../core/services/auth';
 import { SessionFeedback } from '../../../core/services/session-feedback';
 
 type LoginState = 'idle' | 'loading' | 'slow' | 'success' | 'error';
+type DemoMode = 'demo' | 'admin' | null;
+
+const DEMO_CREDENTIALS = {
+  demo: { email: 'demo.user@appointment.local', password: 'DemoUser2026!' },
+  admin: { email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' },
+} as const;
 
 const SLOW_LOGIN_DELAY_MS = 3000;
 const LOGIN_TIMEOUT_MS = 60000;
@@ -16,7 +22,7 @@ const RENDER_STARTUP_MESSAGE =
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -27,7 +33,8 @@ export class Login {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly sessionFeedback = inject(SessionFeedback);
-  private readonly requestedMode = this.route.snapshot.queryParamMap.get('mode');
+  protected readonly requestedMode: DemoMode = this.readRequestedMode();
+  protected readonly demoCredentials = this.requestedMode ? DEMO_CREDENTIALS[this.requestedMode] : null;
 
   protected readonly pageTitle = this.requestedMode === 'admin'
     ? 'Connexion Administration'
@@ -52,6 +59,14 @@ export class Login {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
+
+  protected fillDemoCredentials(): void {
+    if (!this.demoCredentials || this.isSubmitting()) {
+      return;
+    }
+
+    this.form.setValue(this.demoCredentials);
+  }
 
   protected submit(): void {
     if (this.isSubmitting() || this.loginState() === 'success') {
@@ -101,5 +116,10 @@ export class Login {
           );
         },
       });
+  }
+
+  private readRequestedMode(): DemoMode {
+    const mode = this.route.snapshot.queryParamMap.get('mode');
+    return mode === 'demo' || mode === 'admin' ? mode : null;
   }
 }

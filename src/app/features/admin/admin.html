@@ -14,7 +14,7 @@
     </tbody></table></div> }
   </section>
   <section class="notifications-panel">
-    <header><div><p>Activité</p><h2>Notifications récentes</h2></div><a routerLink="/notifications">Voir toutes les notifications</a></header>
+    <header><div><p>Activité</p><h2>Notifications récentes</h2></div><div class="actions"><button type="button" (click)="refreshNotifications()" [disabled]="isRefreshingNotifications()">{{ isRefreshingNotifications() ? 'Actualisation...' : 'Actualiser' }}</button><a routerLink="/notifications">Voir toutes les notifications</a></div></header>
     @if (notifications().length === 0) { <p class="empty">Aucune notification récente.</p> }
     @else {
       <div class="notification-list">

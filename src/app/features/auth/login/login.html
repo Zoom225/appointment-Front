@@ -34,6 +34,27 @@
         <p>{{ pageDescription }}</p>
       </div>
 
+      @if (demoCredentials; as credentials) {
+        <section class="demo-credentials" [class.admin-credentials]="requestedMode === 'admin'" aria-labelledby="demo-credentials-title">
+          <div class="demo-heading">
+            <span class="demo-badge">Compte public</span>
+            <h3 id="demo-credentials-title">
+              Compte de démonstration {{ requestedMode === 'admin' ? 'Administrateur' : 'Utilisateur' }}
+            </h3>
+          </div>
+          <dl>
+            <div><dt>Email</dt><dd>{{ credentials.email }}</dd></div>
+            <div><dt>Mot de passe</dt><dd>{{ credentials.password }}</dd></div>
+          </dl>
+          @if (requestedMode === 'admin') {
+            <p>Ce compte de démonstration accède uniquement aux données de démonstration.</p>
+          }
+          <button type="button" class="fill-button" (click)="fillDemoCredentials()" [disabled]="isSubmitting()">
+            Remplir les identifiants
+          </button>
+        </section>
+      }
+
       <label for="email">
         Email
         <input id="email" name="email" type="email" formControlName="email" autocomplete="email" />
@@ -66,6 +87,15 @@
           <span>Se connecter</span>
         }
       </button>
+
+      <nav class="login-navigation" aria-label="Navigation entre les espaces de connexion">
+        @if (requestedMode === 'admin') {
+          <a routerLink="/login" [queryParams]="{ mode: 'demo' }">Passer à l'espace Utilisateur</a>
+        } @else {
+          <a routerLink="/login" [queryParams]="{ mode: 'admin' }">Passer à l'espace Administration</a>
+        }
+        <a routerLink="/">Retour à l'accueil</a>
+      </nav>
     </form>
 
     <section class="tech-stack" aria-labelledby="tech-stack-title">

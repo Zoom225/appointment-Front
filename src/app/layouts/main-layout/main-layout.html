@@ -41,6 +41,7 @@
         <button type="button" class="theme-toggle" [attr.aria-label]="theme.toggleLabel()" (click)="theme.toggle()">
           <span aria-hidden="true">{{ theme.toggleIcon() }}</span>
         </button>
+        <button type="button" class="switch-space-button" (click)="changeSpace()">Changer d'espace</button>
         <button type="button" class="logout-button" (click)="auth.logout()">Déconnexion</button>
       </div>
     </header>

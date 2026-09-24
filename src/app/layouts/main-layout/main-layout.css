@@ -132,6 +132,7 @@
 }
 
 .logout-button,
+.switch-space-button,
 .menu-button,
 .menu-close,
 .theme-toggle,
@@ -166,6 +167,7 @@
 }
 
 .logout-button:hover,
+.switch-space-button:hover,
 .menu-button:hover,
 .theme-toggle:hover {
   background: var(--primary-hover);
