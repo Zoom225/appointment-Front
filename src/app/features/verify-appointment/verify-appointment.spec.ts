@@ -23,8 +23,10 @@ describe('VerifyAppointment', () => {
   it('loads and displays the public appointment without exposing email or token', () => {
     const fixture = TestBed.createComponent(VerifyAppointment);
     fixture.detectChanges();
+    expect((fixture.componentInstance as any).isLoading()).toBe(true);
     httpMock.expectOne(`${API_ENDPOINTS.publicAppointmentVerification}?token=qr-token`).flush({ publicReference: 'APT-PUBLIC-1', contactFirstName: 'Alice', contactLastName: 'Martin', startDateTime: '2030-01-08T10:00:00', endDateTime: '2030-01-08T10:30:00', reason: 'Entretien', status: 'CONFIRMED' });
     fixture.detectChanges();
+    expect((fixture.componentInstance as any).isLoading()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('APT-PUBLIC-1');
     expect(fixture.nativeElement.textContent).toContain('Alice');
     expect(fixture.nativeElement.textContent).not.toContain('qr-token');
