@@ -1,0 +1,21 @@
+<main class="verify-page">
+  <section class="verify-card" aria-live="polite">
+    <a class="brand" routerLink="/">Rendez-vous</a>
+    <p class="eyebrow">Vérification publique</p>
+    @if (isLoading()) { <h1>Vérification en cours...</h1><p>Nous vérifions les informations du rendez-vous.</p> }
+    @else if (invalid()) { <h1>Rendez-vous introuvable</h1><p>Rendez-vous introuvable ou lien invalide.</p><a class="home-link" routerLink="/">Retour à l'accueil</a> }
+    @else if (appointment(); as item) {
+      <h1>Rendez-vous vérifié</h1>
+      <dl>
+        <div><dt>Référence</dt><dd>{{ item.publicReference }}</dd></div>
+        <div><dt>Prénom</dt><dd>{{ item.contactFirstName }}</dd></div>
+        <div><dt>Nom</dt><dd>{{ item.contactLastName }}</dd></div>
+        <div><dt>Date</dt><dd>{{ formatDate(item.startDateTime) }}</dd></div>
+        <div><dt>Heure</dt><dd>{{ formatTime(item.startDateTime) }}</dd></div>
+        <div><dt>Motif</dt><dd>{{ item.reason }}</dd></div>
+        <div><dt>Statut</dt><dd><span [class]="statusClass(item)">{{ statusLabel(item) }}</span></dd></div>
+      </dl>
+      <p class="privacy-note">Cette page affiche uniquement les informations nécessaires à la vérification.</p>
+    }
+  </section>
+</main>

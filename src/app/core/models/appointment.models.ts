@@ -24,6 +24,10 @@ export function isActiveAppointmentStatus(status: AppointmentStatus): boolean {
 
 export interface Appointment {
   id: number;
+  publicReference?: string;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactEmail?: string;
   startDateTime: string;
   endDateTime: string;
   reason: string;
@@ -34,10 +38,12 @@ export interface Appointment {
 }
 
 export interface AppointmentCreateRequest {
+  contactFirstName: string;
+  contactLastName: string;
+  contactEmail: string;
   reason: string;
   startDateTime: string;
   endDateTime: string;
-  userId: number;
 }
 
 export interface AppointmentUpdateRequest {
@@ -53,6 +59,17 @@ export interface AppointmentStatusUpdateRequest {
 export interface AppointmentAvailabilitySlot {
   startDateTime: string;
   endDateTime: string;
+  available?: boolean;
+}
+
+export interface PublicAppointmentVerification {
+  publicReference: string;
+  contactFirstName: string;
+  contactLastName: string;
+  startDateTime: string;
+  endDateTime: string;
+  reason: string;
+  status: AppointmentStatus;
 }
 
 export interface AppointmentAudit {

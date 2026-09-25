@@ -19,13 +19,13 @@
 } @else {
   <div class="table-scroll">
     <table>
-      <thead><tr><th>Date</th><th>Heure</th><th>Utilisateur</th><th>Email</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Référence</th><th>Date</th><th>Heure</th><th>Prénom</th><th>Nom</th><th>Email</th><th>Motif</th><th>Statut</th><th>Créé le</th><th>Actions</th></tr></thead>
       <tbody>
         @for (appointment of appointments(); track appointment.id) {
           <tr>
-            <td>{{ formatDate(appointment.startDateTime) }}</td><td>{{ formatTime(appointment.startDateTime) }}</td>
-            <td>{{ userFor(appointment)?.firstName }} {{ userFor(appointment)?.lastName }}</td><td>{{ userFor(appointment)?.email || '—' }}</td>
-            <td>{{ appointment.reason }}</td><td><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></td>
+            <td>{{ appointment.publicReference || '—' }}</td><td>{{ formatDate(appointment.startDateTime) }}</td><td>{{ formatTime(appointment.startDateTime) }}</td>
+            <td>{{ appointment.contactFirstName || userFor(appointment)?.firstName || '—' }}</td><td>{{ appointment.contactLastName || userFor(appointment)?.lastName || '—' }}</td><td>{{ appointment.contactEmail || userFor(appointment)?.email || '—' }}</td>
+            <td>{{ appointment.reason }}</td><td><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></td><td>{{ formatDateTime(appointment.createdAt) }}</td>
             <td><div class="row-actions">
               @for (status of transitions(appointment); track status) {
                 <button type="button" [class.danger]="status === 'CANCELLED'" (click)="updateStatus(appointment, status)" [disabled]="updatingId() === appointment.id">{{ transitionLabel(status) }}</button>

@@ -9,6 +9,7 @@ import {
   AppointmentStatus,
   AppointmentStatusUpdateRequest,
   AppointmentUpdateRequest,
+  PublicAppointmentVerification,
 } from '../models/appointment.models';
 import { PageResponse } from '../models/api.models';
 
@@ -77,9 +78,15 @@ export class AppointmentsApi {
     return this.http.patch<Appointment>(`${API_ENDPOINTS.appointments}/${id}/cancel`, {});
   }
 
-  getAvailability(userId: number, date: string): Observable<AppointmentAvailabilitySlot[]> {
+  getAvailability(date: string): Observable<AppointmentAvailabilitySlot[]> {
     return this.http.get<AppointmentAvailabilitySlot[]>(`${API_ENDPOINTS.appointments}/availability`, {
-      params: new HttpParams().set('userId', userId).set('date', date),
+      params: new HttpParams().set('date', date),
+    });
+  }
+
+  verifyPublicAppointment(token: string): Observable<PublicAppointmentVerification> {
+    return this.http.get<PublicAppointmentVerification>(API_ENDPOINTS.publicAppointmentVerification, {
+      params: new HttpParams().set('token', token),
     });
   }
 }

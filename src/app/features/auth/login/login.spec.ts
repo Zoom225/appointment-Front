@@ -86,6 +86,7 @@ describe('Login', () => {
 
     expect(fixture.nativeElement.textContent).toContain('demo.user@appointment.local');
     expect(fixture.nativeElement.textContent).toContain('DemoUser2026!');
+    expect(component.form.getRawValue()).toEqual({ email: 'demo.user@appointment.local', password: 'DemoUser2026!' });
     httpMock.expectNone(API_ENDPOINTS.auth.login);
     component.fillDemoCredentials();
     expect(component.form.getRawValue()).toEqual({ email: 'demo.user@appointment.local', password: 'DemoUser2026!' });
@@ -104,6 +105,7 @@ describe('Login', () => {
 
     expect(fixture.nativeElement.textContent).toContain('demo.admin@appointment.local');
     expect(fixture.nativeElement.textContent).toContain('DemoAdmin2026!');
+    expect(component.form.getRawValue()).toEqual({ email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' });
     httpMock.expectNone(API_ENDPOINTS.auth.login);
     component.fillDemoCredentials();
     expect(component.form.getRawValue()).toEqual({ email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' });

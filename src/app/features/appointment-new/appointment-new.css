@@ -6,9 +6,14 @@ h2 { color: var(--color-text); margin: 0 0 16px; }
 label { color: var(--color-text); display: block; font-weight: 700; margin-bottom: 8px; }
 input, textarea { background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: 12px; color: var(--color-text); font: inherit; padding: 12px 14px; width: 100%; }
 input:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 4px var(--color-focus-ring); outline: 0; }
+.contact-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.contact-grid .full-width { grid-column: 1 / -1; }
+.field-error { color: var(--color-danger); font-size: .86rem; margin: 7px 0 0; }
 .slot-list, .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .slot { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: 12px; color: var(--color-text); cursor: pointer; padding: 11px 14px; }
 .slot.selected { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.slot:disabled { cursor: not-allowed; opacity: .45; text-decoration: line-through; }
+.slot:focus-visible, .button:focus-visible { outline: 3px solid var(--color-focus-ring); outline-offset: 2px; }
 dl { display: grid; gap: 10px; margin: 0 0 20px; }
 dl div { display: grid; gap: 4px; grid-template-columns: 100px 1fr; }
 dt, .muted { color: var(--color-muted); }
@@ -23,6 +28,7 @@ dd { color: var(--color-text); margin: 0; overflow-wrap: anywhere; }
 .conflict-card { border-top: 5px solid var(--color-warning); }
 .eyebrow { color: var(--color-primary); font-size: .78rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .error { color: var(--color-danger); }
+.email-notice { background: var(--color-success-bg); border-radius: 12px; color: var(--color-success-text); padding: 12px 14px; }
 .dialog-backdrop { align-items: center; background: rgb(15 23 42 / 55%); display: flex; inset: 0; justify-content: center; padding: 20px; position: fixed; z-index: 50; }
 .dialog { background: var(--color-surface); border-radius: 18px; box-shadow: var(--shadow); max-width: 520px; padding: 26px; width: 100%; }
 .status-badge { border-radius: 999px; display: inline-flex; font-size: .82rem; font-weight: 750; padding: 6px 10px; }
@@ -30,4 +36,4 @@ dd { color: var(--color-text); margin: 0; overflow-wrap: anywhere; }
 .status-badge.confirmed, .status-badge.completed { background: var(--color-success-bg); color: var(--color-success-text); }
 .status-badge.scheduled { background: var(--color-badge-bg); color: var(--color-badge-text); }
 .status-badge.cancelled { background: var(--color-danger-bg); color: var(--color-danger-text); }
-@media (max-width: 600px) { .step-card { grid-template-columns: 1fr; padding: 18px; } dl div { grid-template-columns: 1fr; } .actions, .actions .button { width: 100%; } }
+@media (max-width: 600px) { .step-card { grid-template-columns: 1fr; padding: 18px; } .contact-grid { grid-template-columns: 1fr; } .contact-grid .full-width { grid-column: auto; } dl div { grid-template-columns: 1fr; } .actions, .actions .button { width: 100%; } }

@@ -9,6 +9,12 @@ export interface AppNotification {
   message: string;
   createdAt: string;
   readAt: string | null;
+  publicReference?: string;
+  contactFirstName?: string;
+  contactLastName?: string;
+  contactEmail?: string;
+  appointmentStartDateTime?: string;
+  reason?: string;
 }
 
 export interface NotificationQuery {
