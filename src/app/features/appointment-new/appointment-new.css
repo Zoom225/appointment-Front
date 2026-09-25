@@ -12,7 +12,7 @@ input:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 
 .slot-list, .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .slot { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: 12px; color: var(--color-text); cursor: pointer; padding: 11px 14px; }
 .slot.selected { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-.slot:disabled { cursor: not-allowed; opacity: .45; text-decoration: line-through; }
+.selected-slot { color: var(--color-primary); font-weight: 750; margin: 14px 0 0; }
 .slot:focus-visible, .button:focus-visible { outline: 3px solid var(--color-focus-ring); outline-offset: 2px; }
 dl { display: grid; gap: 10px; margin: 0 0 20px; }
 dl div { display: grid; gap: 4px; grid-template-columns: 100px 1fr; }

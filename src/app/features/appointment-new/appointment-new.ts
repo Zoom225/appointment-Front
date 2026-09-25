@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Subject, catchError, distinctUntilChanged, map, merge, of, startWith, switchMap, tap, finalize } from 'rxjs';
 import { appointmentStatusClass, appointmentStatusLabel } from '../../core/appointments/appointment-status';
 import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
@@ -17,7 +18,9 @@ import { PageHeader } from '../../shared/components/page-header/page-header';
 })
 export class AppointmentNew {
   private readonly api = inject(AppointmentsApi);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly availabilityRefresh = new Subject<string>();
 
   protected readonly slots = signal<AppointmentAvailabilitySlot[]>([]);
   protected readonly selectedSlot = signal<AppointmentAvailabilitySlot | null>(null);
@@ -42,36 +45,43 @@ export class AppointmentNew {
     reason: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
   });
 
-  protected readonly canSubmit = computed(
-    () => this.form.valid && !this.isSubmitting(),
-  );
+  private readonly formStatus = toSignal(this.form.statusChanges.pipe(startWith(this.form.status)), { initialValue: this.form.status });
+  protected readonly canSubmit = computed(() => this.formStatus() === 'VALID' && Boolean(this.selectedSlot()) && !this.isSubmitting());
 
-  protected loadSlots(): void {
-    const date = this.form.controls.date.value;
+  constructor() {
+    merge(this.form.controls.date.valueChanges.pipe(distinctUntilChanged()), this.availabilityRefresh)
+      .pipe(
+        tap(() => this.resetSlotSelection()),
+        switchMap((date) => {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return of({ slots: [] as AppointmentAvailabilitySlot[], error: null as string | null, loaded: false });
+          }
 
-    if (!date) {
-      return;
-    }
-
-    this.isLoadingSlots.set(true);
-    this.slotsLoaded.set(false);
-    this.slotsError.set(null);
-    this.slots.set([]);
-    this.selectedSlot.set(null);
-    this.form.patchValue({ startDateTime: '', endDateTime: '' });
-    this.api
-      .getAvailability(date)
-      .pipe(finalize(() => this.isLoadingSlots.set(false)))
-      .subscribe({
-        next: (slots) => { this.slots.set(slots); this.slotsLoaded.set(true); },
-        error: (error: unknown) => { this.slotsLoaded.set(true); this.slotsError.set(getApiErrorDetails(error).message); },
+          this.isLoadingSlots.set(true);
+          return this.api.getAvailability(date).pipe(
+            map((slots) => ({ slots, error: null as string | null, loaded: true })),
+            catchError((error: unknown) => of({ slots: [] as AppointmentAvailabilitySlot[], error: getApiErrorDetails(error).message, loaded: true })),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(({ slots, error, loaded }) => {
+        this.isLoadingSlots.set(false);
+        this.slots.set(slots);
+        this.slotsError.set(error);
+        this.slotsLoaded.set(loaded);
       });
   }
 
-  protected chooseSlot(slot: AppointmentAvailabilitySlot): void {
-    if (slot.available === false) return;
+  protected loadSlots(): void {
+    const date = this.form.controls.date.value;
+    if (date) this.availabilityRefresh.next(date);
+  }
+
+  protected selectSlot(slot: AppointmentAvailabilitySlot): void {
     this.selectedSlot.set(slot);
     this.form.patchValue({ startDateTime: slot.startDateTime, endDateTime: slot.endDateTime });
+    this.form.updateValueAndValidity();
   }
 
   protected submit(): void {
@@ -80,22 +90,25 @@ export class AppointmentNew {
       return;
     }
 
-    const slot = this.selectedSlot();
-    if (!slot) {
+    const selectedSlot = this.selectedSlot();
+    if (this.form.invalid || !selectedSlot || this.isSubmitting()) {
+      this.form.markAllAsTouched();
       return;
     }
+
+    const values = this.form.getRawValue();
 
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
     this.conflictMessage.set(null);
     this.api
       .create({
-        contactFirstName: this.form.controls.contactFirstName.value,
-        contactLastName: this.form.controls.contactLastName.value,
-        contactEmail: this.form.controls.contactEmail.value,
-        reason: this.form.controls.reason.value,
-        startDateTime: slot.startDateTime,
-        endDateTime: slot.endDateTime,
+        contactFirstName: values.contactFirstName.trim(),
+        contactLastName: values.contactLastName.trim(),
+        contactEmail: values.contactEmail.trim().toLowerCase(),
+        reason: values.reason.trim(),
+        startDateTime: values.startDateTime,
+        endDateTime: values.endDateTime,
       })
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
@@ -103,8 +116,13 @@ export class AppointmentNew {
         error: (error: unknown) => {
           const details = getApiErrorDetails(error);
           if (error instanceof HttpErrorResponse && error.status === 409) {
-            this.conflictMessage.set(details.message);
-            this.loadConflictingAppointment();
+            if (this.isSlotConflict(details.message)) {
+              this.errorMessage.set('Ce créneau vient d\'être réservé. Choisissez un autre créneau.');
+              this.loadSlots();
+            } else {
+              this.conflictMessage.set(details.message);
+              this.loadConflictingAppointment();
+            }
           } else {
             this.errorMessage.set(details.message);
           }
@@ -157,7 +175,7 @@ export class AppointmentNew {
 
   protected showControlError(controlName: 'contactFirstName' | 'contactLastName' | 'contactEmail' | 'date' | 'reason'): boolean {
     const control = this.form.controls[controlName];
-    return control.invalid && control.touched;
+    return control.invalid && (control.touched || control.dirty);
   }
 
   private loadConflictingAppointment(): void {
@@ -165,5 +183,17 @@ export class AppointmentNew {
       next: (page) => this.conflictingAppointment.set(page.content[0] ?? null),
       error: () => this.conflictingAppointment.set(null),
     });
+  }
+
+  private resetSlotSelection(): void {
+    this.slotsLoaded.set(false);
+    this.slotsError.set(null);
+    this.slots.set([]);
+    this.selectedSlot.set(null);
+    this.form.patchValue({ startDateTime: '', endDateTime: '' }, { emitEvent: false });
+  }
+
+  private isSlotConflict(message: string): boolean {
+    return /créneau|creneau|slot|occup|réserv/i.test(message);
   }
 }

@@ -59,7 +59,6 @@ export interface AppointmentStatusUpdateRequest {
 export interface AppointmentAvailabilitySlot {
   startDateTime: string;
   endDateTime: string;
-  available?: boolean;
 }
 
 export interface PublicAppointmentVerification {
