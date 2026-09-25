@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subject, catchError, distinctUntilChanged, map, merge, of, startWith, switchMap, tap, finalize } from 'rxjs';
 import { appointmentStatusClass, appointmentStatusLabel } from '../../core/appointments/appointment-status';
@@ -9,6 +9,25 @@ import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
 import { PageHeader } from '../../shared/components/page-header/page-header';
+
+export function businessDayValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return null;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    const isValidDate = localDate.getFullYear() === year && localDate.getMonth() === month - 1 && localDate.getDate() === day;
+    if (!isValidDate) {
+      return null;
+    }
+
+    const dayOfWeek = localDate.getDay();
+    return dayOfWeek === 0 || dayOfWeek === 6 ? { nonBusinessDay: true } : null;
+  };
+}
 
 @Component({
   selector: 'app-appointment-new',
@@ -39,7 +58,7 @@ export class AppointmentNew {
     contactFirstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     contactLastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     contactEmail: ['', [Validators.required, Validators.email]],
-    date: ['', Validators.required],
+    date: ['', [Validators.required, businessDayValidator()]],
     startDateTime: ['', Validators.required],
     endDateTime: ['', Validators.required],
     reason: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
@@ -53,7 +72,7 @@ export class AppointmentNew {
       .pipe(
         tap(() => this.resetSlotSelection()),
         switchMap((date) => {
-          if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || this.form.controls.date.invalid) {
             return of({ slots: [] as AppointmentAvailabilitySlot[], error: null as string | null, loaded: false });
           }
 
