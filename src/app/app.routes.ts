@@ -18,6 +18,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
   },
   {
+    path: 'verify-appointment',
+    loadComponent: () => import('./features/verify-appointment/verify-appointment').then((m) => m.VerifyAppointment),
+  },
+  {
     matcher: privateRouteMatcher,
     component: MainLayout,
     canActivate: [authGuard],

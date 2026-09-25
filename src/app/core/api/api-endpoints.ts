@@ -5,6 +5,7 @@ export const API_ENDPOINTS = {
     login: `${API_BASE_URL}/api/auth/login`,
   },
   appointments: `${API_BASE_URL}/api/appointments`,
+  publicAppointmentVerification: `${API_BASE_URL}/api/public/appointments/verify`,
   myAppointments: {
     upcoming: `${API_BASE_URL}/api/appointments/me/upcoming`,
     history: `${API_BASE_URL}/api/appointments/me/history`,

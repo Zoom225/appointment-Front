@@ -7,7 +7,6 @@ import { appointmentStatusClass, appointmentStatusLabel } from '../../core/appoi
 import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
-import { Auth } from '../../core/services/auth';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 
 @Component({
@@ -18,7 +17,6 @@ import { PageHeader } from '../../shared/components/page-header/page-header';
 })
 export class AppointmentNew {
   private readonly api = inject(AppointmentsApi);
-  private readonly auth = inject(Auth);
   private readonly formBuilder = inject(FormBuilder);
 
   protected readonly slots = signal<AppointmentAvailabilitySlot[]>([]);
@@ -26,6 +24,8 @@ export class AppointmentNew {
   protected readonly confirmation = signal<Appointment | null>(null);
   protected readonly conflictingAppointment = signal<Appointment | null>(null);
   protected readonly isLoadingSlots = signal(false);
+  protected readonly slotsLoaded = signal(false);
+  protected readonly slotsError = signal<string | null>(null);
   protected readonly isSubmitting = signal(false);
   protected readonly isCancelling = signal(false);
   protected readonly showCancelDialog = signal(false);
@@ -33,36 +33,45 @@ export class AppointmentNew {
   protected readonly conflictMessage = signal<string | null>(null);
 
   protected readonly form = this.formBuilder.nonNullable.group({
+    contactFirstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+    contactLastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+    contactEmail: ['', [Validators.required, Validators.email]],
     date: ['', Validators.required],
+    startDateTime: ['', Validators.required],
+    endDateTime: ['', Validators.required],
     reason: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
   });
 
   protected readonly canSubmit = computed(
-    () => this.form.valid && Boolean(this.selectedSlot()) && !this.isSubmitting(),
+    () => this.form.valid && !this.isSubmitting(),
   );
 
   protected loadSlots(): void {
     const date = this.form.controls.date.value;
-    const userId = this.auth.user()?.id;
 
-    if (!date || !userId) {
+    if (!date) {
       return;
     }
 
     this.isLoadingSlots.set(true);
-    this.errorMessage.set(null);
+    this.slotsLoaded.set(false);
+    this.slotsError.set(null);
+    this.slots.set([]);
     this.selectedSlot.set(null);
+    this.form.patchValue({ startDateTime: '', endDateTime: '' });
     this.api
-      .getAvailability(userId, date)
+      .getAvailability(date)
       .pipe(finalize(() => this.isLoadingSlots.set(false)))
       .subscribe({
-        next: (slots) => this.slots.set(slots),
-        error: (error: unknown) => this.errorMessage.set(getApiErrorDetails(error).message),
+        next: (slots) => { this.slots.set(slots); this.slotsLoaded.set(true); },
+        error: (error: unknown) => { this.slotsLoaded.set(true); this.slotsError.set(getApiErrorDetails(error).message); },
       });
   }
 
   protected chooseSlot(slot: AppointmentAvailabilitySlot): void {
+    if (slot.available === false) return;
     this.selectedSlot.set(slot);
+    this.form.patchValue({ startDateTime: slot.startDateTime, endDateTime: slot.endDateTime });
   }
 
   protected submit(): void {
@@ -71,9 +80,8 @@ export class AppointmentNew {
       return;
     }
 
-    const userId = this.auth.user()?.id;
     const slot = this.selectedSlot();
-    if (!userId || !slot) {
+    if (!slot) {
       return;
     }
 
@@ -82,7 +90,9 @@ export class AppointmentNew {
     this.conflictMessage.set(null);
     this.api
       .create({
-        userId,
+        contactFirstName: this.form.controls.contactFirstName.value,
+        contactLastName: this.form.controls.contactLastName.value,
+        contactEmail: this.form.controls.contactEmail.value,
         reason: this.form.controls.reason.value,
         startDateTime: slot.startDateTime,
         endDateTime: slot.endDateTime,
@@ -143,6 +153,11 @@ export class AppointmentNew {
 
   protected formatTime(value: string): string {
     return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(value));
+  }
+
+  protected showControlError(controlName: 'contactFirstName' | 'contactLastName' | 'contactEmail' | 'date' | 'reason'): boolean {
+    const control = this.form.controls[controlName];
+    return control.invalid && control.touched;
   }
 
   private loadConflictingAppointment(): void {

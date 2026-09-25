@@ -28,16 +28,18 @@ describe('AppointmentsApi', () => {
   it('creates an appointment with the backend DTO', () => {
     service
       .create({
+        contactFirstName: 'Alice',
+        contactLastName: 'Martin',
+        contactEmail: 'alice@example.com',
         reason: 'Consultation',
         startDateTime: '2026-08-13T10:00',
         endDateTime: '2026-08-13T10:30',
-        userId: 8,
       })
       .subscribe();
 
     const request = httpMock.expectOne(API_ENDPOINTS.appointments);
     expect(request.request.method).toBe('POST');
-    expect(request.request.body.userId).toBe(8);
+    expect(request.request.body).toEqual({ contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', reason: 'Consultation', startDateTime: '2026-08-13T10:00', endDateTime: '2026-08-13T10:30' });
   });
 
   it('updates an appointment via PUT', () => {
@@ -69,6 +71,18 @@ describe('AppointmentsApi', () => {
   it('requests the authenticated user appointment history', () => {
     service.findHistory(2, 10).subscribe();
     const request = httpMock.expectOne(`${API_ENDPOINTS.myAppointments.history}?page=2&size=10`);
+    expect(request.request.method).toBe('GET');
+  });
+
+  it('requests availability with only the selected date', () => {
+    service.getAvailability('2030-01-08').subscribe();
+    const request = httpMock.expectOne(`${API_ENDPOINTS.appointments}/availability?date=2030-01-08`);
+    expect(request.request.params.has('userId')).toBe(false);
+  });
+
+  it('verifies a public appointment with the QR token', () => {
+    service.verifyPublicAppointment('public-token').subscribe();
+    const request = httpMock.expectOne(`${API_ENDPOINTS.publicAppointmentVerification}?token=public-token`);
     expect(request.request.method).toBe('GET');
   });
 });

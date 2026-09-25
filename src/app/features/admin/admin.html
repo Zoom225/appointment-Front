@@ -9,8 +9,8 @@
   }
   <section class="today-panel"><header><div><p>Planning</p><h2>Rendez-vous du jour</h2></div><a routerLink="/admin/appointments">Voir tous les rendez-vous</a></header>
     @if (appointments().length === 0) { <p class="empty">Aucun rendez-vous aujourd’hui.</p> }
-    @else { <div class="table-scroll"><table><thead><tr><th>Heure</th><th>Utilisateur</th><th>Email</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead><tbody>
-      @for (item of appointments(); track item.id) { <tr><td>{{ formatTime(item.startDateTime) }}</td><td>{{ userFor(item)?.firstName }} {{ userFor(item)?.lastName }}</td><td>{{ userFor(item)?.email || '—' }}</td><td>{{ item.reason }}</td><td><span [class]="statusClass(item)">{{ statusLabel(item) }}</span></td><td><div class="actions">@for (status of transitions(item); track status) { <button type="button" [class.danger]="status === 'CANCELLED'" (click)="updateStatus(item,status)" [disabled]="updatingId() === item.id">{{ actionLabel(status) }}</button> }</div></td></tr> }
+    @else { <div class="table-scroll"><table><thead><tr><th>Référence</th><th>Heure</th><th>Contact</th><th>Email</th><th>Motif</th><th>Statut</th><th>Actions</th></tr></thead><tbody>
+      @for (item of appointments(); track item.id) { <tr><td>{{ item.publicReference || '—' }}</td><td>{{ formatTime(item.startDateTime) }}</td><td>{{ item.contactFirstName || userFor(item)?.firstName }} {{ item.contactLastName || userFor(item)?.lastName }}</td><td>{{ item.contactEmail || userFor(item)?.email || '—' }}</td><td>{{ item.reason }}</td><td><span [class]="statusClass(item)">{{ statusLabel(item) }}</span></td><td><div class="actions">@for (status of transitions(item); track status) { <button type="button" [class.danger]="status === 'CANCELLED'" (click)="updateStatus(item,status)" [disabled]="updatingId() === item.id">{{ actionLabel(status) }}</button> }</div></td></tr> }
     </tbody></table></div> }
   </section>
   <section class="notifications-panel">
@@ -19,7 +19,7 @@
     @else {
       <div class="notification-list">
         @for (notification of notifications(); track notification.id) {
-          <article [class.unread]="!notification.readAt"><div><h3>{{ notification.title }}</h3><p>{{ notification.message }}</p></div><time>{{ formatDateTime(notification.createdAt) }}</time><span>{{ notification.readAt ? 'Lue' : 'Non lue' }}</span></article>
+          <article [class.unread]="!notification.readAt"><div><h3>{{ notification.title }}</h3><p>{{ notification.message }}</p>@if (notification.publicReference || notification.contactFirstName || notification.contactEmail) { <dl class="notification-details">@if (notification.publicReference) { <div><dt>Référence</dt><dd>{{ notification.publicReference }}</dd></div> }@if (notification.contactFirstName || notification.contactLastName) { <div><dt>Contact</dt><dd>{{ notification.contactFirstName }} {{ notification.contactLastName }}</dd></div> }@if (notification.contactEmail) { <div><dt>Email</dt><dd>{{ notification.contactEmail }}</dd></div> }@if (notification.appointmentStartDateTime) { <div><dt>Date</dt><dd>{{ formatDateTime(notification.appointmentStartDateTime) }}</dd></div> }@if (notification.reason) { <div><dt>Motif</dt><dd>{{ notification.reason }}</dd></div> }</dl> }</div><time>{{ formatDateTime(notification.createdAt) }}</time><span>{{ notification.readAt ? 'Lue' : 'Non lue' }}</span></article>
         }
       </div>
     }
