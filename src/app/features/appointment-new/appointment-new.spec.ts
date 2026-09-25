@@ -8,6 +8,7 @@ import { AppointmentAvailabilitySlot } from '../../core/models/appointment.model
 import { AppointmentNew } from './appointment-new';
 
 const slot: AppointmentAvailabilitySlot = { startDateTime: '2026-09-28T10:00:00', endDateTime: '2026-09-28T10:30:00' };
+const mondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:00:00', endDateTime: '2026-10-05T09:30:00' };
 const appointment = { id: 10, userId: 8, reason: 'Suivi', status: 'PENDING' as const, publicReference: 'APT-2030-ABC123', contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', startDateTime: slot.startDateTime, endDateTime: slot.endDateTime, createdAt: '2026-09-23T10:00:00', updatedAt: '2026-09-23T10:00:00' };
 
 describe('AppointmentNew reactive booking flow', () => {
@@ -50,6 +51,58 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(component.isLoadingSlots()).toBe(false);
   });
 
+  it('rejects Sunday 04/10/2026, resets the slot and never calls availability', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.patchValue({ startDateTime: slot.startDateTime, endDateTime: slot.endDateTime });
+    component.selectedSlot.set(slot);
+    component.slots.set([slot]);
+
+    component.form.controls.date.setValue('2026-10-04');
+    fixture.detectChanges();
+
+    httpMock.expectNone((request) => request.url.endsWith('/availability'));
+    expect(component.form.controls.date.invalid).toBe(true);
+    expect(component.form.controls.date.hasError('nonBusinessDay')).toBe(true);
+    expect(component.slots()).toEqual([]);
+    expect(component.selectedSlot()).toBeNull();
+    expect(component.form.controls.startDateTime.value).toBe('');
+    expect(component.form.controls.endDateTime.value).toBe('');
+    expect(fixture.nativeElement.textContent).toContain('Les rendez-vous sont disponibles uniquement du lundi au vendredi.');
+    expect(fixture.nativeElement.textContent).not.toContain('Aucun créneau disponible');
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('loads and selects a real backend slot on Monday 05/10/2026', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.controls.date.setValue('2026-10-05');
+    const request = httpMock.expectOne((item) => item.url.endsWith('/availability'));
+    expect(request.request.params.get('date')).toBe('2026-10-05');
+    request.flush([mondaySlot]);
+    fixture.detectChanges();
+
+    const slotButton = fixture.nativeElement.querySelector('button.slot') as HTMLButtonElement;
+    expect(slotButton.textContent).toContain('09:00');
+    expect(slotButton.textContent).toContain('09:30');
+    slotButton.click();
+    fixture.detectChanges();
+
+    expect(component.selectedSlot()).toEqual(mondaySlot);
+    expect(component.form.controls.startDateTime.value).toBe(mondaySlot.startDateTime);
+    expect(component.form.controls.endDateTime.value).toBe(mondaySlot.endDateTime);
+    expect(slotButton.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('shows the weekday-specific empty state when the backend returns no slot', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.controls.date.setValue('2026-10-05');
+    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Aucun créneau disponible pour cette date. Choisissez un autre jour.');
+  });
+
   it('selects a backend slot and synchronizes both hidden form controls', () => {
     const component = createComponent();
     component.selectSlot(slot);
@@ -81,6 +134,36 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(request.request.body).toEqual({ contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', startDateTime: slot.startDateTime, endDateTime: slot.endDateTime, reason: 'Suivi' });
     request.flush(appointment, { status: 201, statusText: 'Created' });
     expect(component.confirmation()).toEqual(appointment);
+  });
+
+  it('submits the complete valid Monday form from the confirmation button', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.patchValue({ contactFirstName: 'Test', contactLastName: 'User', contactEmail: 'test.user@example.com', reason: 'Test rendez-vous' });
+    component.form.controls.date.setValue('2026-10-05');
+    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([mondaySlot]);
+    component.selectSlot(mondaySlot);
+    fixture.detectChanges();
+
+    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+    expect(component.form.valid).toBe(true);
+    expect(submitButton.disabled).toBe(false);
+    submitButton.click();
+
+    const request = httpMock.expectOne(API_ENDPOINTS.appointments);
+    expect(request.request.body).toEqual({
+      contactFirstName: 'Test',
+      contactLastName: 'User',
+      contactEmail: 'test.user@example.com',
+      startDateTime: mondaySlot.startDateTime,
+      endDateTime: mondaySlot.endDateTime,
+      reason: 'Test rendez-vous',
+    });
+    request.flush({ ...appointment, publicReference: 'APT-2026-MONDAY', contactFirstName: 'Test', contactLastName: 'User', contactEmail: 'test.user@example.com', reason: 'Test rendez-vous', startDateTime: mondaySlot.startDateTime, endDateTime: mondaySlot.endDateTime });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('APT-2026-MONDAY');
+    expect(fixture.nativeElement.textContent).toContain('En attente');
+    expect(fixture.nativeElement.textContent).toContain('Un email a été envoyé');
   });
 
   it('blocks duplicate submit while the first POST is pending', () => {

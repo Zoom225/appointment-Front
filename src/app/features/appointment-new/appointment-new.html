@@ -37,13 +37,14 @@
       </div></div>
     </section>
 
-    <section class="step-card"><span class="step-number">2</span><div><h2>Choisissez une date</h2><label for="appointment-date">Date</label><input id="appointment-date" name="date" type="date" formControlName="date" />@if (showControlError('date')) { <p class="field-error">Choisissez une date.</p> }</div></section>
+    <section class="step-card"><span class="step-number">2</span><div><h2>Choisissez une date</h2><label for="appointment-date">Date</label><input id="appointment-date" name="date" type="date" formControlName="date" />@if (showControlError('date') && !form.controls.date.hasError('nonBusinessDay')) { <p class="field-error">Choisissez une date.</p> }</div></section>
 
     <section class="step-card"><span class="step-number">3</span><div><h2>Choisissez un créneau</h2>
       <input id="appointment-start" name="startDateTime" type="hidden" formControlName="startDateTime" /><input id="appointment-end" name="endDateTime" type="hidden" formControlName="endDateTime" />
-      @if (isLoadingSlots()) { <p>Chargement des créneaux...</p> }
+      @if (form.controls.date.hasError('nonBusinessDay')) { <p class="business-day-notice" aria-live="polite">Les rendez-vous sont disponibles uniquement du lundi au vendredi.</p> }
+      @else if (isLoadingSlots()) { <p>Chargement des créneaux...</p> }
       @else if (slotsError()) { <p class="error" aria-live="assertive">{{ slotsError() }}</p> }
-      @else if (slotsLoaded() && slots().length === 0) { <p class="muted">Aucun créneau disponible pour cette date.</p> }
+      @else if (slotsLoaded() && slots().length === 0) { <p class="muted">Aucun créneau disponible pour cette date. Choisissez un autre jour.</p> }
       @else if (!slotsLoaded()) { <p class="muted">Sélectionnez une date pour afficher les disponibilités.</p> }
       @else { <div class="slot-list">@for (slot of slots(); track slot.startDateTime) { <button type="button" class="slot" [class.selected]="selectedSlot()?.startDateTime === slot.startDateTime" (click)="selectSlot(slot)" [attr.aria-pressed]="selectedSlot()?.startDateTime === slot.startDateTime">{{ formatTime(slot.startDateTime) }} – {{ formatTime(slot.endDateTime) }}</button> }</div>@if (selectedSlot(); as slot) { <p class="selected-slot">Créneau sélectionné : {{ formatTime(slot.startDateTime) }} – {{ formatTime(slot.endDateTime) }}</p> } }
     </div></section>
