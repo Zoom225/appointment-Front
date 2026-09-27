@@ -37,12 +37,11 @@
       </div></div>
     </section>
 
-    <section class="step-card"><span class="step-number">2</span><div><h2>Choisissez une date</h2><label for="appointment-date">Date</label><input #dateInput id="appointment-date" name="date" type="date" formControlName="date" />@if (showControlError('date') && !form.controls.date.hasError('nonBusinessDay')) { <p class="field-error">Choisissez une date.</p> }</div></section>
+    <section class="step-card"><span class="step-number">2</span><div><h2>Choisissez une date</h2><label for="appointment-date">Date</label><input #dateInput id="appointment-date" name="date" type="date" formControlName="date" [min]="today" />@if (form.controls.date.hasError('pastDate')) { <p class="field-error">Vous ne pouvez pas réserver une date déjà passée.</p> } @else if (form.controls.date.hasError('nonBusinessDay')) { <p class="business-day-notice">Les rendez-vous sont disponibles uniquement du lundi au vendredi.</p> } @else if (showControlError('date') && form.controls.date.hasError('required')) { <p class="field-error">Choisissez une date.</p> }</div></section>
 
     <section class="step-card"><span class="step-number">3</span><div><h2>Choisissez un créneau</h2>
       <input id="appointment-start" name="startDateTime" type="hidden" formControlName="startDateTime" /><input id="appointment-end" name="endDateTime" type="hidden" formControlName="endDateTime" />
-      @if (form.controls.date.hasError('nonBusinessDay')) { <p class="business-day-notice" aria-live="polite">Les rendez-vous sont disponibles uniquement du lundi au vendredi.</p> }
-      @else if (isLoadingSlots()) { <p class="slot-help" aria-live="polite">Chargement des créneaux disponibles...</p> }
+      @if (isLoadingSlots()) { <p class="slot-help" aria-live="polite">Chargement des créneaux disponibles...</p> }
       @else if (slotsError()) { <p class="error" aria-live="assertive">{{ slotsError() }}</p> }
       @else if (slotsLoaded() && slots().length === 0) { <div class="slot-empty-state"><p>Aucun créneau disponible pour cette date. Choisissez un autre jour.</p><button type="button" class="button secondary" (click)="focusDate()">Choisir une autre date</button></div> }
       @else if (!slotsLoaded()) { <p class="muted">Sélectionnez une date pour afficher les disponibilités.</p> }

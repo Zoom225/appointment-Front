@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { API_ENDPOINTS } from '../../core/api/api-endpoints';
 import { AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentNew } from './appointment-new';
@@ -21,6 +21,10 @@ describe('AppointmentNew reactive booking flow', () => {
     localStorage.setItem('rendez_vous_current_user', JSON.stringify({ id: 8, email: 'user@example.com', firstName: 'User', lastName: 'Demo', roles: ['ROLE_USER'] }));
     TestBed.configureTestingModule({ imports: [AppointmentNew], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
     httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   function createComponent(): any { return TestBed.createComponent(AppointmentNew).componentInstance; }
@@ -50,6 +54,67 @@ describe('AppointmentNew reactive booking flow', () => {
     request.flush([slot]);
     expect(component.slots()).toEqual([slot]);
     expect(component.isLoadingSlots()).toBe(false);
+  });
+
+  it('rejects a past date, renders the local minimum and resets an existing slot', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 28, 12));
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    const dateInput = fixture.nativeElement.querySelector('input[type="date"]') as HTMLInputElement;
+    expect(component.today).toBe('2026-09-28');
+    expect(dateInput.min).toBe('2026-09-28');
+
+    component.form.controls.date.setValue('2026-09-29');
+    httpMock.expectOne((request) => request.url.endsWith('/availability') && request.params.get('date') === '2026-09-29').flush([slot]);
+    component.selectSlot(slot);
+    expect(component.selectedSlot()).toEqual(slot);
+
+    component.form.controls.date.setValue('2026-09-25');
+    fixture.detectChanges();
+
+    expect(component.form.controls.date.invalid).toBe(true);
+    expect(component.form.controls.date.hasError('pastDate')).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Vous ne pouvez pas réserver une date déjà passée.');
+    httpMock.expectNone((request) => request.url.endsWith('/availability') && request.params.get('date') === '2026-09-25');
+    expect(component.slots()).toEqual([]);
+    expect(component.selectedSlot()).toBeNull();
+    expect(component.form.controls.startDateTime.value).toBe('');
+    expect(component.form.controls.endDateTime.value).toBe('');
+    expect(component.slotsLoaded()).toBe(false);
+    expect(component.slotsError()).toBeNull();
+    expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('allows today and requests availability on a business day', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 28, 12));
+    const component = createComponent();
+    component.form.controls.date.setValue('2026-09-28');
+    expect(component.form.controls.date.hasError('pastDate')).toBe(false);
+    httpMock.expectOne((request) => request.url.endsWith('/availability') && request.params.get('date') === '2026-09-28').flush([]);
+  });
+
+  it('allows a future business day and requests availability', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 28, 12));
+    const component = createComponent();
+    component.form.controls.date.setValue('2026-09-29');
+    expect(component.form.controls.date.hasError('pastDate')).toBe(false);
+    httpMock.expectOne((request) => request.url.endsWith('/availability') && request.params.get('date') === '2026-09-29').flush([]);
+  });
+
+  it('keeps a future weekend invalid without requesting availability', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 28, 12));
+    const component = createComponent();
+    component.form.controls.date.setValue('2026-10-03');
+    expect(component.form.controls.date.hasError('pastDate')).toBe(false);
+    expect(component.form.controls.date.hasError('nonBusinessDay')).toBe(true);
+    httpMock.expectNone((request) => request.url.endsWith('/availability'));
+    expect(component.slots()).toEqual([]);
   });
 
   it('rejects Sunday 04/10/2026, resets the slot and never calls availability', () => {

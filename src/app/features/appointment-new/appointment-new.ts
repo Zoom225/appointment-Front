@@ -5,7 +5,7 @@ import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Va
 import { RouterLink } from '@angular/router';
 import { Subject, catchError, distinctUntilChanged, map, merge, of, startWith, switchMap, tap, finalize } from 'rxjs';
 import { appointmentStatusClass, appointmentStatusLabel } from '../../core/appointments/appointment-status';
-import { formatLocalDate, formatLocalTime } from '../../core/date-time/local-date-time';
+import { formatLocalDate, formatLocalDateInput, formatLocalTime } from '../../core/date-time/local-date-time';
 import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
@@ -30,6 +30,26 @@ export function businessDayValidator(): ValidatorFn {
   };
 }
 
+export function notPastDateValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (typeof value !== 'string' || value === '' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return null;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    const selected = new Date(year, month - 1, day);
+    const isValidDate = selected.getFullYear() === year && selected.getMonth() === month - 1 && selected.getDate() === day;
+    if (!isValidDate) {
+      return null;
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return selected < today ? { pastDate: true } : null;
+  };
+}
+
 @Component({
   selector: 'app-appointment-new',
   imports: [PageHeader, ReactiveFormsModule, RouterLink],
@@ -42,6 +62,8 @@ export class AppointmentNew {
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly availabilityRefresh = new Subject<string>();
+
+  protected readonly today = formatLocalDateInput();
 
   protected readonly slots = signal<AppointmentAvailabilitySlot[]>([]);
   protected readonly selectedSlot = signal<AppointmentAvailabilitySlot | null>(null);
@@ -60,7 +82,7 @@ export class AppointmentNew {
     contactFirstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     contactLastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     contactEmail: ['', [Validators.required, Validators.email]],
-    date: ['', [Validators.required, businessDayValidator()]],
+    date: ['', [Validators.required, notPastDateValidator(), businessDayValidator()]],
     startDateTime: ['', Validators.required],
     endDateTime: ['', Validators.required],
     reason: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(255)]],
