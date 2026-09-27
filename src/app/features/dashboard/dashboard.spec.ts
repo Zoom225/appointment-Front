@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { API_ENDPOINTS } from '../../core/api/api-endpoints';
 import { Appointment } from '../../core/models/appointment.models';
+import { Dashboard } from './dashboard';
 import { getNextActiveFutureAppointment } from './dashboard.utils';
 
 function createAppointment(
@@ -65,5 +71,25 @@ describe('getNextActiveFutureAppointment', () => {
     );
 
     expect(nextAppointment).toBeNull();
+  });
+});
+
+describe('Dashboard confirmed appointment', () => {
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ imports: [Dashboard], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it('shows a confirmed next appointment as Confirmé', () => {
+    const fixture = TestBed.createComponent(Dashboard);
+    fixture.detectChanges();
+    const confirmed = createAppointment(9, 'CONFIRMED', '2030-01-08T09:00:00');
+    httpMock.expectOne(`${API_ENDPOINTS.myAppointments.upcoming}?page=0&size=20`).flush({ content: [confirmed], totalElements: 1, totalPages: 1, size: 20, number: 0, numberOfElements: 1, first: true, last: true, empty: false });
+    httpMock.expectOne(`${API_ENDPOINTS.myAppointments.history}?page=0&size=100`).flush({ content: [], totalElements: 0, totalPages: 0, size: 100, number: 0, numberOfElements: 0, first: true, last: true, empty: true });
+    httpMock.expectOne(`${API_ENDPOINTS.notifications}?page=0&size=100&unreadOnly=true`).flush({ content: [], totalElements: 0, totalPages: 0, size: 100, number: 0, numberOfElements: 0, first: true, last: true, empty: true });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Confirmé');
   });
 });

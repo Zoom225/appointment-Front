@@ -10,7 +10,8 @@ import { AppointmentNew } from './appointment-new';
 const slot: AppointmentAvailabilitySlot = { startDateTime: '2026-09-28T10:00:00', endDateTime: '2026-09-28T10:30:00' };
 const mondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:00:00', endDateTime: '2026-10-05T09:30:00' };
 const secondMondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:30:00', endDateTime: '2026-10-05T10:00:00' };
-const appointment = { id: 10, userId: 8, reason: 'Suivi', status: 'PENDING' as const, publicReference: 'APT-2030-ABC123', contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', startDateTime: slot.startDateTime, endDateTime: slot.endDateTime, createdAt: '2026-09-23T10:00:00', updatedAt: '2026-09-23T10:00:00' };
+const confirmedSlot: AppointmentAvailabilitySlot = { startDateTime: '2030-01-08T09:00:00', endDateTime: '2030-01-08T09:30:00' };
+const appointment = { id: 10, userId: 8, reason: 'Suivi', status: 'CONFIRMED' as const, publicReference: 'APT-2030-ABC123', contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', startDateTime: slot.startDateTime, endDateTime: slot.endDateTime, createdAt: '2026-09-23T10:00:00', updatedAt: '2026-09-23T10:00:00' };
 
 describe('AppointmentNew reactive booking flow', () => {
   let httpMock: HttpTestingController;
@@ -252,13 +253,13 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(component.confirmation()).toEqual(appointment);
   });
 
-  it('submits the complete valid Monday form from the confirmation button', () => {
+  it('displays the confirmed appointment returned by POST without a pending state', () => {
     const fixture = TestBed.createComponent(AppointmentNew);
     const component = fixture.componentInstance as any;
-    component.form.patchValue({ contactFirstName: 'Test', contactLastName: 'User', contactEmail: 'test.user@example.com', reason: 'Test rendez-vous' });
-    component.form.controls.date.setValue('2026-10-05');
-    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([mondaySlot]);
-    component.selectSlot(mondaySlot);
+    component.form.patchValue({ contactFirstName: 'Test', contactLastName: 'User', contactEmail: 'test@example.com', reason: 'Entretien' });
+    component.form.controls.date.setValue('2030-01-08');
+    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([confirmedSlot]);
+    component.selectSlot(confirmedSlot);
     fixture.detectChanges();
 
     const submitButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
@@ -270,16 +271,19 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(request.request.body).toEqual({
       contactFirstName: 'Test',
       contactLastName: 'User',
-      contactEmail: 'test.user@example.com',
-      startDateTime: mondaySlot.startDateTime,
-      endDateTime: mondaySlot.endDateTime,
-      reason: 'Test rendez-vous',
+      contactEmail: 'test@example.com',
+      startDateTime: confirmedSlot.startDateTime,
+      endDateTime: confirmedSlot.endDateTime,
+      reason: 'Entretien',
     });
-    request.flush({ ...appointment, publicReference: 'APT-2026-MONDAY', contactFirstName: 'Test', contactLastName: 'User', contactEmail: 'test.user@example.com', reason: 'Test rendez-vous', startDateTime: mondaySlot.startDateTime, endDateTime: mondaySlot.endDateTime });
+    request.flush({ ...appointment, publicReference: 'RDV-TEST', contactFirstName: 'Test', contactLastName: 'User', contactEmail: 'test@example.com', reason: 'Entretien', startDateTime: confirmedSlot.startDateTime, endDateTime: confirmedSlot.endDateTime });
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('APT-2026-MONDAY');
-    expect(fixture.nativeElement.textContent).toContain('En attente');
-    expect(fixture.nativeElement.textContent).toContain('Un email a été envoyé');
+    expect(fixture.nativeElement.textContent).toContain('RDV-TEST');
+    expect(fixture.nativeElement.textContent).toContain('09:00 - 09:30');
+    expect(fixture.nativeElement.textContent).toContain('Votre rendez-vous est confirmé.');
+    expect(fixture.nativeElement.textContent).toContain('Confirmé');
+    expect(fixture.nativeElement.textContent).not.toContain('En attente');
+    expect(fixture.nativeElement.textContent).toContain("Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.");
   });
 
   it('blocks duplicate submit while the first POST is pending', () => {
@@ -324,7 +328,7 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(component.conflictingAppointment()).toEqual(appointment);
   });
 
-  it('renders the backend public reference and pending label only after success', () => {
+  it('renders the confirmed backend response and complete confirmation details after success', () => {
     const fixture = TestBed.createComponent(AppointmentNew);
     const component = fixture.componentInstance as any;
     fixture.detectChanges();
@@ -332,7 +336,10 @@ describe('AppointmentNew reactive booking flow', () => {
     component.confirmation.set(appointment);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('APT-2030-ABC123');
-    expect(fixture.nativeElement.textContent).toContain('En attente');
-    expect(fixture.nativeElement.textContent).toContain("Un email a été envoyé");
+    expect(fixture.nativeElement.textContent).toContain('Votre rendez-vous est confirmé.');
+    expect(fixture.nativeElement.textContent).toContain('Confirmé');
+    expect(fixture.nativeElement.textContent).toContain('10:00 - 10:30');
+    expect(fixture.nativeElement.textContent).toContain("Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.");
+    expect(fixture.nativeElement.textContent).not.toContain('En attente');
   });
 });

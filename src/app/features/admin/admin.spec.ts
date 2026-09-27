@@ -27,7 +27,7 @@ describe('Admin dashboard', () => {
   it('reloads recent notifications from the backend', () => {
     const fixture = TestBed.createComponent(Admin);
     const component = fixture.componentInstance as any;
-    const notification = { id: 2, appointmentId: 3, recipientId: 1, type: 'APPOINTMENT_CREATED', title: 'Nouvelle demande', message: 'Un rendez-vous est en attente', createdAt: '2026-09-24T10:00:00', readAt: null };
+    const notification = { id: 2, appointmentId: 3, recipientId: 1, type: 'APPOINTMENT_CREATED', title: 'Nouveau rendez-vous confirmé', message: 'Rendez-vous confirmé', createdAt: '2026-09-24T10:00:00', readAt: null };
 
     component.refreshNotifications();
     httpMock.expectOne(`${API_ENDPOINTS.admin.notifications}?page=0&size=5`).flush({ content: [notification], totalElements: 1, totalPages: 1, size: 5, number: 0, numberOfElements: 1, first: true, last: true, empty: false });

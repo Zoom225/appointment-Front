@@ -2,8 +2,8 @@
 
 @if (confirmation(); as appointment) {
   <section class="result-card success-card" aria-live="polite">
-    <p class="eyebrow">Demande enregistrée</p>
-    <h2>Votre demande de rendez-vous a été enregistrée.</h2>
+    <p class="eyebrow">{{ appointment.status === 'CONFIRMED' ? 'Rendez-vous confirmé' : 'Rendez-vous enregistré' }}</p>
+    <h2>{{ appointment.status === 'CONFIRMED' ? 'Votre rendez-vous est confirmé.' : 'Votre rendez-vous a été enregistré.' }}</h2>
     <dl>
       <div><dt>Référence</dt><dd><strong>{{ appointment.publicReference }}</strong></dd></div>
       <div><dt>Prénom</dt><dd>{{ appointment.contactFirstName }}</dd></div>
@@ -14,7 +14,11 @@
       <div><dt>Motif</dt><dd>{{ appointment.reason }}</dd></div>
       <div><dt>Statut</dt><dd><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></dd></div>
     </dl>
-    <p class="email-notice">Un email a été envoyé à l'adresse indiquée.</p>
+    @if (appointment.status === 'CONFIRMED') {
+      <p class="email-notice">Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.</p>
+    } @else {
+      <p class="email-notice">Un email a été envoyé à l'adresse indiquée.</p>
+    }
     <div class="actions">
       <a class="button primary" routerLink="/appointments">Voir mes rendez-vous</a>
       <a class="button secondary" routerLink="/dashboard">Retour au dashboard</a>
