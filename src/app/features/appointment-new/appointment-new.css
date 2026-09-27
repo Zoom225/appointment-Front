@@ -10,11 +10,19 @@ input:focus, textarea:focus { border-color: var(--color-primary); box-shadow: 0 
 .contact-grid .full-width { grid-column: 1 / -1; }
 .field-error { color: var(--color-danger); font-size: .86rem; margin: 7px 0 0; }
 .business-day-notice { background: var(--color-warning-bg); border-radius: 12px; color: var(--color-warning-text); margin: 0; padding: 12px 14px; }
-.slot-list, .actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.slot { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: 12px; color: var(--color-text); cursor: pointer; padding: 11px 14px; }
-.slot.selected { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
-.selected-slot { color: var(--color-primary); font-weight: 750; margin: 14px 0 0; }
-.slot:focus-visible, .button:focus-visible { outline: 3px solid var(--color-focus-ring); outline-offset: 2px; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.slots-grid { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.slot-button { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: 12px; color: var(--color-text); cursor: pointer; font: inherit; font-weight: 700; padding: 12px 10px; }
+.slot-button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.slot-button.selected { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.selected-slot-card { background: var(--color-surface-muted); border: 1px solid var(--color-primary); border-radius: 14px; margin-top: 16px; padding: 16px; }
+.selected-slot-card > strong { color: var(--color-primary); display: block; margin-bottom: 12px; }
+.selected-slot-card dl { margin: 0; }
+.slot-empty-state { background: var(--color-surface-muted); border: 1px dashed var(--color-border-strong); border-radius: 14px; padding: 18px; }
+.slot-empty-state p { margin-top: 0; }
+.slot-actions { display: flex; margin-top: 14px; }
+.slot-help { color: var(--color-muted); font-size: .9rem; margin: 10px 0; }
+.slot-button:focus-visible, .button:focus-visible { outline: 3px solid var(--color-focus-ring); outline-offset: 2px; }
 dl { display: grid; gap: 10px; margin: 0 0 20px; }
 dl div { display: grid; gap: 4px; grid-template-columns: 100px 1fr; }
 dt, .muted { color: var(--color-muted); }
@@ -37,4 +45,6 @@ dd { color: var(--color-text); margin: 0; overflow-wrap: anywhere; }
 .status-badge.confirmed, .status-badge.completed { background: var(--color-success-bg); color: var(--color-success-text); }
 .status-badge.scheduled { background: var(--color-badge-bg); color: var(--color-badge-text); }
 .status-badge.cancelled { background: var(--color-danger-bg); color: var(--color-danger-text); }
-@media (max-width: 600px) { .step-card { grid-template-columns: 1fr; padding: 18px; } .contact-grid { grid-template-columns: 1fr; } .contact-grid .full-width { grid-column: auto; } dl div { grid-template-columns: 1fr; } .actions, .actions .button { width: 100%; } }
+@media (max-width: 800px) { .slots-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .step-card { grid-template-columns: 1fr; padding: 18px; } .contact-grid { grid-template-columns: 1fr; } .contact-grid .full-width { grid-column: auto; } .slots-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } dl div { grid-template-columns: 1fr; } .actions, .actions .button { width: 100%; } }
+@media (max-width: 380px) { .slots-grid { grid-template-columns: 1fr; } }

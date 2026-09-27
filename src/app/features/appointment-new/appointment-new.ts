@@ -1,10 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subject, catchError, distinctUntilChanged, map, merge, of, startWith, switchMap, tap, finalize } from 'rxjs';
 import { appointmentStatusClass, appointmentStatusLabel } from '../../core/appointments/appointment-status';
+import { formatLocalDate, formatLocalTime } from '../../core/date-time/local-date-time';
 import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
@@ -36,6 +37,7 @@ export function businessDayValidator(): ValidatorFn {
   styleUrl: './appointment-new.css',
 })
 export class AppointmentNew {
+  @ViewChild('dateInput') private dateInput?: ElementRef<HTMLInputElement>;
   private readonly api = inject(AppointmentsApi);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
@@ -80,12 +82,12 @@ export class AppointmentNew {
           return this.api.getAvailability(date).pipe(
             map((slots) => ({ slots, error: null as string | null, loaded: true })),
             catchError((error: unknown) => of({ slots: [] as AppointmentAvailabilitySlot[], error: getApiErrorDetails(error).message, loaded: true })),
+            finalize(() => this.isLoadingSlots.set(false)),
           );
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ slots, error, loaded }) => {
-        this.isLoadingSlots.set(false);
         this.slots.set(slots);
         this.slotsError.set(error);
         this.slotsLoaded.set(loaded);
@@ -95,6 +97,25 @@ export class AppointmentNew {
   protected loadSlots(): void {
     const date = this.form.controls.date.value;
     if (date) this.availabilityRefresh.next(date);
+  }
+
+  protected focusDate(): void {
+    this.dateInput?.nativeElement.focus();
+  }
+
+  protected canRefreshSlots(): boolean {
+    const control = this.form.controls.date;
+    return /^\d{4}-\d{2}-\d{2}$/.test(control.value) && control.valid;
+  }
+
+  protected hasInvalidBookingDetails(): boolean {
+    return (
+      this.form.controls.contactFirstName.invalid ||
+      this.form.controls.contactLastName.invalid ||
+      this.form.controls.contactEmail.invalid ||
+      this.form.controls.date.invalid ||
+      this.form.controls.reason.invalid
+    );
   }
 
   protected selectSlot(slot: AppointmentAvailabilitySlot): void {
@@ -185,11 +206,11 @@ export class AppointmentNew {
   }
 
   protected formatDate(value: string): string {
-    return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' }).format(new Date(value));
+    return formatLocalDate(value);
   }
 
   protected formatTime(value: string): string {
-    return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(value));
+    return formatLocalTime(value);
   }
 
   protected showControlError(controlName: 'contactFirstName' | 'contactLastName' | 'contactEmail' | 'date' | 'reason'): boolean {
@@ -213,6 +234,6 @@ export class AppointmentNew {
   }
 
   private isSlotConflict(message: string): boolean {
-    return /créneau|creneau|slot|occup|réserv/i.test(message);
+    return /créneau|creneau|slot|occup/i.test(message);
   }
 }

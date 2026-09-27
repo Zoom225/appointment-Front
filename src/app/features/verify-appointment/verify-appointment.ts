@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { appointmentStatusClass, appointmentStatusLabel } from '../../core/appointments/appointment-status';
+import { formatLocalDate, formatLocalTime } from '../../core/date-time/local-date-time';
 import { PublicAppointmentVerification } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
 
@@ -33,6 +34,6 @@ export class VerifyAppointment implements OnInit {
 
   protected statusLabel(appointment: PublicAppointmentVerification): string { return appointmentStatusLabel(appointment.status); }
   protected statusClass(appointment: PublicAppointmentVerification): string { return appointmentStatusClass(appointment.status); }
-  protected formatDate(value: string): string { return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'full' }).format(new Date(value)); }
-  protected formatTime(value: string): string { return new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' }).format(new Date(value)); }
+  protected formatDate(value: string): string { return formatLocalDate(value); }
+  protected formatTime(value: string): string { return formatLocalTime(value); }
 }

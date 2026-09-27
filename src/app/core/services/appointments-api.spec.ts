@@ -74,10 +74,18 @@ describe('AppointmentsApi', () => {
     expect(request.request.method).toBe('GET');
   });
 
-  it('requests availability with only the selected date', () => {
-    service.getAvailability('2030-01-08').subscribe();
-    const request = httpMock.expectOne(`${API_ENDPOINTS.appointments}/availability?date=2030-01-08`);
+  it('requests and parses availability with only the selected date', () => {
+    const slots = [
+      { startDateTime: '2026-10-05T09:00:00', endDateTime: '2026-10-05T09:30:00' },
+      { startDateTime: '2026-10-05T09:30:00', endDateTime: '2026-10-05T10:00:00' },
+    ];
+    let response: typeof slots | undefined;
+    service.getAvailability('2026-10-05').subscribe((value) => (response = value));
+    const request = httpMock.expectOne(`${API_ENDPOINTS.appointments}/availability?date=2026-10-05`);
+    expect(request.request.method).toBe('GET');
     expect(request.request.params.has('userId')).toBe(false);
+    request.flush(slots);
+    expect(response).toEqual(slots);
   });
 
   it('verifies a public appointment with the QR token', () => {
