@@ -10,7 +10,7 @@
       <div><dt>Nom</dt><dd>{{ appointment.contactLastName }}</dd></div>
       <div><dt>Email</dt><dd>{{ appointment.contactEmail }}</dd></div>
       <div><dt>Date</dt><dd>{{ formatDate(appointment.startDateTime) }}</dd></div>
-      <div><dt>Heure</dt><dd>{{ formatTime(appointment.startDateTime) }}</dd></div>
+      <div><dt>Créneau</dt><dd>{{ formatTime(appointment.startDateTime) }} - {{ formatTime(appointment.endDateTime) }}</dd></div>
       <div><dt>Motif</dt><dd>{{ appointment.reason }}</dd></div>
       <div><dt>Statut</dt><dd><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></dd></div>
     </dl>
@@ -37,23 +37,24 @@
       </div></div>
     </section>
 
-    <section class="step-card"><span class="step-number">2</span><div><h2>Choisissez une date</h2><label for="appointment-date">Date</label><input id="appointment-date" name="date" type="date" formControlName="date" />@if (showControlError('date') && !form.controls.date.hasError('nonBusinessDay')) { <p class="field-error">Choisissez une date.</p> }</div></section>
+    <section class="step-card"><span class="step-number">2</span><div><h2>Choisissez une date</h2><label for="appointment-date">Date</label><input #dateInput id="appointment-date" name="date" type="date" formControlName="date" />@if (showControlError('date') && !form.controls.date.hasError('nonBusinessDay')) { <p class="field-error">Choisissez une date.</p> }</div></section>
 
     <section class="step-card"><span class="step-number">3</span><div><h2>Choisissez un créneau</h2>
       <input id="appointment-start" name="startDateTime" type="hidden" formControlName="startDateTime" /><input id="appointment-end" name="endDateTime" type="hidden" formControlName="endDateTime" />
       @if (form.controls.date.hasError('nonBusinessDay')) { <p class="business-day-notice" aria-live="polite">Les rendez-vous sont disponibles uniquement du lundi au vendredi.</p> }
-      @else if (isLoadingSlots()) { <p>Chargement des créneaux...</p> }
+      @else if (isLoadingSlots()) { <p class="slot-help" aria-live="polite">Chargement des créneaux disponibles...</p> }
       @else if (slotsError()) { <p class="error" aria-live="assertive">{{ slotsError() }}</p> }
-      @else if (slotsLoaded() && slots().length === 0) { <p class="muted">Aucun créneau disponible pour cette date. Choisissez un autre jour.</p> }
+      @else if (slotsLoaded() && slots().length === 0) { <div class="slot-empty-state"><p>Aucun créneau disponible pour cette date. Choisissez un autre jour.</p><button type="button" class="button secondary" (click)="focusDate()">Choisir une autre date</button></div> }
       @else if (!slotsLoaded()) { <p class="muted">Sélectionnez une date pour afficher les disponibilités.</p> }
-      @else { <div class="slot-list">@for (slot of slots(); track slot.startDateTime) { <button type="button" class="slot" [class.selected]="selectedSlot()?.startDateTime === slot.startDateTime" (click)="selectSlot(slot)" [attr.aria-pressed]="selectedSlot()?.startDateTime === slot.startDateTime">{{ formatTime(slot.startDateTime) }} – {{ formatTime(slot.endDateTime) }}</button> }</div>@if (selectedSlot(); as slot) { <p class="selected-slot">Créneau sélectionné : {{ formatTime(slot.startDateTime) }} – {{ formatTime(slot.endDateTime) }}</p> } }
+      @else { <div class="slots-grid">@for (slot of slots(); track slot.startDateTime) { <button type="button" class="slot-button" [class.selected]="selectedSlot()?.startDateTime === slot.startDateTime" (click)="selectSlot(slot)" [attr.aria-pressed]="selectedSlot()?.startDateTime === slot.startDateTime">{{ formatTime(slot.startDateTime) }} - {{ formatTime(slot.endDateTime) }}</button> }</div>@if (selectedSlot(); as slot) { <section class="selected-slot-card" aria-live="polite"><strong>Créneau sélectionné</strong><dl><div><dt>Date</dt><dd>{{ formatDate(slot.startDateTime) }}</dd></div><div><dt>Heure</dt><dd>{{ formatTime(slot.startDateTime) }} - {{ formatTime(slot.endDateTime) }}</dd></div></dl></section> } }
+      @if (canRefreshSlots()) { <div class="slot-actions"><button type="button" class="button secondary" (click)="loadSlots()" [disabled]="isLoadingSlots()">Actualiser les créneaux</button></div> }
     </div></section>
 
     <section class="step-card"><span class="step-number">4</span><div><h2>Indiquez le motif</h2><label for="appointment-reason">Motif</label><textarea id="appointment-reason" name="reason" formControlName="reason" rows="4" maxlength="255" autocomplete="off"></textarea>@if (showControlError('reason')) { <p class="field-error">Le motif doit contenir entre 3 et 255 caractères.</p> }</div></section>
 
     <section class="step-card summary-card"><span class="step-number">5</span><div><h2>Récapitulatif</h2><dl>
-      <div><dt>Prénom</dt><dd>{{ form.controls.contactFirstName.value || 'À renseigner' }}</dd></div><div><dt>Nom</dt><dd>{{ form.controls.contactLastName.value || 'À renseigner' }}</dd></div><div><dt>Email</dt><dd>{{ form.controls.contactEmail.value || 'À renseigner' }}</dd></div><div><dt>Date</dt><dd>{{ selectedSlot() ? formatDate(selectedSlot()!.startDateTime) : 'À choisir' }}</dd></div><div><dt>Heure</dt><dd>{{ selectedSlot() ? formatTime(selectedSlot()!.startDateTime) : 'À choisir' }}</dd></div><div><dt>Motif</dt><dd>{{ form.controls.reason.value || 'À renseigner' }}</dd></div>
-    </dl>@if (errorMessage()) { <p class="error" aria-live="assertive">{{ errorMessage() }}</p> }<button type="submit" class="button primary" [disabled]="form.invalid || isSubmitting() || !selectedSlot()">{{ isSubmitting() ? 'Enregistrement...' : 'Confirmer mon rendez-vous' }}</button></div></section>
+      <div><dt>Prénom</dt><dd>{{ form.controls.contactFirstName.value || 'À renseigner' }}</dd></div><div><dt>Nom</dt><dd>{{ form.controls.contactLastName.value || 'À renseigner' }}</dd></div><div><dt>Email</dt><dd>{{ form.controls.contactEmail.value || 'À renseigner' }}</dd></div><div><dt>Date</dt><dd>{{ selectedSlot() ? formatDate(selectedSlot()!.startDateTime) : 'À choisir' }}</dd></div><div><dt>Créneau</dt><dd>{{ selectedSlot() ? formatTime(selectedSlot()!.startDateTime) + ' - ' + formatTime(selectedSlot()!.endDateTime) : 'À choisir' }}</dd></div><div><dt>Motif</dt><dd>{{ form.controls.reason.value || 'À renseigner' }}</dd></div>
+    </dl>@if (errorMessage()) { <p class="error" aria-live="assertive">{{ errorMessage() }}</p> }@if (hasInvalidBookingDetails()) { <p class="slot-help">Complétez tous les champs obligatoires.</p> } @else if (!selectedSlot()) { <p class="slot-help">Veuillez sélectionner un créneau pour continuer.</p> }<button type="submit" class="button primary" [disabled]="form.invalid || !selectedSlot() || isSubmitting()">{{ isSubmitting() ? 'Enregistrement...' : 'Confirmer mon rendez-vous' }}</button></div></section>
   </form>
 }
 

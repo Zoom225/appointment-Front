@@ -29,8 +29,22 @@ describe('VerifyAppointment', () => {
     expect((fixture.componentInstance as any).isLoading()).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('APT-PUBLIC-1');
     expect(fixture.nativeElement.textContent).toContain('Alice');
+    expect(fixture.nativeElement.textContent).toContain('Martin');
+    expect(fixture.nativeElement.textContent).toContain('08/01/2030');
+    expect(fixture.nativeElement.textContent).toContain('10:00 - 10:30');
+    expect(fixture.nativeElement.textContent).toContain('Entretien');
+    expect(fixture.nativeElement.textContent).toContain('Confirmé');
     expect(fixture.nativeElement.textContent).not.toContain('qr-token');
     expect(fixture.nativeElement.textContent).not.toContain('@');
+  });
+
+  it('rejects a missing token without calling the API', () => {
+    token = null;
+    const fixture = TestBed.createComponent(VerifyAppointment);
+    fixture.detectChanges();
+    expect((fixture.componentInstance as any).isLoading()).toBe(false);
+    expect(fixture.nativeElement.textContent).toContain('Rendez-vous introuvable ou lien invalide.');
+    httpMock.expectNone(() => true);
   });
 
   it('shows the invalid-link message when verification fails', () => {

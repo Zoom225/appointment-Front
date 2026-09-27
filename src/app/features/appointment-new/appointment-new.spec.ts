@@ -9,6 +9,7 @@ import { AppointmentNew } from './appointment-new';
 
 const slot: AppointmentAvailabilitySlot = { startDateTime: '2026-09-28T10:00:00', endDateTime: '2026-09-28T10:30:00' };
 const mondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:00:00', endDateTime: '2026-10-05T09:30:00' };
+const secondMondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:30:00', endDateTime: '2026-10-05T10:00:00' };
 const appointment = { id: 10, userId: 8, reason: 'Suivi', status: 'PENDING' as const, publicReference: 'APT-2030-ABC123', contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', startDateTime: slot.startDateTime, endDateTime: slot.endDateTime, createdAt: '2026-09-23T10:00:00', updatedAt: '2026-09-23T10:00:00' };
 
 describe('AppointmentNew reactive booking flow', () => {
@@ -73,16 +74,18 @@ describe('AppointmentNew reactive booking flow', () => {
     expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(true);
   });
 
-  it('loads and selects a real backend slot on Monday 05/10/2026', () => {
+  it('renders backend slots as buttons and selects one on Monday 05/10/2026', () => {
     const fixture = TestBed.createComponent(AppointmentNew);
     const component = fixture.componentInstance as any;
     component.form.controls.date.setValue('2026-10-05');
     const request = httpMock.expectOne((item) => item.url.endsWith('/availability'));
     expect(request.request.params.get('date')).toBe('2026-10-05');
-    request.flush([mondaySlot]);
+    request.flush([mondaySlot, secondMondaySlot]);
     fixture.detectChanges();
 
-    const slotButton = fixture.nativeElement.querySelector('button.slot') as HTMLButtonElement;
+    const slotButtons = fixture.nativeElement.querySelectorAll('button.slot-button') as NodeListOf<HTMLButtonElement>;
+    expect(slotButtons).toHaveLength(2);
+    const slotButton = slotButtons[0];
     expect(slotButton.textContent).toContain('09:00');
     expect(slotButton.textContent).toContain('09:30');
     slotButton.click();
@@ -92,6 +95,8 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(component.form.controls.startDateTime.value).toBe(mondaySlot.startDateTime);
     expect(component.form.controls.endDateTime.value).toBe(mondaySlot.endDateTime);
     expect(slotButton.getAttribute('aria-pressed')).toBe('true');
+    expect(slotButton.classList.contains('selected')).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('05/10/2026');
   });
 
   it('shows the weekday-specific empty state when the backend returns no slot', () => {
@@ -101,6 +106,30 @@ describe('AppointmentNew reactive booking flow', () => {
     httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([]);
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('Aucun créneau disponible pour cette date. Choisissez un autre jour.');
+    expect(fixture.nativeElement.querySelectorAll('button.slot-button')).toHaveLength(0);
+    expect(fixture.nativeElement.textContent).toContain('Choisir une autre date');
+  });
+
+  it('keeps an HTTP availability error distinct from an empty list', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.controls.date.setValue('2026-10-05');
+    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush({ message: 'Service indisponible' }, { status: 500, statusText: 'Server Error' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Service indisponible');
+    expect(fixture.nativeElement.textContent).not.toContain('Aucun créneau disponible pour cette date');
+    expect(component.isLoadingSlots()).toBe(false);
+  });
+
+  it('refreshes availability for the same valid date', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.controls.date.setValue('2026-10-05');
+    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([mondaySlot]);
+    fixture.detectChanges();
+    const refreshButton = Array.from(fixture.nativeElement.querySelectorAll('button')).find((button: any) => button.textContent.includes('Actualiser les créneaux')) as HTMLButtonElement;
+    refreshButton.click();
+    httpMock.expectOne((item) => item.url.endsWith('/availability') && item.params.get('date') === '2026-10-05').flush([mondaySlot]);
   });
 
   it('selects a backend slot and synchronizes both hidden form controls', () => {
@@ -122,6 +151,28 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(component.canSubmit()).toBe(true);
     expect((fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement).disabled).toBe(false);
     expect(fixture.nativeElement.textContent).toContain('Créneau sélectionné');
+  });
+
+  it('keeps submit disabled until a slot is selected and resets it after a date change', () => {
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    fillContactAndReason(component);
+    selectDate(component);
+    fixture.detectChanges();
+    const submitButton = fixture.nativeElement.querySelector('button[type="submit"]') as HTMLButtonElement;
+    expect(submitButton.disabled).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Veuillez sélectionner un créneau pour continuer.');
+    component.selectSlot(slot);
+    fixture.detectChanges();
+    expect(submitButton.disabled).toBe(false);
+
+    component.form.controls.date.setValue('2026-10-05');
+    httpMock.expectOne((item) => item.url.endsWith('/availability')).flush([mondaySlot]);
+    fixture.detectChanges();
+    expect(component.selectedSlot()).toBeNull();
+    expect(component.form.controls.startDateTime.value).toBe('');
+    expect(component.form.controls.endDateTime.value).toBe('');
+    expect(submitButton.disabled).toBe(true);
   });
 
   it('sends the exact normalized payload without userId, date, status or publicReference', () => {

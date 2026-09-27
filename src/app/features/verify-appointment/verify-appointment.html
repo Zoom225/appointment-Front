@@ -11,7 +11,7 @@
         <div><dt>Prénom</dt><dd>{{ item.contactFirstName }}</dd></div>
         <div><dt>Nom</dt><dd>{{ item.contactLastName }}</dd></div>
         <div><dt>Date</dt><dd>{{ formatDate(item.startDateTime) }}</dd></div>
-        <div><dt>Heure</dt><dd>{{ formatTime(item.startDateTime) }}</dd></div>
+        <div><dt>Créneau</dt><dd>{{ formatTime(item.startDateTime) }} - {{ formatTime(item.endDateTime) }}</dd></div>
         <div><dt>Motif</dt><dd>{{ item.reason }}</dd></div>
         <div><dt>Statut</dt><dd><span [class]="statusClass(item)">{{ statusLabel(item) }}</span></dd></div>
       </dl>
