@@ -3,7 +3,7 @@
     <a class="brand" routerLink="/">Rendez-vous</a>
     <p class="eyebrow">Vérification publique</p>
     @if (isLoading()) { <h1>Vérification en cours...</h1><p>Nous vérifions les informations du rendez-vous.</p> }
-    @else if (invalid()) { <h1>Rendez-vous introuvable</h1><p>Rendez-vous introuvable ou lien invalide.</p><a class="home-link" routerLink="/">Retour à l'accueil</a> }
+    @else if (invalid()) { <h1>Rendez-vous introuvable</h1><p>Cette réservation est introuvable ou le lien n'est pas valide.</p><a class="home-link" routerLink="/">Retour à l'accueil</a> }
     @else if (appointment(); as item) {
       <h1>Rendez-vous vérifié</h1>
       <dl>

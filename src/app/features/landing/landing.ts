@@ -10,6 +10,6 @@ export class Landing {
   protected readonly authenticatedDestination = computed(() => this.auth.hasAnyRole(['ADMIN']) ? '/admin' : '/dashboard');
   protected readonly authenticatedLabel = computed(() => this.auth.hasAnyRole(['ADMIN']) ? "Accéder à l'administration" : 'Accéder à mon espace');
   protected readonly demoFeatures = ['Choisir un créneau disponible', 'Prendre un rendez-vous', 'Consulter ses rendez-vous', 'Modifier un rendez-vous actif', 'Annuler un rendez-vous', 'Consulter son historique', 'Recevoir ses notifications'];
-  protected readonly adminFeatures = ['Tableau de bord et rendez-vous du jour', 'Confirmer les demandes', 'Terminer ou annuler un rendez-vous', "Consulter l'historique et l'audit", 'Gérer les utilisateurs', 'Voir les notifications'];
+  protected readonly adminFeatures = ['Tableau de bord et rendez-vous du jour', 'Suivre les rendez-vous', 'Terminer ou annuler un rendez-vous', "Consulter l'historique et l'audit", 'Gérer les utilisateurs', 'Voir les notifications'];
   protected readonly technologies = ['Angular', 'Spring Boot', 'Java', 'PostgreSQL', 'JWT'];
 }

@@ -31,4 +31,20 @@ describe('Appointments', () => {
     request.flush({ ...active, reason: 'Suivi modifié', startDateTime: '2026-10-01T11:00:00', endDateTime: '2026-10-01T11:30:00' });
     expect(component.appointments()[0].reason).toBe('Suivi modifié');
   });
+
+  it('renders confirmed and historical status labels in the user list', () => {
+    const fixture = TestBed.createComponent(Appointments); fixture.detectChanges();
+    const appointments = [
+      active,
+      { ...active, id: 5, status: 'PENDING' as const },
+      { ...active, id: 6, status: 'CANCELLED' as const },
+      { ...active, id: 7, status: 'COMPLETED' as const },
+    ];
+    httpMock.expectOne(`${API_ENDPOINTS.myAppointments.upcoming}?page=0&size=20`).flush({ content: appointments, totalElements: 4, totalPages: 1, size: 20, number: 0, numberOfElements: 4, first: true, last: true, empty: false });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Confirmé');
+    expect(fixture.nativeElement.textContent).toContain('En attente');
+    expect(fixture.nativeElement.textContent).toContain('Annulé');
+    expect(fixture.nativeElement.textContent).toContain('Terminé');
+  });
 });

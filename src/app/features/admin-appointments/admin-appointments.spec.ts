@@ -7,6 +7,7 @@ import { API_ENDPOINTS } from '../../core/api/api-endpoints';
 import { AdminAppointments } from './admin-appointments';
 
 const pending = { id: 7, userId: 8, publicReference: 'APT-ADMIN-7', contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', reason: 'Suivi', status: 'PENDING' as const, startDateTime: '2026-10-01T10:00:00', endDateTime: '2026-10-01T10:30:00', createdAt: '2026-09-20T10:00:00', updatedAt: '2026-09-20T10:00:00' };
+const confirmed = { ...pending, id: 8, publicReference: 'APT-ADMIN-8', status: 'CONFIRMED' as const };
 describe('AdminAppointments', () => {
   let httpMock: HttpTestingController;
   beforeEach(() => { TestBed.configureTestingModule({ imports: [AdminAppointments], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] }); httpMock = TestBed.inject(HttpTestingController); });
@@ -19,9 +20,23 @@ describe('AdminAppointments', () => {
     expect(fixture.nativeElement.textContent).toContain('Alice');
     expect(fixture.nativeElement.textContent).toContain('Martin');
     expect(fixture.nativeElement.textContent).toContain('alice@example.com');
+    expect(Array.from(fixture.nativeElement.querySelectorAll('button')).some((button: any) => button.textContent.trim() === 'Confirmer')).toBe(true);
     const component = fixture.componentInstance as any; component.updateStatus(pending, 'CONFIRMED');
     const request = httpMock.expectOne(`${API_ENDPOINTS.admin.appointments}/7/status`); expect(request.request.body).toEqual({ status: 'CONFIRMED' }); request.flush({ ...pending, status: 'CONFIRMED' });
     expect(component.appointments()[0].status).toBe('CONFIRMED');
+  });
+
+  it('does not offer confirmation again for an already confirmed appointment', () => {
+    const fixture = TestBed.createComponent(AdminAppointments); fixture.detectChanges();
+    httpMock.expectOne((request) => request.url === API_ENDPOINTS.admin.appointments).flush({ content: [confirmed], totalElements: 1, totalPages: 1, size: 20, number: 0, numberOfElements: 1, first: true, last: true, empty: false });
+    httpMock.expectOne(`${API_ENDPOINTS.admin.users}?page=0&size=200`).flush({ content: [], totalElements: 0, totalPages: 0, size: 200, number: 0, numberOfElements: 0, first: true, last: true, empty: true });
+    fixture.detectChanges();
+    const buttonLabels = Array.from(fixture.nativeElement.querySelectorAll('button')).map((button: any) => button.textContent.trim());
+    expect(fixture.nativeElement.textContent).toContain('Confirmé');
+    expect(buttonLabels).not.toContain('Confirmer');
+    expect(buttonLabels).toContain('Terminer');
+    expect(buttonLabels).toContain('Annuler');
+    expect(buttonLabels).toContain('Historique');
   });
 
   it('loads the detailed audit history for an appointment', () => {

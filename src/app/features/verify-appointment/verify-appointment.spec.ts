@@ -24,14 +24,14 @@ describe('VerifyAppointment', () => {
     const fixture = TestBed.createComponent(VerifyAppointment);
     fixture.detectChanges();
     expect((fixture.componentInstance as any).isLoading()).toBe(true);
-    httpMock.expectOne(`${API_ENDPOINTS.publicAppointmentVerification}?token=qr-token`).flush({ publicReference: 'APT-PUBLIC-1', contactFirstName: 'Alice', contactLastName: 'Martin', startDateTime: '2030-01-08T10:00:00', endDateTime: '2030-01-08T10:30:00', reason: 'Entretien', status: 'CONFIRMED' });
+    httpMock.expectOne(`${API_ENDPOINTS.publicAppointmentVerification}?token=qr-token`).flush({ publicReference: 'RDV-TEST', contactFirstName: 'Test', contactLastName: 'User', startDateTime: '2030-01-08T09:00:00', endDateTime: '2030-01-08T09:30:00', reason: 'Entretien', status: 'CONFIRMED' });
     fixture.detectChanges();
     expect((fixture.componentInstance as any).isLoading()).toBe(false);
-    expect(fixture.nativeElement.textContent).toContain('APT-PUBLIC-1');
-    expect(fixture.nativeElement.textContent).toContain('Alice');
-    expect(fixture.nativeElement.textContent).toContain('Martin');
+    expect(fixture.nativeElement.textContent).toContain('RDV-TEST');
+    expect(fixture.nativeElement.textContent).toContain('Test');
+    expect(fixture.nativeElement.textContent).toContain('User');
     expect(fixture.nativeElement.textContent).toContain('08/01/2030');
-    expect(fixture.nativeElement.textContent).toContain('10:00 - 10:30');
+    expect(fixture.nativeElement.textContent).toContain('09:00 - 09:30');
     expect(fixture.nativeElement.textContent).toContain('Entretien');
     expect(fixture.nativeElement.textContent).toContain('Confirmé');
     expect(fixture.nativeElement.textContent).not.toContain('qr-token');
@@ -43,7 +43,7 @@ describe('VerifyAppointment', () => {
     const fixture = TestBed.createComponent(VerifyAppointment);
     fixture.detectChanges();
     expect((fixture.componentInstance as any).isLoading()).toBe(false);
-    expect(fixture.nativeElement.textContent).toContain('Rendez-vous introuvable ou lien invalide.');
+    expect(fixture.nativeElement.textContent).toContain("Cette réservation est introuvable ou le lien n'est pas valide.");
     httpMock.expectNone(() => true);
   });
 
@@ -52,7 +52,7 @@ describe('VerifyAppointment', () => {
     fixture.detectChanges();
     httpMock.expectOne(`${API_ENDPOINTS.publicAppointmentVerification}?token=qr-token`).flush({}, { status: 404, statusText: 'Not Found' });
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Rendez-vous introuvable ou lien invalide.');
+    expect(fixture.nativeElement.textContent).toContain("Cette réservation est introuvable ou le lien n'est pas valide.");
   });
 
   it('keeps the verification route public', () => {
