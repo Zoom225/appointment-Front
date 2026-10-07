@@ -46,6 +46,13 @@
       </div>
     </header>
 
+    @if (auth.isDemo()) {
+      <aside class="demo-banner" aria-label="Session de démonstration">
+        <span><strong>Mode démo</strong> · Données fictives dans cet onglet</span>
+        <button type="button" (click)="resetDemo()">Réinitialiser la démo</button>
+      </aside>
+    }
+
     <section class="page">
       <router-outlet />
     </section>

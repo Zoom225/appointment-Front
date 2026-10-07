@@ -6,6 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { API_ENDPOINTS } from '../../core/api/api-endpoints';
 import { AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentNew } from './appointment-new';
+import { Auth } from '../../core/services/auth';
+import { Router } from '@angular/router';
 
 const slot: AppointmentAvailabilitySlot = { startDateTime: '2026-09-28T10:00:00', endDateTime: '2026-09-28T10:30:00' };
 const mondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:00:00', endDateTime: '2026-10-05T09:30:00' };
@@ -18,6 +20,9 @@ describe('AppointmentNew reactive booking flow', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 8, 28, 8));
     localStorage.setItem('rendez_vous_access_token', 'header.payload.signature');
     localStorage.setItem('rendez_vous_current_user', JSON.stringify({ id: 8, email: 'user@example.com', firstName: 'User', lastName: 'Demo', roles: ['ROLE_USER'] }));
     TestBed.configureTestingModule({ imports: [AppointmentNew], providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()] });
@@ -25,6 +30,8 @@ describe('AppointmentNew reactive booking flow', () => {
   });
 
   afterEach(() => {
+    httpMock.verify();
+    sessionStorage.clear();
     vi.useRealTimers();
   });
 
@@ -283,7 +290,7 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(fixture.nativeElement.textContent).toContain('Votre rendez-vous est confirmé.');
     expect(fixture.nativeElement.textContent).toContain('Confirmé');
     expect(fixture.nativeElement.textContent).not.toContain('En attente');
-    expect(fixture.nativeElement.textContent).toContain("Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.");
+    expect(fixture.nativeElement.textContent).toContain("Votre rendez-vous a été enregistré. Consultez son statut dans votre espace.");
   });
 
   it('blocks duplicate submit while the first POST is pending', () => {
@@ -339,7 +346,20 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(fixture.nativeElement.textContent).toContain('Votre rendez-vous est confirmé.');
     expect(fixture.nativeElement.textContent).toContain('Confirmé');
     expect(fixture.nativeElement.textContent).toContain('10:00 - 10:30');
-    expect(fixture.nativeElement.textContent).toContain("Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.");
+    expect(fixture.nativeElement.textContent).toContain("Votre rendez-vous a été enregistré. Consultez son statut dans votre espace.");
     expect(fixture.nativeElement.textContent).not.toContain('En attente');
+  });
+
+  it('labels the local confirmation honestly without sending email or requesting a QR', () => {
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    TestBed.inject(Auth).startDemo('USER');
+    const fixture = TestBed.createComponent(AppointmentNew);
+    (fixture.componentInstance as any).confirmation.set({ ...appointment, publicReference: 'DEMO-RDV-000123' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain("Mode démo : aucun email réel n'a été envoyé.");
+    expect(fixture.nativeElement.textContent).toContain('Le QR permet de vérifier publiquement le rendez-vous.');
+    expect(fixture.nativeElement.textContent).not.toContain("a été envoyé à l'adresse indiquée");
+    expect(fixture.nativeElement.querySelector('img')).toBeNull();
+    httpMock.expectNone(() => true);
   });
 });

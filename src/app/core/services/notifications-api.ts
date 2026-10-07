@@ -4,12 +4,17 @@ import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../api/api-endpoints';
 import { PageResponse } from '../models/api.models';
 import { AppNotification, NotificationQuery } from '../models/notification.models';
+import { DemoModeService } from '../demo/demo-mode.service';
+import { DemoDataService } from '../demo/demo-data.service';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsApi {
   private readonly http = inject(HttpClient);
+  private readonly mode = inject(DemoModeService);
+  private readonly demo = inject(DemoDataService);
 
   findAll(query?: NotificationQuery): Observable<PageResponse<AppNotification>> {
+    if (this.mode.isDemo()) return this.demo.findNotifications(query);
     let params = new HttpParams();
 
     if (query?.page !== undefined) {
@@ -29,6 +34,7 @@ export class NotificationsApi {
   }
 
   markAsRead(id: number): Observable<AppNotification> {
+    if (this.mode.isDemo()) return this.demo.markAsRead(id);
     return this.http.patch<AppNotification>(`${API_ENDPOINTS.notifications}/${id}/read`, {});
   }
 }

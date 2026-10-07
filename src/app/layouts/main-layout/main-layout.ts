@@ -41,6 +41,13 @@ export class MainLayout implements OnInit {
     this.isMenuOpen.set(false);
   }
 
+  protected async resetDemo(): Promise<void> {
+    const destination = this.isAdmin() ? '/admin' : '/dashboard';
+    this.auth.resetDemo();
+    await this.router.navigateByUrl('/', { skipLocationChange: true });
+    await this.router.navigateByUrl(destination);
+  }
+
   protected changeSpace(): void {
     if (!this.confirmDialog.confirm('Voulez-vous quitter cet espace et choisir un autre compte ?')) {
       return;

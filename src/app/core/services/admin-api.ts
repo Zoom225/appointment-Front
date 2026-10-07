@@ -6,12 +6,17 @@ import { AdminStatistics } from '../models/admin.models';
 import { Appointment, AppointmentAudit, AppointmentStatus } from '../models/appointment.models';
 import { PageResponse } from '../models/api.models';
 import { AppNotification } from '../models/notification.models';
+import { DemoModeService } from '../demo/demo-mode.service';
+import { DemoDataService } from '../demo/demo-data.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminApi {
   private readonly http = inject(HttpClient);
+  private readonly mode = inject(DemoModeService);
+  private readonly demo = inject(DemoDataService);
 
   getStatistics(periodFrom?: string, periodTo?: string): Observable<AdminStatistics> {
+    if (this.mode.isDemo()) return this.demo.getStatistics(periodFrom, periodTo);
     let params = new HttpParams();
     if (periodFrom) {
       params = params.set('periodFrom', periodFrom);
@@ -31,6 +36,7 @@ export class AdminApi {
     startTo?: string;
     query?: string;
   }): Observable<PageResponse<Appointment>> {
+    if (this.mode.isDemo()) return this.demo.getAppointments(params);
     let httpParams = new HttpParams();
     if (params?.page !== undefined) {
       httpParams = httpParams.set('page', params.page);
@@ -57,14 +63,17 @@ export class AdminApi {
   }
 
   updateAppointmentStatus(id: number, status: AppointmentStatus): Observable<Appointment> {
+    if (this.mode.isDemo()) return this.demo.updateAppointmentStatus(id, status);
     return this.http.patch<Appointment>(`${API_ENDPOINTS.admin.appointments}/${id}/status`, { status });
   }
 
   getAppointmentHistory(id: number): Observable<AppointmentAudit[]> {
+    if (this.mode.isDemo()) return this.demo.getAppointmentHistory(id);
     return this.http.get<AppointmentAudit[]>(`${API_ENDPOINTS.admin.appointments}/${id}/history`);
   }
 
   getNotifications(page = 0, size = 10): Observable<PageResponse<AppNotification>> {
+    if (this.mode.isDemo()) return this.demo.getAdminNotifications(page, size);
     return this.http.get<PageResponse<AppNotification>>(API_ENDPOINTS.admin.notifications, {
       params: new HttpParams().set('page', page).set('size', size),
     });

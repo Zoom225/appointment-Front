@@ -9,6 +9,7 @@ import { formatLocalDate, formatLocalDateInput, formatLocalTime } from '../../co
 import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
+import { Auth } from '../../core/services/auth';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 
 export function businessDayValidator(): ValidatorFn {
@@ -57,6 +58,7 @@ export function notPastDateValidator(): ValidatorFn {
   styleUrl: './appointment-new.css',
 })
 export class AppointmentNew {
+  protected readonly auth = inject(Auth);
   @ViewChild('dateInput') private dateInput?: ElementRef<HTMLInputElement>;
   private readonly api = inject(AppointmentsApi);
   private readonly destroyRef = inject(DestroyRef);
