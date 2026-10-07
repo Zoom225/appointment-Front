@@ -15,8 +15,12 @@
       <div><dt>Statut</dt><dd><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></dd></div>
     </dl>
     @if (auth.isDemo()) {
-      <p class="email-notice">Mode démo : aucun email réel n'a été envoyé.</p>
-      <p class="email-notice">En production, un email de confirmation contenant un QR code est envoyé automatiquement. Le QR permet de vérifier publiquement le rendez-vous.</p>
+      @switch (demoEmailState()) {
+        @case ('SENDING') { <p class="email-notice" aria-live="polite">Envoi de l'email de confirmation...</p> }
+        @case ('SENT') { <p class="email-notice" aria-live="polite">Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.</p> }
+        @case ('FAILED') { <p class="email-notice" aria-live="polite">Votre rendez-vous est confirmé, mais l'email de confirmation n'a pas pu être envoyé.</p> }
+        @case ('DISABLED') { <p class="email-notice" aria-live="polite">Mode démo : l'envoi d'email est actuellement désactivé.</p> }
+      }
     } @else {
       <p class="email-notice">Votre rendez-vous a été enregistré. Consultez son statut dans votre espace.</p>
     }

@@ -8,6 +8,8 @@ import { AppointmentAvailabilitySlot } from '../../core/models/appointment.model
 import { AppointmentNew } from './appointment-new';
 import { Auth } from '../../core/services/auth';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { AppointmentsApi } from '../../core/services/appointments-api';
 
 const slot: AppointmentAvailabilitySlot = { startDateTime: '2026-09-28T10:00:00', endDateTime: '2026-09-28T10:30:00' };
 const mondaySlot: AppointmentAvailabilitySlot = { startDateTime: '2026-10-05T09:00:00', endDateTime: '2026-10-05T09:30:00' };
@@ -258,6 +260,7 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(request.request.body).toEqual({ contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', startDateTime: slot.startDateTime, endDateTime: slot.endDateTime, reason: 'Suivi' });
     request.flush(appointment, { status: 201, statusText: 'Created' });
     expect(component.confirmation()).toEqual(appointment);
+    httpMock.expectNone('/api/demo/send-confirmation');
   });
 
   it('displays the confirmed appointment returned by POST without a pending state', () => {
@@ -350,14 +353,71 @@ describe('AppointmentNew reactive booking flow', () => {
     expect(fixture.nativeElement.textContent).not.toContain('En attente');
   });
 
+  it('sends one demo email after immediately confirming and persisting the local booking', async () => {
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    TestBed.inject(Auth).startDemo('USER');
+    const api = TestBed.inject(AppointmentsApi);
+    const current = (await firstValueFrom(api.findUpcoming())).content[0];
+    await firstValueFrom(api.cancel(current.id));
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.patchValue({ contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', reason: 'Entretien' });
+    component.form.controls.date.setValue('2026-10-05');
+    component.selectSlot(component.slots()[0]);
+    fixture.detectChanges();
+    component.submit();
+    expect(component.confirmation()?.status).toBe('CONFIRMED');
+    expect(component.confirmation()?.publicReference).toMatch(/^DEMO-RDV-/);
+    expect(component.demoEmailState()).toBe('SENDING');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain("Envoi de l'email de confirmation...");
+    const request = httpMock.expectOne('/api/demo/send-confirmation');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body.status).toBe('CONFIRMED');
+    expect(request.request.body.contactEmail).toBe('alice@example.com');
+    request.flush({ sent: true });
+    fixture.detectChanges();
+    expect(component.demoEmailState()).toBe('SENT');
+    expect(fixture.nativeElement.textContent).toContain("Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.");
+    httpMock.expectNone('/api/demo/send-confirmation');
+    httpMock.expectNone(API_ENDPOINTS.appointments);
+  });
+
+  it.each([
+    ['FAILED', { sent: false }, true],
+    ['DISABLED', { sent: false, reason: 'MAIL_DISABLED' }, false],
+  ] as const)('renders the %s email state without losing the local confirmation', async (state, body, asError) => {
+    vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    TestBed.inject(Auth).startDemo('USER');
+    const api = TestBed.inject(AppointmentsApi);
+    const current = (await firstValueFrom(api.findUpcoming())).content[0];
+    await firstValueFrom(api.cancel(current.id));
+    const fixture = TestBed.createComponent(AppointmentNew);
+    const component = fixture.componentInstance as any;
+    component.form.patchValue({ contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.com', reason: 'Entretien' });
+    component.form.controls.date.setValue('2026-10-05');
+    component.selectSlot(component.slots()[0]);
+    component.submit();
+    const request = httpMock.expectOne('/api/demo/send-confirmation');
+    if (asError) request.flush(body, { status: 502, statusText: 'Bad Gateway' });
+    else request.flush(body);
+    fixture.detectChanges();
+    expect(component.confirmation()?.status).toBe('CONFIRMED');
+    expect(component.demoEmailState()).toBe(state);
+    if (state === 'FAILED') expect(fixture.nativeElement.textContent).toContain("Votre rendez-vous est confirmé, mais l'email de confirmation n'a pas pu être envoyé.");
+    else expect(fixture.nativeElement.textContent).toContain("Mode démo : l'envoi d'email est actuellement désactivé.");
+  });
+
   it('labels the local confirmation honestly without sending email or requesting a QR', () => {
     vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     TestBed.inject(Auth).startDemo('USER');
     const fixture = TestBed.createComponent(AppointmentNew);
     (fixture.componentInstance as any).confirmation.set({ ...appointment, publicReference: 'DEMO-RDV-000123' });
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain("Mode démo : aucun email réel n'a été envoyé.");
-    expect(fixture.nativeElement.textContent).toContain('Le QR permet de vérifier publiquement le rendez-vous.');
+    (fixture.componentInstance as any).demoEmailState.set('DISABLED');
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain("Mode démo : l'envoi d'email est actuellement désactivé.");
+    expect(fixture.nativeElement.textContent).not.toContain('aucun email réel');
     expect(fixture.nativeElement.textContent).not.toContain("a été envoyé à l'adresse indiquée");
     expect(fixture.nativeElement.querySelector('img')).toBeNull();
     httpMock.expectNone(() => true);
