@@ -19,7 +19,7 @@ interface SendConfirmationPayload extends DemoVerificationData {
   contactEmail: string;
 }
 
-export default function handler(request: Request): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
   return handleSendConfirmation(request);
 }
 

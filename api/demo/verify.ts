@@ -3,7 +3,7 @@ import { getDemoTokenSecret } from '../_lib/mail';
 
 const INVALID_MESSAGE = 'Cette réservation de démonstration est introuvable ou le lien n’est plus valide.';
 
-export default function handler(request: Request): Response {
+export function GET(request: Request): Response {
   return handleVerifyDemoAppointment(request);
 }
 
