@@ -86,7 +86,7 @@ describe('Local demo through the real application routes', () => {
     expect(emailRequest.request.headers.has('Authorization')).toBe(false);
     emailRequest.flush({ sent: true });
     harness.detectChanges();
-    expect(content()).toContain('Un email de confirmation contenant votre QR code a été envoyé');
+    expect(content()).toContain('Un email de confirmation vous a été envoyé.');
 
     await harness.navigateByUrl('/appointments');
     expect(content()).toContain('Réservation depuis le portfolio');

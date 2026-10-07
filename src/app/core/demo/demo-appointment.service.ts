@@ -236,7 +236,7 @@ export class DemoAppointmentService {
       const notification: AppNotification = {
         id: Math.max(0, ...state.notifications.map((item) => item.id)) + 1,
         appointmentId: appointment.id, recipientId, type: action, title,
-        message: 'Action simulée en mode démo : aucun email réel n’a été envoyé.', createdAt: occurredAt, readAt: null,
+        message: 'Action simulée en mode démo.', createdAt: occurredAt, readAt: null,
         publicReference: appointment.publicReference, contactFirstName: appointment.contactFirstName,
         contactLastName: appointment.contactLastName, contactEmail: appointment.contactEmail,
         appointmentStartDateTime: appointment.startDateTime, reason: appointment.reason,

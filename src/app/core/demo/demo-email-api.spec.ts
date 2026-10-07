@@ -1,35 +1,34 @@
 // @vitest-environment node
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import handler, { handleDemoConfirmation } from '../../../../api/demo/send-confirmation';
 
-const sendMail = vi.hoisted(() => vi.fn());
-
-import { createDemoVerificationToken, verifyDemoVerificationToken } from '../../../../api/_lib/demo-token';
-import { sendDemoConfirmationEmail } from '../../../../api/_lib/mail';
-import { handleSendConfirmation, isSendPayload } from '../../../../api/demo/send-confirmation';
-import { handleVerifyDemoAppointment } from '../../../../api/demo/verify';
-
-const secret = 'unit-test-secret-that-is-at-least-32-bytes-long';
 const appointment = {
-  contactFirstName: 'Alice', contactLastName: 'Martin', contactEmail: 'alice@example.test',
-  publicReference: 'DEMO-RDV-123456', startDateTime: '2030-01-08T09:00:00',
-  endDateTime: '2030-01-08T09:30:00', reason: 'Entretien', status: 'CONFIRMED' as const,
+  contactFirstName: 'Alice',
+  contactLastName: 'Martin',
+  contactEmail: 'alice@example.test',
+  publicReference: 'DEMO-RDV-123456',
+  startDateTime: '2030-01-08T09:00:00',
+  endDateTime: '2030-01-08T09:30:00',
+  reason: 'Entretien',
+  status: 'CONFIRMED',
 };
-const fakeQr = async () => Buffer.alloc(256, 1);
-const dependencies = { qrToBuffer: fakeQr, sendEmail: sendMail };
 
-describe('Vercel demo email and verification functions', () => {
+describe('Vercel demo confirmation email function', () => {
   const priorEnv = { ...process.env };
-  let requestNumber = 0;
+  const sendMail = vi.fn();
+  const createTransport = vi.fn(() => ({ sendMail }));
 
   beforeEach(() => {
-    sendMail.mockReset();
-    sendMail.mockResolvedValue(undefined);
-    requestNumber++;
+    sendMail.mockReset().mockResolvedValue(undefined);
+    createTransport.mockClear();
     Object.assign(process.env, {
-      DEMO_MAIL_ENABLED: 'true', DEMO_MAIL_FROM: 'sender@example.test',
-      DEMO_SMTP_HOST: 'smtp.example.test', DEMO_SMTP_PORT: '587',
-      DEMO_SMTP_USERNAME: 'sender@example.test', DEMO_SMTP_PASSWORD: 'test-only-password',
-      DEMO_TOKEN_SECRET: secret, APP_PUBLIC_URL: 'https://demo.example.test/',
+      DEMO_MAIL_ENABLED: 'true',
+      DEMO_MAIL_FROM: 'sender@example.test',
+      DEMO_SMTP_HOST: 'smtp.example.test',
+      DEMO_SMTP_PORT: '587',
+      DEMO_SMTP_USERNAME: 'sender@example.test',
+      DEMO_SMTP_PASSWORD: 'test-only-password',
     });
   });
 
@@ -38,107 +37,111 @@ describe('Vercel demo email and verification functions', () => {
     Object.assign(process.env, priorEnv);
   });
 
-  function post(body: unknown, method = 'POST'): Request {
-    return new Request('https://demo.example.test/api/demo/send-confirmation', {
-      method, headers: { 'content-type': 'application/json', 'x-vercel-forwarded-for': `test-${requestNumber}` },
-      body: method === 'POST' ? JSON.stringify(body) : undefined,
-    });
+  function request(method: string, body: unknown = appointment): VercelRequest {
+    return { method, body } as VercelRequest;
   }
 
-  it('creates a stateless HMAC token and rejects altered or expired tokens', () => {
-    const { contactEmail: _private, ...safeData } = appointment;
-    const token = createDemoVerificationToken(safeData, secret, 100);
-    expect(verifyDemoVerificationToken(token, secret, 101)).toEqual(safeData);
-    expect(verifyDemoVerificationToken(`${token.slice(0, -1)}x`, secret, 101)).toBeNull();
-    const [payload, signature] = token.split('.');
-    const changedPayload = Buffer.from(JSON.stringify({ ...safeData, reason: 'Changed', iat: 100, exp: 100 + 30 * 86400 })).toString('base64url');
-    expect(verifyDemoVerificationToken(`${changedPayload}.${signature}`, secret, 101)).toBeNull();
-    expect(verifyDemoVerificationToken(token, secret, 100 + 30 * 86400)).toBeNull();
-    expect(payload).toBeTruthy();
-  });
+  function response() {
+    let statusCode = 200;
+    let body: unknown;
+    const res = {
+      status: vi.fn((status: number) => {
+        statusCode = status;
+        return res;
+      }),
+      json: vi.fn((value: unknown) => {
+        body = value;
+        return res;
+      }),
+    } as unknown as VercelResponse;
+    return { res, get statusCode() { return statusCode; }, get body() { return body; } };
+  }
 
-  it('sends one confirmation and generates an inline QR for only the submitted address', async () => {
-    expect(isSendPayload(appointment)).toBe(true);
-    const response = await handleSendConfirmation(post(appointment), dependencies);
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ sent: true });
-    expect(sendMail).toHaveBeenCalledOnce();
-    const args = sendMail.mock.calls[0] as unknown as [unknown, { contactEmail: string }, string, Buffer];
-    expect(args[1].contactEmail).toBe('alice@example.test');
-    expect(args[2]).toMatch(/^https:\/\/demo\.example\.test\/verify-demo\?token=/);
-    expect(args[3]).toBeInstanceOf(Buffer);
-    expect(args[3].length).toBeGreaterThan(100);
-  });
+  it('accepts a valid POST and sends a plain confirmation to the submitted contact', async () => {
+    const result = response();
+    await handleDemoConfirmation(request('POST'), result.res, createTransport);
 
-  it('builds a text and escaped HTML email addressed to the entered contact with an inline QR', async () => {
-    const sendMessage = vi.fn().mockResolvedValue({});
-    const createTransport = vi.fn(() => ({ sendMail: sendMessage })) as never;
-    const { contactEmail: _email, ...safeData } = appointment;
-    await sendDemoConfirmationEmail({
-      from: 'sender@example.test', host: 'smtp.example.test', port: 587,
-      username: 'sender@example.test', password: 'test-only-password',
-    }, { ...safeData, contactFirstName: '<Alice>', reason: '<script>alert(1)</script>', contactEmail: 'alice@example.test' },
-    'https://demo.example.test/verify-demo?token=signed', Buffer.alloc(32), createTransport);
-
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toEqual({ sent: true });
     expect(createTransport).toHaveBeenCalledWith({
       host: 'smtp.example.test', port: 587, secure: false,
       auth: { user: 'sender@example.test', pass: 'test-only-password' },
     });
-    const message = sendMessage.mock.calls[0][0];
-    expect(message.to).toBe('alice@example.test');
-    expect(message.from).toBe('sender@example.test');
-    expect(message.subject).toBe('Votre rendez-vous démo est confirmé');
+    expect(sendMail).toHaveBeenCalledOnce();
+    const message = sendMail.mock.calls[0][0];
+    expect(message).toMatchObject({
+      from: 'sender@example.test', to: 'alice@example.test',
+      subject: 'Votre rendez-vous est confirmé',
+    });
     expect(message.text).toContain('DEMO-RDV-123456');
-    expect(message.text).toContain('https://demo.example.test/verify-demo?token=signed');
-    expect(message.html).toContain('&lt;Alice&gt;');
-    expect(message.html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
-    expect(message.html).not.toContain('<script>');
-    expect(message.html).toContain('cid:demoQrCode');
-    expect(message.attachments[0]).toMatchObject({ filename: 'reservation-qr.png', cid: 'demoQrCode', contentType: 'image/png' });
+    expect(message.text).toContain('Créneau : 2030-01-08T09:00:00 - 2030-01-08T09:30:00');
+    expect(message.text).toContain('Motif : Entretien');
+    expect(message.html).toContain('Alice Martin');
+    expect(message).not.toHaveProperty('attachments');
+  });
+
+  it('rejects any method other than POST', async () => {
+    const result = response();
+    await handleDemoConfirmation(request('GET'), result.res, createTransport);
+    expect(result.statusCode).toBe(405);
+    expect(result.body).toEqual({ sent: false, message: 'Méthode non autorisée.' });
+    expect(createTransport).not.toHaveBeenCalled();
   });
 
   it.each([
-    ['invalid email', { ...appointment, contactEmail: 'bad' }],
-    ['unconfirmed status', { ...appointment, status: 'PENDING' }],
+    ['missing required fields', {}],
+    ['invalid email', { ...appointment, contactEmail: 'not-an-email' }],
+    ['non-confirmed status', { ...appointment, status: 'PENDING' }],
     ['invalid date', { ...appointment, startDateTime: 'not-a-date' }],
-    ['reversed date range', { ...appointment, endDateTime: '2030-01-08T08:30:00' }],
-    ['unexpected private field', { ...appointment, userId: 10 }],
-  ])('rejects %s with no email', async (_label, body) => {
-    const response = await handleSendConfirmation(post(body));
-    expect(response.status).toBe(400);
-    expect(sendMail).not.toHaveBeenCalled();
+    ['reversed dates', { ...appointment, endDateTime: '2030-01-08T08:30:00' }],
+  ])('returns a controlled validation error for %s', async (_case, body) => {
+    const result = response();
+    await handleDemoConfirmation(request('POST', body), result.res, createTransport);
+    expect(result.statusCode).toBe(400);
+    expect(result.body).toMatchObject({ sent: false });
+    expect(createTransport).not.toHaveBeenCalled();
   });
 
-  it('supports disabled mail without SMTP and refuses non-POST methods', async () => {
+  it('returns MAIL_DISABLED without creating an SMTP transport', async () => {
     process.env['DEMO_MAIL_ENABLED'] = 'false';
-    const disabled = await handleSendConfirmation(post(appointment));
-    expect(disabled.status).toBe(200);
-    expect(await disabled.json()).toEqual({ sent: false, reason: 'MAIL_DISABLED' });
-    expect(sendMail).not.toHaveBeenCalled();
-    const method = await handleSendConfirmation(post(null, 'GET'));
-    expect(method.status).toBe(405);
+    const result = response();
+    await handleDemoConfirmation(request('POST'), result.res, createTransport);
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toEqual({ sent: false, reason: 'MAIL_DISABLED' });
+    expect(createTransport).not.toHaveBeenCalled();
   });
 
-  it('returns a controlled SMTP failure and verifies only public token fields', async () => {
-    sendMail.mockRejectedValueOnce(Object.assign(new Error('private transport failure'), { code: 'E_TEST' }));
-    const failed = await handleSendConfirmation(post(appointment), dependencies);
-    expect(failed.status).toBe(502);
-    expect(await failed.json()).toEqual({ sent: false, message: "Votre rendez-vous est confirmé, mais l'email de confirmation n'a pas pu être envoyé." });
+  it('exports a classic VercelRequest/VercelResponse handler', async () => {
+    process.env['DEMO_MAIL_ENABLED'] = 'false';
+    const result = response();
+    await handler(request('POST'), result.res);
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toEqual({ sent: false, reason: 'MAIL_DISABLED' });
+  });
 
-    const { contactEmail: _private, ...safeData } = appointment;
-    const token = createDemoVerificationToken(safeData, secret);
-    const verified = await handleVerifyDemoAppointment(new Request(`https://demo.example.test/api/demo/verify?token=${encodeURIComponent(token)}`));
-    expect(verified.status).toBe(200);
-    const value = await verified.json();
-    expect(value).toEqual(safeData);
-    expect(value).not.toHaveProperty('contactEmail');
-    expect(value).not.toHaveProperty('token');
-    expect(value).not.toHaveProperty('userId');
-    const invalid = await handleVerifyDemoAppointment(new Request('https://demo.example.test/api/demo/verify?token=bad'));
-    expect(invalid.status).toBe(404);
-    const expiredToken = createDemoVerificationToken(safeData, secret, Math.floor(Date.now() / 1000) - 30 * 86400 - 1);
-    const expired = await handleVerifyDemoAppointment(new Request(`https://demo.example.test/api/demo/verify?token=${encodeURIComponent(expiredToken)}`));
-    expect(expired.status).toBe(404);
-    expect((await handleVerifyDemoAppointment(new Request('https://demo.example.test/api/demo/verify', { method: 'POST' }))).status).toBe(405);
+  it('returns a controlled SMTP error and logs only the error name and code', async () => {
+    const error = Object.assign(new Error('private transport detail'), { code: 'E_TEST' });
+    sendMail.mockRejectedValueOnce(error);
+    const logger = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const result = response();
+
+    await handleDemoConfirmation(request('POST'), result.res, createTransport);
+
+    expect(result.statusCode).toBe(502);
+    expect(result.body).toEqual({
+      sent: false,
+      message: "Le rendez-vous est confirmé mais l'email n'a pas pu être envoyé.",
+    });
+    expect(logger).toHaveBeenCalledWith('Demo confirmation email failed', { name: 'Error', code: 'E_TEST' });
+    expect(JSON.stringify(logger.mock.calls)).not.toContain('private transport detail');
+    logger.mockRestore();
+  });
+
+  it('returns a controlled configuration error when SMTP settings are missing', async () => {
+    delete process.env['DEMO_SMTP_PASSWORD'];
+    const result = response();
+    await handleDemoConfirmation(request('POST'), result.res, createTransport);
+    expect(result.statusCode).toBe(503);
+    expect(createTransport).not.toHaveBeenCalled();
   });
 });

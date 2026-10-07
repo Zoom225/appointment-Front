@@ -124,7 +124,7 @@ export function createDemoState(now = new Date()): DemoState {
     id, appointmentId: appointment.id, recipientId,
     type: appointment.status === 'CANCELLED' ? 'CANCELLED' : 'CREATED',
     title: appointment.status === 'CANCELLED' ? 'Rendez-vous annulé' : 'Nouveau rendez-vous',
-    message: 'Notification de démonstration locale. Aucun email réel envoyé.',
+    message: 'Notification de démonstration locale.',
     createdAt: now.toISOString(), readAt: null,
     publicReference: appointment.publicReference, contactFirstName: appointment.contactFirstName,
     contactLastName: appointment.contactLastName, contactEmail: appointment.contactEmail,

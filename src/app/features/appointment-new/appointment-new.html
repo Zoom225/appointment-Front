@@ -17,8 +17,8 @@
     @if (auth.isDemo()) {
       @switch (demoEmailState()) {
         @case ('SENDING') { <p class="email-notice" aria-live="polite">Envoi de l'email de confirmation...</p> }
-        @case ('SENT') { <p class="email-notice" aria-live="polite">Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.</p> }
-        @case ('FAILED') { <p class="email-notice" aria-live="polite">Votre rendez-vous est confirmé, mais l'email de confirmation n'a pas pu être envoyé.</p> }
+        @case ('SENT') { <p class="email-notice" aria-live="polite">Un email de confirmation vous a été envoyé.</p> }
+        @case ('FAILED') { <p class="email-notice" aria-live="polite">Votre rendez-vous est confirmé, mais l'email n'a pas pu être envoyé.</p> }
         @case ('DISABLED') { <p class="email-notice" aria-live="polite">Mode démo : l'envoi d'email est actuellement désactivé.</p> }
       }
     } @else {

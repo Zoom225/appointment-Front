@@ -6,7 +6,7 @@ import { describe, expect, it, afterEach, beforeEach } from 'vitest';
 import { demoNetworkInterceptor } from './demo-network.interceptor';
 import { DemoModeService } from './demo-mode.service';
 
-describe('demoNetworkInterceptor with server-backed demo functions', () => {
+describe('demoNetworkInterceptor with the demo email function', () => {
   let http: HttpTestingController;
   let client: HttpClient;
 
@@ -25,15 +25,11 @@ describe('demoNetworkInterceptor with server-backed demo functions', () => {
     sessionStorage.clear();
   });
 
-  it('allows only the demo email and public verification functions without adding a Bearer token', () => {
+  it('allows the demo email function without adding a Bearer token', () => {
     client.post('/api/demo/send-confirmation', {}).subscribe();
-    client.get('/api/demo/verify?token=signed').subscribe();
     const send = http.expectOne('/api/demo/send-confirmation');
-    const verify = http.expectOne('/api/demo/verify?token=signed');
     expect(send.request.headers.has('Authorization')).toBe(false);
-    expect(verify.request.headers.has('Authorization')).toBe(false);
     send.flush({ sent: true });
-    verify.flush({});
   });
 
   it('blocks all other backend paths while in demo mode', async () => {

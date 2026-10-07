@@ -378,7 +378,7 @@ describe('AppointmentNew reactive booking flow', () => {
     request.flush({ sent: true });
     fixture.detectChanges();
     expect(component.demoEmailState()).toBe('SENT');
-    expect(fixture.nativeElement.textContent).toContain("Un email de confirmation contenant votre QR code a été envoyé à l'adresse indiquée.");
+    expect(fixture.nativeElement.textContent).toContain('Un email de confirmation vous a été envoyé.');
     httpMock.expectNone('/api/demo/send-confirmation');
     httpMock.expectNone(API_ENDPOINTS.appointments);
   });
@@ -404,7 +404,7 @@ describe('AppointmentNew reactive booking flow', () => {
     fixture.detectChanges();
     expect(component.confirmation()?.status).toBe('CONFIRMED');
     expect(component.demoEmailState()).toBe(state);
-    if (state === 'FAILED') expect(fixture.nativeElement.textContent).toContain("Votre rendez-vous est confirmé, mais l'email de confirmation n'a pas pu être envoyé.");
+    if (state === 'FAILED') expect(fixture.nativeElement.textContent).toContain("Votre rendez-vous est confirmé, mais l'email n'a pas pu être envoyé.");
     else expect(fixture.nativeElement.textContent).toContain("Mode démo : l'envoi d'email est actuellement désactivé.");
   });
 

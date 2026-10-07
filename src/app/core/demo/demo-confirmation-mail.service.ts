@@ -1,7 +1,7 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Appointment, PublicAppointmentVerification } from '../models/appointment.models';
+import { Appointment } from '../models/appointment.models';
 
 export type DemoEmailState = 'IDLE' | 'SENDING' | 'SENT' | 'FAILED' | 'DISABLED';
 
@@ -25,10 +25,5 @@ export class DemoConfirmationMailService {
       reason: appointment.reason,
       status: appointment.status,
     });
-  }
-
-  verify(token: string): Observable<PublicAppointmentVerification> {
-    const params = new HttpParams().set('token', token);
-    return this.http.get<PublicAppointmentVerification>('/api/demo/verify', { params });
   }
 }

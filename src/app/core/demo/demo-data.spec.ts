@@ -234,7 +234,7 @@ describe('Local demo data', () => {
     expect((await firstValueFrom(appointments.findHistory())).totalElements).toBe(3);
     const notifications = await firstValueFrom(data.findNotifications({ type: 'CANCELLED' }));
     expect(notifications.totalElements).toBe(1);
-    expect(notifications.content[0].message).toContain('aucun email réel');
+    expect(notifications.content[0].message).toBe('Action simulée en mode démo.');
   });
 
   it('protects admin endpoints and requires an explicitly active demo session', async () => {
