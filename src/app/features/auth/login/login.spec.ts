@@ -5,6 +5,7 @@ import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angul
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { API_ENDPOINTS } from '../../../core/api/api-endpoints';
 import { Login } from './login';
+import { Auth } from '../../../core/services/auth';
 
 describe('Login', () => {
   let httpMock: HttpTestingController;
@@ -13,6 +14,7 @@ describe('Login', () => {
 
   beforeEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
     queryParams = {};
     vi.useFakeTimers();
     TestBed.configureTestingModule({
@@ -32,6 +34,7 @@ describe('Login', () => {
   afterEach(() => {
     httpMock.verify();
     vi.useRealTimers();
+    sessionStorage.clear();
   });
 
   it('shows the expected credentials message on a login 401 without navigating', () => {
@@ -78,39 +81,40 @@ describe('Login', () => {
     fixture.destroy();
   });
 
-  it('shows and fills the public USER demo credentials without auto-login', () => {
+  it('offers a local USER demo for the legacy demo link with an empty real login form', () => {
     queryParams = { mode: 'demo' };
     const fixture = TestBed.createComponent(Login);
     const component = fixture.componentInstance as any;
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('demo.user@appointment.local');
-    expect(fixture.nativeElement.textContent).toContain('DemoUser2026!');
-    expect(component.form.getRawValue()).toEqual({ email: 'demo.user@appointment.local', password: 'DemoUser2026!' });
+    expect(fixture.nativeElement.textContent).not.toContain('DemoUser2026!');
+    expect(component.form.getRawValue()).toEqual({ email: '', password: '' });
     httpMock.expectNone(API_ENDPOINTS.auth.login);
-    component.fillDemoCredentials();
-    expect(component.form.getRawValue()).toEqual({ email: 'demo.user@appointment.local', password: 'DemoUser2026!' });
     expect(router.navigateByUrl).not.toHaveBeenCalled();
+    const button = Array.from(fixture.nativeElement.querySelectorAll('button')).find((item) => (item as HTMLButtonElement).textContent?.includes('Essayer la démo utilisateur')) as HTMLButtonElement;
+    button.click();
+    expect(TestBed.inject(Auth).isDemo()).toBe(true);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/dashboard');
+    httpMock.expectNone(() => true);
     const links = Array.from(fixture.nativeElement.querySelectorAll('a')) as HTMLAnchorElement[];
-    expect(links.some((link) => link.textContent?.includes("Passer à l'espace Administration") && link.href.includes('mode=admin'))).toBe(true);
     expect(links.some((link) => link.textContent?.includes("Retour à l'accueil") && link.pathname === '/')).toBe(true);
     fixture.destroy();
   });
 
-  it('shows and fills the public ADMIN demo credentials without auto-login', () => {
+  it('offers a local ADMIN demo for the legacy admin link without credentials or HTTP', () => {
     queryParams = { mode: 'admin' };
     const fixture = TestBed.createComponent(Login);
     const component = fixture.componentInstance as any;
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('demo.admin@appointment.local');
-    expect(fixture.nativeElement.textContent).toContain('DemoAdmin2026!');
-    expect(component.form.getRawValue()).toEqual({ email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' });
+    expect(fixture.nativeElement.textContent).not.toContain('DemoAdmin2026!');
+    expect(component.form.getRawValue()).toEqual({ email: '', password: '' });
     httpMock.expectNone(API_ENDPOINTS.auth.login);
-    component.fillDemoCredentials();
-    expect(component.form.getRawValue()).toEqual({ email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' });
-    const links = Array.from(fixture.nativeElement.querySelectorAll('a')) as HTMLAnchorElement[];
-    expect(links.some((link) => link.textContent?.includes("Passer à l'espace Utilisateur") && link.href.includes('mode=demo'))).toBe(true);
+    const button = Array.from(fixture.nativeElement.querySelectorAll('button')).find((item) => (item as HTMLButtonElement).textContent?.includes('Essayer la démo administrateur')) as HTMLButtonElement;
+    button.click();
+    expect(TestBed.inject(Auth).isDemo()).toBe(true);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/admin');
+    httpMock.expectNone(() => true);
     fixture.destroy();
   });
 });

@@ -16,6 +16,7 @@ export class Dashboard implements OnInit {
   private readonly notificationsApi = inject(NotificationsApi);
   protected readonly auth = inject(Auth);
   protected readonly upcoming = signal<Appointment[]>([]);
+  protected readonly history = signal<Appointment[]>([]);
   protected readonly completedCount = signal(0);
   protected readonly unreadCount = signal(0);
   protected readonly isLoading = signal(true);
@@ -33,6 +34,7 @@ export class Dashboard implements OnInit {
     }).pipe(finalize(() => this.isLoading.set(false))).subscribe({
       next: ({ upcoming, history, notifications }) => {
         this.upcoming.set(upcoming.content);
+        this.history.set(history.content.slice(0, 3));
         this.completedCount.set(history.content.filter((item) => item.status === 'COMPLETED').length);
         this.unreadCount.set(notifications.totalElements);
       },

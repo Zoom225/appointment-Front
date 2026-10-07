@@ -26,4 +26,10 @@
       <p class="empty">Aucun rendez-vous à venir</p>
     }
   </section>
+  <section class="history-card" aria-labelledby="recent-history-title">
+    <div class="history-heading"><h2 id="recent-history-title">Historique récent</h2><a class="secondary-action" routerLink="/appointments/history">Voir tout l'historique</a></div>
+    @for (appointment of history(); track appointment.id) {
+      <article><div><strong>{{ appointment.reason }}</strong><p>{{ formatDate(appointment.startDateTime) }} à {{ formatTime(appointment.startDateTime) }}</p></div><span [class]="statusClass(appointment)">{{ statusLabel(appointment) }}</span></article>
+    } @empty { <p class="empty">Aucun rendez-vous dans votre historique.</p> }
+  </section>
 }

@@ -34,26 +34,12 @@
         <p>{{ pageDescription }}</p>
       </div>
 
-      @if (demoCredentials; as credentials) {
-        <section class="demo-credentials" [class.admin-credentials]="requestedMode === 'admin'" aria-labelledby="demo-credentials-title">
-          <div class="demo-heading">
-            <span class="demo-badge">Compte public</span>
-            <h3 id="demo-credentials-title">
-              Compte de démonstration {{ requestedMode === 'admin' ? 'Administrateur' : 'Utilisateur' }}
-            </h3>
-          </div>
-          <dl>
-            <div><dt>Email</dt><dd>{{ credentials.email }}</dd></div>
-            <div><dt>Mot de passe</dt><dd>{{ credentials.password }}</dd></div>
-          </dl>
-          @if (requestedMode === 'admin') {
-            <p>Ce compte de démonstration accède uniquement aux données de démonstration.</p>
-          }
-          <button type="button" class="fill-button" (click)="fillDemoCredentials()" [disabled]="isSubmitting()">
-            Remplir les identifiants
-          </button>
-        </section>
-      }
+      <section class="demo-credentials" aria-labelledby="demo-access-title">
+        <div class="demo-heading"><span class="demo-badge">Mode démo</span><h3 id="demo-access-title">Explorer sans compte</h3></div>
+        <p>Accès immédiat avec des données fictives, sans email réel.</p>
+        <button type="button" class="fill-button" (click)="auth.startDemo('USER')" [disabled]="isSubmitting()">Essayer la démo utilisateur</button>
+        <button type="button" class="fill-button" (click)="auth.startDemo('ADMIN')" [disabled]="isSubmitting()">Essayer la démo administrateur</button>
+      </section>
 
       <label for="email">
         Email
@@ -89,11 +75,6 @@
       </button>
 
       <nav class="login-navigation" aria-label="Navigation entre les espaces de connexion">
-        @if (requestedMode === 'admin') {
-          <a routerLink="/login" [queryParams]="{ mode: 'demo' }">Passer à l'espace Utilisateur</a>
-        } @else {
-          <a routerLink="/login" [queryParams]="{ mode: 'admin' }">Passer à l'espace Administration</a>
-        }
         <a routerLink="/">Retour à l'accueil</a>
       </nav>
     </form>

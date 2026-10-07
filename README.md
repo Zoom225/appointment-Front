@@ -33,6 +33,19 @@ Swagger :
 
 > Le backend est hébergé sur Render. Sur une instance gratuite, le premier appel peut prendre quelques secondes lorsque le serveur sort de veille.
 
+## Mode démo Angular autonome
+
+Depuis la landing, **Essayer la démo utilisateur** et **Essayer la démo administrateur** ouvrent immédiatement les espaces existants, sans connexion au backend. **Connexion réelle** conserve l'authentification Spring Boot/JWT et les API habituelles.
+
+- `core/demo/demo-mode.service.ts` distingue `REAL`, `USER_DEMO` et `ADMIN_DEMO`. La session locale est explicitement de type `DEMO`, sans token JWT.
+- Les services existants (`AppointmentsApi`, `AdminApi`, `NotificationsApi`, `UsersApi`, `ProfileApi`) délèguent aux services locaux du dossier `core/demo` lorsque la démo est active. Les composants et routes restent partagés.
+- Les données et la session démo utilisent uniquement des clés dédiées dans `sessionStorage`. Un rechargement les conserve ; **Réinitialiser la démo** régénère les exemples relativement à la date du jour. La déconnexion supprime ces clés sans effacer une session réelle préexistante.
+- Les créneaux locaux sont proposés du lundi au vendredi, de 09:00 à 18:00, par périodes de 30 minutes. Une réservation est confirmée immédiatement avec une référence `DEMO-RDV-…`. Les règles de rendez-vous actif unique, de conflit et d'annulation sont simulées localement.
+- Le compte utilisateur commence avec un rendez-vous confirmé futur : annulez-le pour essayer une nouvelle réservation. L'administration permet d'annuler ou terminer des rendez-vous ; notifications, historique et statistiques reposent sur les mêmes données locales.
+- Aucun email réel ni QR de vérification n'est émis en démo. Un intercepteur bloque les appels API accidentels tant que la session démo est active.
+
+Le mode réel et `environment.prod.ts` conservent leur configuration. La démo n'est pas un mécanisme d'authentification du backend et ne donne aucun accès aux données de production.
+
 ---
 
 ## Fonctionnalités

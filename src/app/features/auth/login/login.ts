@@ -10,11 +10,6 @@ import { SessionFeedback } from '../../../core/services/session-feedback';
 type LoginState = 'idle' | 'loading' | 'slow' | 'success' | 'error';
 type DemoMode = 'demo' | 'admin' | null;
 
-const DEMO_CREDENTIALS = {
-  demo: { email: 'demo.user@appointment.local', password: 'DemoUser2026!' },
-  admin: { email: 'demo.admin@appointment.local', password: 'DemoAdmin2026!' },
-} as const;
-
 const SLOW_LOGIN_DELAY_MS = 3000;
 const LOGIN_TIMEOUT_MS = 60000;
 const RENDER_STARTUP_MESSAGE =
@@ -27,25 +22,20 @@ const RENDER_STARTUP_MESSAGE =
   styleUrl: './login.css',
 })
 export class Login {
-  private readonly auth = inject(Auth);
+  protected readonly auth = inject(Auth);
   private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly sessionFeedback = inject(SessionFeedback);
   protected readonly requestedMode: DemoMode = this.readRequestedMode();
-  protected readonly demoCredentials = this.requestedMode ? DEMO_CREDENTIALS[this.requestedMode] : null;
 
   protected readonly pageTitle = this.requestedMode === 'admin'
     ? 'Connexion Administration'
-    : this.requestedMode === 'demo'
-      ? "Connexion à l'espace Démo"
-      : 'Connexion';
+    : 'Connexion réelle';
   protected readonly pageDescription = this.requestedMode === 'admin'
     ? "Accès réservé à l'administration de la plateforme."
-    : this.requestedMode === 'demo'
-      ? 'Connectez-vous pour tester la prise de rendez-vous.'
-      : 'Connectez-vous pour accéder à votre espace sécurisé.';
+    : 'Connectez-vous avec votre compte réel pour accéder à votre espace sécurisé.';
 
   protected readonly loginState = signal<LoginState>('idle');
   protected readonly isSubmitting = signal(false);
@@ -56,17 +46,9 @@ export class Login {
   );
 
   protected readonly form = this.formBuilder.nonNullable.group({
-    email: [this.demoCredentials?.email ?? '', [Validators.required, Validators.email]],
-    password: [this.demoCredentials?.password ?? '', [Validators.required, Validators.minLength(8)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(8)]],
   });
-
-  protected fillDemoCredentials(): void {
-    if (!this.demoCredentials || this.isSubmitting()) {
-      return;
-    }
-
-    this.form.setValue(this.demoCredentials);
-  }
 
   protected submit(): void {
     if (this.isSubmitting() || this.loginState() === 'success') {

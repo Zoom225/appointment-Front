@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { forkJoin, finalize } from 'rxjs';
 import { allowedAdminTransitions, appointmentStatusClass, appointmentStatusLabel } from '../../core/appointments/appointment-status';
 import { getApiErrorDetails } from '../../core/errors/api-error';
+import { formatLocalDateInput } from '../../core/date-time/local-date-time';
 import { AdminStatistics } from '../../core/models/admin.models';
 import { Appointment, AppointmentStatus } from '../../core/models/appointment.models';
 import { AppNotification } from '../../core/models/notification.models';
@@ -18,6 +19,7 @@ export class Admin implements OnInit {
   private readonly usersApi = inject(UsersApi);
   protected readonly statistics = signal<AdminStatistics | null>(null);
   protected readonly appointments = signal<Appointment[]>([]);
+  protected readonly upcomingAppointments = signal<Appointment[]>([]);
   protected readonly users = signal<Map<number, AppUser>>(new Map());
   protected readonly notifications = signal<AppNotification[]>([]);
   protected readonly isLoading = signal(true);
@@ -30,12 +32,26 @@ export class Admin implements OnInit {
   }
 
   protected loadDashboard(): void {
-    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const today = formatLocalDateInput(now);
+    const startFrom = `${today}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    forkJoin({ statistics: this.adminApi.getStatistics(), appointments: this.adminApi.getAppointments({ page: 0, size: 50, startFrom: `${today}T00:00:00`, startTo: `${today}T23:59:59` }), users: this.usersApi.findAll({ page: 0, size: 200 }), notifications: this.adminApi.getNotifications(0, 5) })
+    forkJoin({
+      statistics: this.adminApi.getStatistics(),
+      appointments: this.adminApi.getAppointments({ page: 0, size: 50, startFrom: `${today}T00:00:00`, startTo: `${today}T23:59:59` }),
+      upcoming: this.adminApi.getAppointments({ page: 0, size: 50, status: 'CONFIRMED', startFrom }),
+      users: this.usersApi.findAll({ page: 0, size: 200 }),
+      notifications: this.adminApi.getNotifications(0, 5),
+    })
       .pipe(finalize(() => this.isLoading.set(false))).subscribe({
-        next: ({ statistics, appointments, users, notifications }) => { this.statistics.set(statistics); this.appointments.set(appointments.content); this.users.set(new Map(users.content.map((user) => [user.id, user]))); this.notifications.set(notifications.content); },
+        next: ({ statistics, appointments, upcoming, users, notifications }) => {
+          this.statistics.set(statistics);
+          this.appointments.set(appointments.content);
+          this.upcomingAppointments.set([...upcoming.content].sort((left, right) => left.startDateTime.localeCompare(right.startDateTime)).slice(0, 5));
+          this.users.set(new Map(users.content.map((user) => [user.id, user])));
+          this.notifications.set(notifications.content);
+        },
         error: (error: unknown) => this.errorMessage.set(getApiErrorDetails(error).message),
       });
   }

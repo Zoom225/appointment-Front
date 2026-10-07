@@ -8,8 +8,8 @@
         @if (auth.isAuthenticated()) {
           <a class="nav-access" [routerLink]="authenticatedDestination()">{{ authenticatedLabel() }}</a>
         } @else {
-          <a class="nav-link" routerLink="/login" [queryParams]="{ mode: 'demo' }">Démo</a>
-          <a class="nav-access" routerLink="/login" [queryParams]="{ mode: 'admin' }">Administration</a>
+          <a class="nav-link" href="#access-title">Démo</a>
+          <a class="nav-access" routerLink="/login">Connexion réelle</a>
         }
       </div>
     </nav>
@@ -30,21 +30,19 @@
   </section>
 
   <section class="access-section" aria-labelledby="access-title">
-    <div class="section-heading centered"><p class="eyebrow">Choisissez votre espace</p><h2 id="access-title">Une expérience adaptée à chaque rôle</h2><p>La connexion reste sécurisée par le backend et les autorisations associées à votre compte.</p></div>
+    <div class="section-heading centered"><p class="eyebrow">Choisissez votre espace</p><h2 id="access-title">Une expérience adaptée à chaque rôle</h2><p>Explorez instantanément l'application avec des données fictives. La démo reste dans cet onglet et peut être réinitialisée à tout moment.</p></div>
     <div class="access-grid">
       <article class="access-card demo-card">
         <div class="card-top"><span class="space-icon" aria-hidden="true">U</span><span class="role-badge">Utilisateur</span></div>
         <h3>Espace Démo</h3><p>Testez le parcours utilisateur : consultez les disponibilités, prenez un rendez-vous et gérez vos réservations.</p>
         <ul>@for (feature of demoFeatures; track feature) { <li>{{ feature }}</li> }</ul>
-        @if (auth.isAuthenticated()) { <a class="card-action primary" [routerLink]="authenticatedDestination()">{{ authenticatedLabel() }}</a> }
-        @else { <a class="card-action primary" routerLink="/login" [queryParams]="{ mode: 'demo' }">Accéder à la démo</a> }
+        <button type="button" class="card-action primary" (click)="auth.startDemo('USER')">Essayer la démo utilisateur</button>
       </article>
       <article class="access-card admin-card">
         <div class="card-top"><span class="space-icon" aria-hidden="true">A</span><span class="role-badge">Administrateur</span></div>
         <h3>Espace Administration</h3><p>Accédez au tableau de bord de gestion pour suivre les rendez-vous et administrer la plateforme.</p>
         <ul>@for (feature of adminFeatures; track feature) { <li>{{ feature }}</li> }</ul>
-        @if (auth.isAuthenticated()) { <a class="card-action admin-action" [routerLink]="authenticatedDestination()">{{ authenticatedLabel() }}</a> }
-        @else { <a class="card-action admin-action" routerLink="/login" [queryParams]="{ mode: 'admin' }">Connexion administrateur</a> }
+        <button type="button" class="card-action admin-action" (click)="auth.startDemo('ADMIN')">Essayer la démo administrateur</button>
       </article>
     </div>
   </section>
@@ -52,8 +50,8 @@
   <section id="fonctionnement" class="how-section" aria-labelledby="how-title">
     <div class="section-heading"><p class="eyebrow">Parcours utilisateur</p><h2 id="how-title">Comment fonctionne l'application ?</h2></div>
     <ol class="steps">
-      <li><span>01</span><div><h3>Connectez-vous</h3><p>Utilisez votre compte pour accéder à votre espace sécurisé.</p></div></li>
-      <li><span>02</span><div><h3>Choisissez votre créneau</h3><p>Consultez les disponibilités réelles proposées par le backend.</p></div></li>
+      <li><span>01</span><div><h3>Choisissez votre espace</h3><p>Lancez une démo instantanée ou connectez-vous avec votre compte réel.</p></div></li>
+      <li><span>02</span><div><h3>Choisissez votre créneau</h3><p>Consultez les disponibilités et réservez un rendez-vous.</p></div></li>
       <li><span>03</span><div><h3>Gérez votre rendez-vous</h3><p>Suivez, modifiez ou annulez votre réservation selon son statut.</p></div></li>
     </ol>
     <div class="admin-note"><strong>Administration sécurisée</strong><p>L'administration dispose d'un espace sécurisé pour suivre et gérer l'ensemble des rendez-vous.</p></div>
