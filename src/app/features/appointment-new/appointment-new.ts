@@ -10,6 +10,7 @@ import { getApiErrorDetails } from '../../core/errors/api-error';
 import { Appointment, AppointmentAvailabilitySlot } from '../../core/models/appointment.models';
 import { AppointmentsApi } from '../../core/services/appointments-api';
 import { Auth } from '../../core/services/auth';
+import { DemoConfirmationMailService, DemoEmailState } from '../../core/demo/demo-confirmation-mail.service';
 import { PageHeader } from '../../shared/components/page-header/page-header';
 
 export function businessDayValidator(): ValidatorFn {
@@ -61,6 +62,7 @@ export class AppointmentNew {
   protected readonly auth = inject(Auth);
   @ViewChild('dateInput') private dateInput?: ElementRef<HTMLInputElement>;
   private readonly api = inject(AppointmentsApi);
+  private readonly demoMail = inject(DemoConfirmationMailService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly availabilityRefresh = new Subject<string>();
@@ -70,6 +72,7 @@ export class AppointmentNew {
   protected readonly slots = signal<AppointmentAvailabilitySlot[]>([]);
   protected readonly selectedSlot = signal<AppointmentAvailabilitySlot | null>(null);
   protected readonly confirmation = signal<Appointment | null>(null);
+  protected readonly demoEmailState = signal<DemoEmailState>('IDLE');
   protected readonly conflictingAppointment = signal<Appointment | null>(null);
   protected readonly isLoadingSlots = signal(false);
   protected readonly slotsLoaded = signal(false);
@@ -176,7 +179,10 @@ export class AppointmentNew {
       })
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
-        next: (appointment) => this.confirmation.set(appointment),
+        next: (appointment) => {
+          this.confirmation.set(appointment);
+          if (this.auth.isDemo() && appointment.status === 'CONFIRMED') this.sendDemoConfirmationEmail(appointment);
+        },
         error: (error: unknown) => {
           const details = getApiErrorDetails(error);
           if (error instanceof HttpErrorResponse && error.status === 409) {
@@ -255,6 +261,14 @@ export class AppointmentNew {
     this.slots.set([]);
     this.selectedSlot.set(null);
     this.form.patchValue({ startDateTime: '', endDateTime: '' }, { emitEvent: false });
+  }
+
+  private sendDemoConfirmationEmail(appointment: Appointment): void {
+    this.demoEmailState.set('SENDING');
+    this.demoMail.sendConfirmation(appointment).subscribe({
+      next: (result) => this.demoEmailState.set(result.sent ? 'SENT' : result.reason === 'MAIL_DISABLED' ? 'DISABLED' : 'FAILED'),
+      error: () => this.demoEmailState.set('FAILED'),
+    });
   }
 
   private isSlotConflict(message: string): boolean {

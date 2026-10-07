@@ -22,6 +22,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/verify-appointment/verify-appointment').then((m) => m.VerifyAppointment),
   },
   {
+    path: 'verify-demo',
+    loadComponent: () => import('./features/verify-demo-appointment/verify-demo-appointment').then((m) => m.VerifyDemoAppointment),
+  },
+  {
     matcher: privateRouteMatcher,
     component: MainLayout,
     canActivate: [authGuard],

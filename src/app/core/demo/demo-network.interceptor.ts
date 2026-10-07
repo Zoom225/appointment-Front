@@ -7,7 +7,9 @@ import { DemoModeService } from './demo-mode.service';
 /** Fail closed if a future feature accidentally tries to use the API in demo mode. */
 export const demoNetworkInterceptor: HttpInterceptorFn = (request, next) => {
   const demoMode = inject(DemoModeService);
-  const isBackendRequest = request.url.startsWith(API_BASE_URL) || /^\/?api(?:\/|$)/.test(request.url);
+  const isApprovedDemoFunction = request.url === '/api/demo/send-confirmation' || request.url.startsWith('/api/demo/verify?');
+  const isBackendRequest = !isApprovedDemoFunction &&
+    (request.url.startsWith(API_BASE_URL) || /^\/?api(?:\/|$)/.test(request.url));
 
   if (demoMode.isDemo() && isBackendRequest) {
     return throwError(() => new HttpErrorResponse({

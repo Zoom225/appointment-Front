@@ -80,8 +80,13 @@ describe('Local demo through the real application routes', () => {
     await click('Confirmer mon rendez-vous');
     expect(content()).toContain('Votre rendez-vous est confirmé.');
     expect(content()).toContain('DEMO-RDV-');
-    expect(content()).toContain("Mode démo : aucun email réel n'a été envoyé.");
-    expect(content()).not.toContain("votre QR code a été envoyé");
+    expect(content()).toContain("Envoi de l'email de confirmation...");
+    const emailRequest = http.expectOne('/api/demo/send-confirmation');
+    expect(emailRequest.request.method).toBe('POST');
+    expect(emailRequest.request.headers.has('Authorization')).toBe(false);
+    emailRequest.flush({ sent: true });
+    harness.detectChanges();
+    expect(content()).toContain('Un email de confirmation contenant votre QR code a été envoyé');
 
     await harness.navigateByUrl('/appointments');
     expect(content()).toContain('Réservation depuis le portfolio');
