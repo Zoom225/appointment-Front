@@ -1,6 +1,7 @@
 {
   "name": "frontend-rendez-vous",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -25,6 +26,7 @@
     "@angular/forms": "^22.1.0",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
+    "@emailjs/browser": "^5.0.2",
     "@vercel/analytics": "^2.0.1",
     "nodemailer": "^10.0.16",
     "qrcode": "^1.5.4",
