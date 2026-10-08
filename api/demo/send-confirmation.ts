@@ -1,9 +1,9 @@
 import QRCode from 'qrcode';
-import { createDemoVerificationToken, type DemoVerificationData } from '../_lib/demo-token';
+import { createDemoVerificationToken, type DemoVerificationData } from '../_lib/demo-token.js';
 import {
   getDemoMailConfig, getDemoTokenSecret, getPublicAppUrl, sendDemoConfirmationEmail,
   type DemoMailAppointment,
-} from '../_lib/mail';
+} from '../_lib/mail.js';
 
 const MAX_BODY_BYTES = 16 * 1024;
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;

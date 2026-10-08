@@ -1,5 +1,5 @@
 import nodemailer, { type Transporter } from 'nodemailer';
-import type { DemoVerificationData } from './demo-token';
+import type { DemoVerificationData } from './demo-token.js';
 
 export interface DemoMailConfig {
   from: string;
