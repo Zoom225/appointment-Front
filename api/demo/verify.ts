@@ -1,5 +1,5 @@
-import { verifyDemoVerificationToken } from '../_lib/demo-token';
-import { getDemoTokenSecret } from '../_lib/mail';
+import { verifyDemoVerificationToken } from '../_lib/demo-token.js';
+import { getDemoTokenSecret } from '../_lib/mail.js';
 
 const INVALID_MESSAGE = 'Cette réservation de démonstration est introuvable ou le lien n’est plus valide.';
 
