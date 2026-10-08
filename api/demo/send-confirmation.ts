@@ -19,9 +19,11 @@ interface SendConfirmationPayload extends DemoVerificationData {
   contactEmail: string;
 }
 
-export async function POST(request: Request): Promise<Response> {
-  return handleSendConfirmation(request);
-}
+export default {
+  async fetch(request: Request): Promise<Response> {
+    return handleSendConfirmation(request);
+  },
+};
 
 export async function handleSendConfirmation(request: Request, dependencies: DemoConfirmationDependencies = {}): Promise<Response> {
   if (request.method !== 'POST') return json({ sent: false, message: 'Méthode non autorisée.' }, 405, { allow: 'POST' });
